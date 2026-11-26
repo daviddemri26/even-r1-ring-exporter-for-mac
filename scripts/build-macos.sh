@@ -9,7 +9,7 @@ output=$(cd "$output" && pwd)
 build=$(mktemp -d "${TMPDIR:-/tmp}/r1-bridge-build.XXXXXXXX")
 trap 'rm -rf "$build"' EXIT
 name='R1 Bridge'
-dmg_name='R1-Bridge-0.1.0-alpha.1-macOS-arm64.dmg'
+dmg_name='R1-Bridge-0.1.0-alpha.2-macOS-arm64.dmg'
 app="$build/image/$name.app"
 resources="$app/Contents/Resources"
 source_runtime="$root/macos/runtime"

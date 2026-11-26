@@ -10,17 +10,23 @@
 
 ## Installer l’alpha
 
-1. Ouvrez la [release GitHub](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.1) avec le compte invité au dépôt privé. Téléchargez le **DMG arm64**, puis ouvrez-le.
+1. Ouvrez la [release GitHub](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.2) avec le compte invité au dépôt privé. Téléchargez le **DMG arm64**, puis ouvrez-le.
 2. Glissez **R1 Bridge.app** dans **Applications**. Éjectez le DMG et ouvrez l’app depuis Applications.
 3. Ce build de test est signé localement. La distribution avec Developer ID et notarisation Apple reste une étape avant l’ouverture publique. Si Gatekeeper bloque l’ouverture, vérifiez la provenance et l’empreinte publiée. Vous pouvez également construire l’app depuis les sources. [Aide Apple sur l’ouverture des apps](https://support.apple.com/fr-fr/102445)
+
+Pour mettre à jour depuis l’alpha 1, quittez l’ancienne app, remplacez-la dans Applications puis ouvrez la nouvelle. Cliquez sur **Préparer ce Mac**. Vérifiez l’accès du nouveau collecteur comme indiqué ci-dessous. Si vous aviez déjà activé la collecte automatique, cliquez de nouveau sur **Programmer la collecte** pour installer les nouveaux horaires de vérification.
 
 ## Faire le premier essai
 
 1. Ouvrez Even sur le Mac. Dans **Health**, vérifiez qu’une mesure connue y est visible. Le chemin manuel de référence est **Health → réglages → Export Health data**. [Guide d’export Even](https://support.evenrealities.com/hc/en-us/articles/17995748835599-Export-Your-Health-Data)
-2. Dans **R1 Bridge**, préparez le moteur local puis lancez un essai, avec la session déverrouillée. L’app peut amener Even au premier plan.
-3. Si macOS le demande, accordez **Accessibilité** au collecteur **R1 Bridge Collector**. Cette permission lui permet d’utiliser les commandes de l’interface Even. Si macOS demande l’accès aux données d’une autre app, autorisez le collecteur à lire le ZIP qu’Even vient de créer dans son cache. Le chemin de collecte utilise ces accès, sans exiger Calendrier ni accès complet au disque.
+2. Dans **R1 Bridge**, préparez le moteur local. La session doit être déverrouillée pendant l’essai. Le collecteur lance Even en arrière-plan si nécessaire. Even peut afficher brièvement une fenêtre pendant l’export.
+3. Dans **Réglages Système → Confidentialité et sécurité → Accessibilité**, autorisez **R1 Bridge Collector**. Le collecteur vérifie cet accès silencieusement. Si le test signale un refus après une mise à jour alors que l’interrupteur est bleu, retirez l’ancienne entrée puis ajoutez la nouvelle app avec **+**, puis **⌘⇧G** et le chemin `~/Library/Application Support/R1 Bridge/Export.workflow/Contents/Resources/R1 Bridge Collector.app`. Si macOS demande l’accès aux données d’une autre app pendant le premier essai, cette permission permet de lire le ZIP qu’Even vient de créer dans son cache.
 4. Relancez l’essai après toute demande de permission. Vérifiez dans l’état local la dernière tentative et la dernière date de réveil enregistrée. Un export réussi peut contenir exactement les mêmes nuits que le précédent.
-5. Activez la planification pour les collectes suivantes. Vous pouvez l’arrêter depuis l’app. L’heure de collecte indique quand le Mac a lu Even. La date de réveil provient des sessions de l’export.
+5. Cliquez sur **Programmer la collecte**. À partir de 8 h 15, 12 h 15 et 18 h 15, R1 Bridge vérifie toutes les dix minutes pendant une heure si le Mac est disponible. L’export démarre après deux minutes sans activité du clavier ou de la souris, dans une session déverrouillée. Si vous utilisez le Mac pendant toute l’heure, la collecte attend le créneau suivant. **Tester un export** permet de la lancer vous-même. L’heure de collecte indique quand le Mac a lu Even. La date de réveil provient des sessions de l’export.
+
+## Si une fenêtre demande où enregistrer un ZIP
+
+Even peut proposer d’enregistrer le fichier `Even_health_data_…zip` dans Documents pendant l’export. R1 Bridge récupère sa propre copie dans le cache d’Even. Si cette fenêtre reste ouverte, choisissez **Annuler** dans la fenêtre portant ce nom de fichier. L’état de la collecte dans R1 Bridge permet de vérifier si le ZIP a été reçu. Les demandes d’autorisation de macOS se traitent séparément lors du premier essai.
 
 ## Si une nuit manque
 

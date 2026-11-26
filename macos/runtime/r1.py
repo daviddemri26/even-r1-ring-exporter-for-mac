@@ -21,6 +21,92 @@ DOMAIN = "gui/%d" % os.getuid()
 SERVICE = DOMAIN + "/" + LABEL
 PLIST = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
 HOURS = (8, 12, 18)
+IDLE_SECONDS = 120
+CHECK_MINUTES = tuple(range(0, 61, 10))
+
+
+def schedule_times(day):
+    for hour in HOURS:
+        slot = day.replace(hour=hour, minute=15, second=0, microsecond=0)
+        for minutes in CHECK_MINUTES:
+            yield slot, slot + timedelta(minutes=minutes)
+
+
+def current_slot(current):
+    # Local wall-clock dates also identify slots across a restart or a clock change.
+    for hour in HOURS:
+        slot = current.replace(hour=hour, minute=15, second=0, microsecond=0)
+        if slot <= current < slot + timedelta(minutes=CHECK_MINUTES[-1] + 1):
+            return slot
+    return None
+
+
+def quiet_reason():
+    try:
+        collecte.check_session()
+        raw = subprocess.check_output(["/usr/sbin/ioreg", "-a", "-r", "-c", "IOHIDSystem", "-d", "1"],
+                                      stderr=subprocess.DEVNULL, timeout=5)
+        values = [item.get("HIDIdleTime") for item in plistlib.loads(raw)]
+        if not values or any(type(v) is not int or v < 0 for v in values):
+            return "activité du Mac indéterminée"
+        if min(values) < IDLE_SECONDS * 1_000_000_000:
+            return "Mac utilisé au cours des deux dernières minutes"
+    except collecte.CollectError as error:
+        return str(error)
+    except (subprocess.SubprocessError, OSError, ValueError, AttributeError, TypeError, plistlib.InvalidFileException):
+        return "activité du Mac indéterminée"
+    return None
+
+
+def schedule_db(base):
+    db = collecte.connect(base)
+    db.execute("""CREATE TABLE IF NOT EXISTS controles_planifies (
+        creneau TEXT PRIMARY KEY, controle TEXT NOT NULL, etat TEXT NOT NULL, detail TEXT NOT NULL
+    )""")
+    return db
+
+
+def previous_export_in_slot(db, slot):
+    # Upgrades can occur after an export run by the previous calendar schedule.
+    row = db.execute("""SELECT debut FROM essais WHERE mode='launchd' AND etat <> 'occupé'
+                        ORDER BY id DESC LIMIT 1""").fetchone()
+    if not row:
+        return False
+    previous = datetime.fromisoformat(row[0]).astimezone().replace(tzinfo=None)
+    return current_slot(previous) == slot
+
+
+def scheduled_run(base, current=None):
+    current = current or datetime.now()
+    slot = current_slot(current)
+    if slot is None:
+        return 0, "Hors créneau de collecte discrète."
+    key = slot.isoformat(timespec="minutes")
+    collecte.setup(base)
+    with closing(schedule_db(base)) as db:
+        with db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT etat FROM controles_planifies WHERE creneau=?", (key,)).fetchone()
+            if row and row[0] != "différé":
+                return 0, "Le créneau a déjà été pris en compte."
+            if not row and previous_export_in_slot(db, slot):
+                state, detail = "traité", "Un export avait déjà été tenté pendant ce créneau."
+            else:
+                reason = quiet_reason()
+                state, detail = (("différé", "Export différé. " + reason)
+                                 if reason else ("réservé", "Lancement de la collecte discrète."))
+            db.execute("INSERT OR REPLACE INTO controles_planifies VALUES (?, ?, ?, ?)",
+                       (key, datetime.now().astimezone().isoformat(), state, detail))
+        # Reserve the slot durably before opening Even. A crash cannot trigger a
+        # second export from the same slot. Deferred checks never touch freshness.
+        if state != "réservé":
+            return 0, detail
+        code, detail = collecte.run(base, "launchd")
+        state = "différé" if code == 75 else ("terminé" if code == 0 else "échec")
+        with db:
+            db.execute("UPDATE controles_planifies SET controle=?, etat=?, detail=? WHERE creneau=?",
+                       (datetime.now().astimezone().isoformat(), state, detail, key))
+        return code, detail
 
 
 def atomic_file(target, content):
@@ -103,7 +189,8 @@ def planifier():
         "ProcessType": "Interactive",
         "LimitLoadToSessionType": "Aqua",
         "Umask": 0o077,
-        "StartCalendarInterval": [{"Hour": hour, "Minute": 15} for hour in HOURS],
+        "StartCalendarInterval": [{"Hour": check.hour, "Minute": check.minute}
+                                  for _, check in schedule_times(datetime.now())],
     })
     same = PLIST.exists() and PLIST.read_bytes() == spec
     if not same:
@@ -113,7 +200,7 @@ def planifier():
     if not loaded():
         if ctl("enable", SERVICE) or ctl("bootstrap", DOMAIN, str(PLIST)) or not loaded():
             raise collecte.CollectError("Le LaunchAgent n’a pas été chargé dans la session GUI.")
-    print("Collecte planifiée à 08 h 15, 12 h 15 et 18 h 15, heure locale.")
+    print("Collecte discrète à partir de 08 h 15, 12 h 15 et 18 h 15. Contrôle toutes les dix minutes pendant une heure.")
 
 
 def arreter():
@@ -123,46 +210,59 @@ def arreter():
     print("Collecte planifiée arrêtée. Les archives restent disponibles.")
 
 
-def last_scheduled(db):
-    return db.execute("SELECT * FROM essais WHERE mode='launchd' ORDER BY id DESC LIMIT 1").fetchone()
-
-
 def essai_planifie():
     if not loaded():
         raise collecte.CollectError("Le LaunchAgent doit être chargé pour cet essai.")
-    with closing(collecte.connect(BASE)) as db:
-        previous = last_scheduled(db)
-        last_id = previous["id"] if previous else 0
-        # Si launchd a déjà lancé le travail, observer son résultat sans le tuer.
-        running_id = previous["id"] if previous and previous["etat"] == "en cours" else None
+    slot = current_slot(datetime.now())
+    if slot is None:
+        print("Hors créneau. Utilisez « essai » pour demander un export manuel immédiat.")
+        return 0
+    key = slot.isoformat(timespec="minutes")
+    with closing(schedule_db(BASE)) as db:
+        def record():
+            return db.execute("SELECT controle, etat, detail FROM controles_planifies WHERE creneau=?",
+                              (key,)).fetchone()
+        prior = record()
+        if prior and prior["etat"] != "différé":
+            print(prior["detail"])
+            return 0 if prior["etat"] != "échec" else 1
         if ctl("kickstart", SERVICE):
             raise collecte.CollectError("launchctl n’a pas pu démarrer l’essai.")
         deadline = time.monotonic() + collecte.TIMEOUT + 45
         while time.monotonic() < deadline:
-            latest = last_scheduled(db)
-            if latest and (latest["id"] > last_id or latest["id"] == running_id):
-                if latest["etat"] != "en cours":
-                    print("Essai launchd.", latest["detail"])
-                    return 0 if latest["etat"] == "réussi" else 1
+            latest = record()
+            if latest and latest != prior and latest["etat"] != "réservé":
+                print("Essai launchd.", latest["detail"])
+                return 0 if latest["etat"] != "échec" else 1
+            if current_slot(datetime.now()) != slot:
+                print("La fenêtre de collecte est terminée.")
+                return 0
             time.sleep(0.5)
     raise collecte.CollectError("Aucun résultat du LaunchAgent dans le délai prévu.")
 
 
-def next_attempt():
-    current = datetime.now()
+def next_attempt(current=None, consumed=None):
+    current = current or datetime.now()
     for days in (0, 1):
-        for hour in HOURS:
-            next_run = (current + timedelta(days=days)).replace(
-                hour=hour, minute=15, second=0, microsecond=0)
-            if next_run > current:
-                return next_run.astimezone().strftime("%Y-%m-%d %H:%M %Z")
+        for slot, check in schedule_times(current + timedelta(days=days)):
+            if slot.isoformat(timespec="minutes") != consumed and check > current:
+                return check.astimezone().strftime("%Y-%m-%d %H:%M %Z")
 
 
 def etat():
+    latest_control = None
+    if (BASE / collecte.DATABASE).is_file():
+        with closing(schedule_db(BASE)) as db:
+            latest_control = db.execute("""SELECT * FROM controles_planifies
+                                          ORDER BY controle DESC LIMIT 1""").fetchone()
     if loaded():
-        print("Prochaine tentative programmée", next_attempt())
+        consumed = latest_control["creneau"] if latest_control and latest_control["etat"] != "différé" else None
+        print("Prochain contrôle programmé", next_attempt(consumed=consumed))
     else:
         print("Planification inactive.")
+    if latest_control:
+        print("Dernier contrôle de planification", latest_control["controle"], latest_control["etat"])
+        print(latest_control["detail"])
     snapshot = BASE / "releves_even.json"
     if snapshot.is_file():
         try:
@@ -207,7 +307,7 @@ def main():
     parser.add_argument("action", choices=choices)
     action = parser.parse_args().action
     if action in ("essai", "_launchd"):
-        code, msg = collecte.run(BASE, "launchd" if action == "_launchd" else "manuel")
+        code, msg = scheduled_run(BASE) if action == "_launchd" else collecte.run(BASE, "manuel")
         print(msg)
         return code
     dispatch = {"preparer": preparer, "planifier": planifier,

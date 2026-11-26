@@ -65,7 +65,6 @@ base="$HOME/Library/Application Support/R1 Bridge"
 helper="$base/Export.workflow/Contents/Resources/R1 Bridge Collector.app"
 run_dir=$(/usr/bin/mktemp -d "$base/.export-run.XXXXXXXX")
 trap '/bin/rm -f "$run_dir/status" "$run_dir/manifest"; /bin/rmdir "$run_dir" 2&gt;/dev/null || true' EXIT
-/usr/bin/open -b com.even.sg
 /usr/bin/open -n -g -W -a "$helper" --args "$run_dir"
 if [[ ! -f "$run_dir/status" ]]; then
     print -u2 -- 'Even R1: helper did not complete'

@@ -199,7 +199,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         setup = button("Préparer ce Mac", #selector(prepareMac))
         test = button("Tester un export", #selector(tryExport))
         collectPage.addArrangedSubview(row([setup, test]))
-        wrapped(label("La collecte programmée ouvre brièvement Even à " + collectTimes + " La session graphique doit être ouverte et déverrouillée.", size: 13, secondary: true), in: collectPage)
+        wrapped(label("Créneaux de collecte à " + collectTimes + " L’export programmé attend deux minutes d’inactivité dans une session déverrouillée.", size: 13, secondary: true), in: collectPage)
         schedule = button("Programmer la collecte", #selector(startSchedule))
         stop = button("Arrêter la planification", #selector(stopSchedule))
         collectPage.addArrangedSubview(row([schedule, stop]))

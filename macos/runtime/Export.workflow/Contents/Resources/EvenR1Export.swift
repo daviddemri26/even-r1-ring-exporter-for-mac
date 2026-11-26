@@ -76,8 +76,7 @@ func waitFor<T>(_ seconds: TimeInterval, _ check: () -> T?) -> T? {
 }
 
 func accessibleEven() throws -> AXUIElement {
-    let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-    guard AXIsProcessTrustedWithOptions(options) else { throw ExportError.accessibility }
+    guard AXIsProcessTrusted() else { throw ExportError.accessibility }
     var running = NSRunningApplication.runningApplications(withBundleIdentifier: evenIdentifier).first
     if running == nil {
         let space = NSWorkspace.shared
@@ -85,14 +84,13 @@ func accessibleEven() throws -> AXUIElement {
             throw ExportError.unavailable
         }
         let config = NSWorkspace.OpenConfiguration()
-        config.activates = true
+        config.activates = false
         space.openApplication(at: url, configuration: config) { _, _ in }
         running = waitFor(18) { NSRunningApplication.runningApplications(withBundleIdentifier: evenIdentifier).first }
     }
     guard let running = running else { throw ExportError.unavailable }
-    running.activate(options: [])
     let app = AXUIElementCreateApplication(running.processIdentifier)
-    AXUIElementSetMessagingTimeout(app, 1.5)
+    AXUIElementSetMessagingTimeout(app, 2)
     guard waitFor(18, { windows(app).isEmpty ? nil : true }) != nil else { throw ExportError.unavailable }
     return app
 }
@@ -103,15 +101,55 @@ func press(_ element: AXUIElement) throws {
     }
 }
 
-func sendEscape(to element: AXUIElement) -> Bool {
-    var pid: pid_t = 0
-    guard AXUIElementGetPid(element, &pid) == .success,
-          NSRunningApplication(processIdentifier: pid)?.bundleIdentifier == evenIdentifier,
-          let down = CGEvent(keyboardEventSource: nil, virtualKey: 53, keyDown: true),
-          let up = CGEvent(keyboardEventSource: nil, virtualKey: 53, keyDown: false) else { return false }
-    down.postToPid(pid)
-    up.postToPid(pid)
-    return true
+func isModal(_ node: AXUIElement) -> Bool {
+    let role: String = attribute(node, kAXRoleAttribute) ?? ""
+    let subrole: String = attribute(node, kAXSubroleAttribute) ?? ""
+    return [kAXSheetRole, "AXPopover", "AXDialog", "AXSystemDialog"].contains(role)
+        || ["AXDialog", "AXSystemDialog"].contains(subrole) || attribute(node, kAXModalAttribute) == true
+}
+
+func archiveName(_ text: String) -> Bool {
+    text.range(of: #"^Even_health_data_[0-9]{8}(?:\.zip)?$"#, options: .regularExpression) != nil
+}
+
+// Chaque cible provient des fenêtres qu’Even héberge. Les noeuds AX du service
+// distant peuvent avoir un PID distinct de celui de la fenêtre hôte.
+// Les contrôles d’une feuille imbriquée ne sont jamais associés à sa fenêtre parente.
+func isExportSaveDialog(archive: Bool, save: Bool, cancelCount: Int) -> Bool {
+    archive && save && cancelCount == 1
+}
+
+func saveCancel(in panel: AXUIElement) -> AXUIElement? {
+    var pending: [AXUIElement] = attribute(panel, kAXChildrenAttribute) ?? []
+    var seen = Set<AXUIElement>()
+    var foundArchive = false, foundSave = false
+    var cancels = [AXUIElement]()
+    while let node = pending.popLast(), seen.count < 600 {
+        guard seen.insert(node).inserted, !isModal(node) else { continue }
+        let role: String = attribute(node, kAXRoleAttribute) ?? ""
+        if role == kAXTextFieldRole || role == kAXComboBoxRole {
+            if let value: String = attribute(node, kAXValueAttribute), archiveName(value) {
+                foundArchive = true
+            }
+        } else if role == kAXButtonRole {
+            let labels = [kAXTitleAttribute, kAXDescriptionAttribute].compactMap { attribute(node, $0) as String? }
+            if labels.contains(where: { ["Save", "Enregistrer"].contains($0) }) { foundSave = true }
+            if labels.contains(where: { ["Cancel", "Annuler"].contains($0) }) { cancels.append(node) }
+        }
+        pending.append(contentsOf: attribute(node, kAXChildrenAttribute) ?? [])
+    }
+    return isExportSaveDialog(archive: foundArchive, save: foundSave, cancelCount: cancels.count) ? cancels[0] : nil
+}
+
+func exportCancel(in app: AXUIElement) -> AXUIElement? {
+    var button: AXUIElement?
+    _ = first(windows(app)) { node in
+        let role: String? = attribute(node, kAXRoleAttribute)
+        guard role == kAXWindowRole || isModal(node) else { return false }
+        button = saveCancel(in: node)
+        return button != nil
+    }
+    return button
 }
 
 func sharingPanel(in app: AXUIElement) -> AXUIElement? {
@@ -133,15 +171,42 @@ func sharingPanel(in app: AXUIElement) -> AXUIElement? {
     }
 }
 
-func closeSharing(_ app: AXUIElement, panel: AXUIElement) throws {
-    _ = AXUIElementPerformAction(panel, kAXCancelAction as CFString)
-    if waitFor(1, { sharingPanel(in: app) == nil ? true : nil }) != nil { return }
-    guard let current = sharingPanel(in: app), CFEqual(current, panel),
-          sendEscape(to: current) else {
-        throw ExportError.sharing
-    }
-    guard waitFor(3, { sharingPanel(in: app) == nil ? true : nil }) != nil else {
-        throw ExportError.sharing
+// NSSavePanel et le popover de partage peuvent se succéder. Les actions AX
+// ciblent un contrôle déjà identifié, sans événement clavier ni clic global.
+func closeExportPanels(_ app: AXUIElement, observeFor seconds: TimeInterval) throws {
+    let started = ProcessInfo.processInfo.systemUptime
+    var quietUntil = started + seconds
+    var acted: AXUIElement?
+    var actedAt = started
+    repeat {
+        guard !windows(app).isEmpty else { throw ExportError.sharing }
+        let cancel = exportCancel(in: app)
+        if let target = cancel ?? sharingPanel(in: app) {
+            let now = ProcessInfo.processInfo.systemUptime
+            if acted != target {
+                let action = cancel != nil ? kAXPressAction : kAXCancelAction
+                guard AXUIElementPerformAction(target, action as CFString) == .success else {
+                    throw ExportError.sharing
+                }
+                acted = target
+                actedAt = now
+            } else if now - actedAt >= 3 {
+                throw ExportError.sharing
+            }
+            quietUntil = max(quietUntil, now + 1)
+        } else {
+            acted = nil
+        }
+        if ProcessInfo.processInfo.systemUptime >= quietUntil { return }
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.25))
+    } while ProcessInfo.processInfo.systemUptime - started < seconds + 8
+    throw ExportError.sharing
+}
+
+func requireClear(_ app: AXUIElement) throws {
+    let roots = windows(app)
+    guard roots.count == 1, exportCancel(in: app) == nil, first(roots, where: isModal) == nil else {
+        throw ExportError.navigation
     }
 }
 
@@ -166,23 +231,15 @@ func backButton(in roots: [AXUIElement]) -> AXUIElement? {
 }
 
 func leaveDetail(_ app: AXUIElement, back: AXUIElement) throws {
-    _ = AXUIElementPerformAction(back, kAXPressAction as CFString)
-    if waitFor(2, { backButton(in: windows(app)) == nil ? true : nil }) != nil { return }
-    let roots = windows(app)
-    let modal = first(roots) { node in
-        let role: String? = attribute(node, kAXRoleAttribute)
-        return role == kAXSheetRole || role == "AXPopover" || role == "AXDialog"
-            || role == "AXSystemDialog" || attribute(node, kAXModalAttribute) == true
-    }
-    guard modal == nil, let same = backButton(in: roots), CFEqual(same, back),
-          sendEscape(to: same),
-          waitFor(5, { backButton(in: windows(app)) == nil ? true : nil }) != nil else {
+    try requireClear(app)
+    try press(back)
+    guard waitFor(5, { backButton(in: windows(app)) == nil ? true : nil }) != nil else {
         throw ExportError.navigation
     }
 }
 
 func exportButton(in app: AXUIElement) throws -> AXUIElement {
-    if let old = sharingPanel(in: app) { try closeSharing(app, panel: old) }
+    try requireClear(app)
     // Les identifiants Flutter servent de liste blanche. Aucun chemin Bluetooth ou Calendrier.
     let exportID = "health.settings.export"
     let settingsID = "nav_bar.health.button.settings"
@@ -195,11 +252,13 @@ func exportButton(in app: AXUIElement) throws -> AXUIElement {
     // Flutter peut exposer la roue dentée des onglets en arrière-plan.
     // Activer d'abord Santé lorsque la navigation principale est disponible.
     if let health = namedID("main.nav.health", in: current) {
+        try requireClear(app)
         try press(health)
     }
     guard let settings = waitFor(12, { namedID(settingsID, in: windows(app)) }) else {
         throw ExportError.navigation
     }
+    try requireClear(app)
     try press(settings)
     guard let export = waitFor(12, { namedID(exportID, in: windows(app)) }) else {
         throw ExportError.navigation
@@ -217,6 +276,14 @@ func importArchive(_ step: String, manifest: URL) throws {
     python.standardError = FileHandle.nullDevice
     python.currentDirectoryURL = support
     do { try python.run() } catch { throw ExportError.importFailed }
+    let timeout: TimeInterval = step == "recuperer" ? 120 : 48
+    if waitFor(timeout, { python.isRunning ? nil : true }) == nil {
+        python.terminate()
+        if waitFor(2, { python.isRunning ? nil : true }) == nil {
+            kill(python.processIdentifier, SIGKILL)
+        }
+        throw ExportError.timeout
+    }
     python.waitUntilExit()
     switch python.terminationStatus {
     case 0: return
@@ -228,26 +295,41 @@ func importArchive(_ step: String, manifest: URL) throws {
 
 func exportArchive(in runDir: URL) throws {
     let app = try accessibleEven()
-    let export = try exportButton(in: app)
+    // Un panneau qui précède cet essai peut appartenir à un export manuel.
+    try requireClear(app)
     let manifest = runDir.appendingPathComponent("manifest")
     try importArchive("avant", manifest: manifest)
-    try press(export)
+    let export = try exportButton(in: app)
+    try requireClear(app)
     do {
+        try press(export)
         try importArchive("recuperer", manifest: manifest)
     } catch {
-        if let panel = sharingPanel(in: app) { try? closeSharing(app, panel: panel) }
+        try closeExportPanels(app, observeFor: 3)
         throw error
     }
-    if let panel = waitFor(3, { sharingPanel(in: app) }) {
-        try closeSharing(app, panel: panel)
+    // Le ZIP est déjà copié avant la fermeture du sélecteur macOS.
+    try closeExportPanels(app, observeFor: 4)
+    if (try? requireClear(app)) != nil {
+        try? importArchive("cartes", manifest: manifest)
     }
+    try closeExportPanels(app, observeFor: 1)
 }
 
 umask(0o077)
-guard CommandLine.arguments.count == 2 else { exit(64) }
-let arg = CommandLine.arguments[1]
-if arg == "--self-test" { exit(0) }
-let runDir = URL(fileURLWithPath: arg, isDirectory: true).standardizedFileURL
+let arguments = Array(CommandLine.arguments.dropFirst())
+if arguments == ["--self-test"] {
+    let valid = ["Even_health_data_20991231", "Even_health_data_20991231.zip"]
+    let invalid = ["budget.zip", "Even_health_data_123.zip", "Even_health_data_20991231.txt", "xEven_health_data_20991231.zip", "Even_health_data_20991231.zip.old"]
+    let signature = isExportSaveDialog(archive: true, save: true, cancelCount: 1)
+        && !isExportSaveDialog(archive: false, save: true, cancelCount: 1)
+        && !isExportSaveDialog(archive: true, save: false, cancelCount: 1)
+        && !isExportSaveDialog(archive: true, save: true, cancelCount: 2)
+    exit(signature && valid.allSatisfy(archiveName) && !invalid.contains(where: archiveName) ? 0 : 1)
+}
+let checkAccess = arguments.count == 2 && arguments[0] == "--check-access"
+guard arguments.count == 1 || checkAccess, let path = arguments.last else { exit(64) }
+let runDir = URL(fileURLWithPath: path, isDirectory: true).standardizedFileURL
 guard runDir.deletingLastPathComponent().path == support.standardizedFileURL.path,
       runDir.lastPathComponent.hasPrefix(".export-run."),
       let props = try? runDir.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey]),
@@ -255,7 +337,11 @@ guard runDir.deletingLastPathComponent().path == support.standardizedFileURL.pat
 
 let status: String
 do {
-    try exportArchive(in: runDir)
+    if checkAccess {
+        guard AXIsProcessTrusted() else { throw ExportError.accessibility }
+    } else {
+        try exportArchive(in: runDir)
+    }
     status = "OK"
 } catch {
     status = (error as? ExportError)?.rawValue ?? ExportError.importFailed.rawValue

@@ -147,40 +147,18 @@ struct Even {
         return result
     }
 
-    func sharePanel() -> AXUIElement? {
-        var result: AXUIElement?
-        walk(windows, pid: pid) { node in
-            guard (attr(node, kAXRoleAttribute) as String?) == "AXPopover" else { return true }
-            var labels = Set<String>()
-            walk([node], pid: pid) { child in
-                if (attr(child, kAXRoleAttribute) as String?) == kAXButtonRole {
-                    labels.formUnion(texts(child).map(folded))
-                }
-                return true
-            }
-            guard !labels.isDisjoint(with: ["save", "enregistrer"]),
-                  !labels.isDisjoint(with: ["copy", "copier"]) else { return true }
-            result = node
-            return false
+    func hasModal() -> Bool {
+        let roots = windows
+        guard roots.count == 1 else { return true }
+        var blocked = false
+        walk(roots, pid: pid) { node in
+            let role: String = attr(node, kAXRoleAttribute) ?? ""
+            let subrole: String = attr(node, kAXSubroleAttribute) ?? ""
+            blocked = [kAXSheetRole, "AXPopover", "AXDialog", "AXSystemDialog"].contains(role)
+                || ["AXDialog", "AXSystemDialog"].contains(subrole) || attr(node, kAXModalAttribute) == true
+            return !blocked
         }
-        return result
-    }
-
-    func closeShare() throws {
-        guard let panel = sharePanel() else { return }
-        _ = AXUIElementPerformAction(panel, kAXCancelAction as CFString)
-        if wait(0.8, { sharePanel() == nil }) { return }
-        guard let same = sharePanel(), CFEqual(panel, same) else { throw CardError.navigation }
-        try escapeEven()
-        guard wait(3, { sharePanel() == nil }) else { throw CardError.navigation }
-    }
-
-    func escapeEven() throws {
-        guard NSRunningApplication(processIdentifier: pid)?.bundleIdentifier == bundleID,
-              let esc = CGEvent(keyboardEventSource: nil, virtualKey: 53, keyDown: true),
-              let up = CGEvent(keyboardEventSource: nil, virtualKey: 53, keyDown: false) else { throw CardError.navigation }
-        esc.postToPid(pid)
-        up.postToPid(pid)
+        return blocked
     }
 
     func readCards() -> [String: Reading] {
@@ -210,42 +188,9 @@ struct Even {
         return result
     }
 
-    func clickGearIfTargeted(_ id: String) {
-        guard NSRunningApplication(processIdentifier: pid)?.bundleIdentifier == bundleID,
-              sharePanel() == nil, let gear = element(id),
-              let position: AXValue = attr(gear, kAXPositionAttribute),
-              let size: AXValue = attr(gear, kAXSizeAttribute) else { return }
-        var origin = CGPoint.zero
-        var extent = CGSize.zero
-        guard AXValueGetValue(position, .cgPoint, &origin), AXValueGetValue(size, .cgSize, &extent),
-              extent.width > 0, extent.height > 0 else { return }
-        let center = CGPoint(x: origin.x + extent.width / 2, y: origin.y + extent.height / 2)
-        guard center.x.isFinite, center.y.isFinite else { return }
-        var hit: AXUIElement?
-        guard AXUIElementCopyElementAtPosition(app, Float(center.x), Float(center.y), &hit) == .success else { return }
-        // Vérifier l’élément sous le point juste avant l’envoi, y compris un enfant du bouton.
-        var node = hit
-        for _ in 0..<12 {
-            guard let current = node else { return }
-            var owner: pid_t = 0
-            guard AXUIElementGetPid(current, &owner) == .success && owner == pid else { return }
-            if CFEqual(current, gear) && (attr(current, kAXIdentifierAttribute) as String?) == id {
-                guard let down = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown,
-                                         mouseCursorPosition: center, mouseButton: .left),
-                      let up = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp,
-                                       mouseCursorPosition: center, mouseButton: .left) else { return }
-                down.postToPid(pid)
-                up.postToPid(pid)
-                return
-            }
-            node = attr(current, kAXParentAttribute)
-        }
-    }
-
     func capture(at file: URL) throws -> Int {
-        // Le ZIP peut être prêt avant l’apparition de la feuille de partage.
-        _ = wait(5, { sharePanel() != nil })
-        try closeShare()
+        // Le collecteur a déjà fermé ses propres panneaux après la copie du ZIP.
+        guard !hasModal() else { throw CardError.navigation }
         let settings = "nav_bar.health.button.settings"
         let exportID = "health.settings.export"
         let backID = "health.settings.back"
@@ -253,14 +198,8 @@ struct Even {
             element(settings) != nil && element("health.module.steps.title") != nil && element(exportID) == nil
         }
         if !onOverview() {
-            guard element(exportID) != nil, let back = element(backID), sharePanel() == nil else { throw CardError.navigation }
+            guard element(exportID) != nil, let back = element(backID), !hasModal() else { throw CardError.navigation }
             _ = AXUIElementPerformAction(back, kAXPressAction as CFString)
-            if !wait(2, onOverview) {
-                // Échap seulement si les DEUX contrôles des réglages sont encore visibles
-                // et qu’aucune feuille de partage ne s’est ouverte entre-temps.
-                guard element(exportID) != nil, element(backID) != nil, sharePanel() == nil else { throw CardError.navigation }
-                try escapeEven()
-            }
         }
         guard wait(6, onOverview) else { throw CardError.navigation }
         var found = [String: Reading]()
@@ -270,16 +209,14 @@ struct Even {
         })
         return try finishCapture(found, at: file) {
             func onSettings() -> Bool {
-                element(exportID) != nil && element(backID) != nil && sharePanel() == nil
+                element(exportID) != nil && element(backID) != nil && !hasModal()
             }
             if onSettings() { return }
-            guard let gear = element(settings), onOverview(), sharePanel() == nil else { throw CardError.navigation }
+            guard let gear = element(settings), onOverview(), !hasModal() else { throw CardError.navigation }
             _ = AXUIElementPerformAction(gear, kAXPressAction as CFString)
             if wait(2, onSettings) { return }
-            if onOverview() { clickGearIfTargeted(settings) }
-            if wait(3, onSettings) { return }
             // L’export suivant sait également partir de l’accueil Santé reconnu.
-            guard onOverview(), sharePanel() == nil else { throw CardError.navigation }
+            guard onOverview(), !hasModal() else { throw CardError.navigation }
         }
     }
 }

@@ -105,6 +105,9 @@ def capture_cards():
 
 def run(mode, manifest):
     os.umask(0o077)
+    if mode == "cartes":
+        capture_cards()
+        return 0
     if mode == "avant":
         with manifest.open("x", encoding="utf-8") as out:
             json.dump(exports(), out)
@@ -117,7 +120,6 @@ def run(mode, manifest):
         current = exports()
         for name, signature in sorted(current.items(), key=lambda entry: entry[1][2], reverse=True):
             if before.get(name) != signature and signature[1] and finished_copy(name, signature):
-                capture_cards()
                 return 0
         time.sleep(0.6)
     return 75

@@ -2,7 +2,7 @@
 
 R1 Bridge est une application Mac indépendante pour les personnes qui portent une bague Even R1 et veulent retrouver leurs mesures dans ChatGPT. Le Mac déclenche l’export officiel d’Even, conserve les archives et répond aux questions via un connecteur privé en lecture seule.
 
-**Alpha privée pour Mac Apple Silicon.** [Télécharger la version Mac](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.1) · [Installer et faire un premier essai](docs/installation.md) · [Connecter son propre ChatGPT](docs/chatgpt.md).
+**Alpha privée pour Mac Apple Silicon.** [Télécharger la version Mac](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.2) · [Installer et faire un premier essai](docs/installation.md) · [Connecter son propre ChatGPT](docs/chatgpt.md).
 
 ## Ce que vous pouvez demander
 
@@ -14,7 +14,7 @@ R1 Bridge est une application Mac indépendante pour les personnes qui portent u
 
 1. La R1 et les G2 restent appairées à l’iPhone. Even synchronise les données entre appareils du même compte lorsque la sauvegarde cloud est activée.
 2. R1 Bridge utilise le bouton d’export d’Even sur le Mac. Le collecteur enregistre le ZIP, vérifie son contenu et dédoublonne les exports répétés.
-3. Si vous activez la planification, macOS retente la collecte à **8 h 15, 12 h 15 et 18 h 15**, en heure locale. L’app Even doit pouvoir s’ouvrir dans une session graphique déverrouillée.
+3. Si vous activez la planification, R1 Bridge cherche un moment de pause à partir de **8 h 15, 12 h 15 et 18 h 15**, en heure locale. Il reporte l’export si vous utilisez le Mac ou si la session est verrouillée. Vous pouvez aussi choisir **Tester un export** quand vous voulez lancer la collecte vous-même.
 4. Pour ChatGPT web, votre Mac se connecte au tunnel de votre propre compte OpenAI. Les questions interrogent l’archive locale disponible. Le tunnel doit être connecté au moment de la question.
 
 Le prototype personnel a effectué une collecte programmée et répondu dans ChatGPT web pour le sommeil et les six cartes. La distribution alpha permet de reproduire ce parcours sur un autre Mac. La compatibilité chez un deuxième utilisateur et la remontée de deux nuits consécutives restent à valider. Le support Apple Santé nécessiterait un parcours iPhone avec HealthKit.
