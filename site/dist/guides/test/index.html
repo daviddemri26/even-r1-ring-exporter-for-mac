@@ -5,38 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f9faf6">
   <meta name="description" content="Check an export on a second Mac and compare it with Even on your phone.">
-  <title>Test Even R1 Ring Exporter for Mac on another Mac · Even R1 Ring Exporter for Mac</title>
+  <title>Test the public alpha on a second Mac · Even R1 Ring Exporter for Mac</title>
   <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=2">
+  <link rel="stylesheet" href="../../guides.css?v=3">
+  <script defer src="../../guide-prompts.js"></script>
 </head>
 <body class="docs-page">
   <a class="skip" href="#content">Skip to content</a>
   <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
   <main id="content" class="wrap docs-shell">
 <nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Test the public alpha</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Test Even R1 Ring Exporter for Mac on another Mac</h1></header>
+<header class="docs-hero"><h1 id="page-title">Test the public alpha on a second Mac</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
 <div class="docs-layout">
-<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#what-still-needs-testing">What still needs testing</a></li></ol></nav>
+<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#check-the-first-export">Check the first export</a></li><li class="docs-toc-level-2"><a href="#check-automatic-collection-over-two-nights">Check automatic collection over two nights</a></li><li class="docs-toc-level-2"><a href="#test-a-private-chatgpt-query-and-record-the-result">Test a private ChatGPT query and record the result</a></li></ol></details></nav>
 <article class="docs-article" aria-labelledby="page-title">
-<p>This test checks whether someone with an R1 ring can follow the guides on their own Mac and get the same readings in their ChatGPT account as they see in Even.</p>
-<ol>
-<li><strong>Record the setup.</strong> Note the Mac model, macOS version, Even version and interface language. Find a recorded night on the iPhone and compare its wake-up date and duration with Even on the Mac.</li>
-<li><strong>Install from scratch.</strong> Download the DMG and follow the <a href="../../guides/install/">Mac installation guide</a>. Note any step where you needed help, including Apple’s Command Line Tools or Accessibility permissions.</li>
-<li><strong>Run two exports.</strong> Test an export, then repeat it while the source data is unchanged. Check that the overnight duration stays the same. A new user with no recorded nights should also be able to start collection and understand its status.</li>
-<li><strong>Check scheduled collection.</strong> Use the Mac during a scheduled check, then leave it idle and unlocked during that collection window. Check the recorded status and whether the ZIP dialog closes. Wear the ring on two consecutive nights and compare each new wake-up date with the iPhone.</li>
-<li><strong>Ask ChatGPT.</strong> Connect the tester’s own workspace through their own tunnel. Start a fresh chat, select <strong>Even R1 Ring Data for ChatGPT</strong> and ask about the last seven wake-up dates. Ask for one card’s value and its age. Compare the answers with Even without attaching any files.</li>
-<li><strong>Stop the services.</strong> Stop the schedule and the tunnel independently and check their status on the Mac. <a href="../../guides/privacy/">Data access and removal</a></li>
-</ol>
-<p>A useful report gives the step, expected behavior, observed behavior and versions tested. For personal readings, report “matches,” “missing” or “different.” Keep exact health values, exports and API keys private.</p>
-<h2 id="what-still-needs-testing">What still needs testing</h2>
+<p>This guide is for volunteers testing their own ring and Mac. For everyday use, start with the <a href="../../guides/install/">Mac installation guide</a>.</p>
+<h2 id="check-the-first-export">Check the first export</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Check the first export" aria-controls="prompt-check-the-first-export"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-check-the-first-export">Help me test the public Even R1 Ring Exporter for Mac alpha on my own Mac. Follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. Record the Mac model, macOS version, Even app version and interface language. Preserve any existing setup. Help me install the app if needed, then run Test an Export twice with unchanged source data. Check collection status for duplicate or missing sessions. I will compare one night privately on my iPhone and Mac. Record only matches, missing or different. Keep measurements, archives and screenshots out of the report.</pre></details>
+  </div>
 <ul>
-<li>Complete this workflow on a second Mac and Even account. Record the versions and interface languages actually verified.</li>
-<li>Test Apple Developer ID signing and notarization to simplify first launch. Use installation feedback to decide whether the app should bundle Python.</li>
-<li>Check readability, navigation and exit on physical G2 glasses with the R1. Prepare listing images before deciding whether to submit the companion to Even Hub. <a href="https://hub.evenrealities.com/docs/ship/app-submission">Even’s submission process</a></li>
+<li>Use your own Even account on both devices. If you have a recorded night, compare its wake date and duration privately.</li>
+<li>Repeat the export before new data arrives. The same night should appear once with the same duration. If you have no recorded night, check that the app explains its status.</li>
+<li>Record which install steps needed assistance, including Apple’s Command Line Tools and Accessibility.</li>
 </ul>
+<h2 id="check-automatic-collection-over-two-nights">Check automatic collection over two nights</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Check automatic collection over two nights" aria-controls="prompt-check-automatic-collection-over-two-nights"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-check-automatic-collection-over-two-nights">Help me test scheduled exports in Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/test/. Check whether scheduling is already on. Enable it for this test if needed. Explain how to observe a check while I am working, then while the Mac is idle and unlocked. I will wear the ring for two consecutive nights and compare each wake date privately in Even. Use local status to distinguish new, unchanged, deferred and failed checks. Report pass, missing, different or pending without reading out health values. Mark future checks pending.</pre></details>
+  </div>
+<ul>
+<li>The schedule checks at <strong>8:15 a.m., 12:15 p.m. and 6:15 p.m.</strong> local time. Note whether an active session defers the export and whether the ZIP dialog closes after the idle export.</li>
+<li>Wear the ring overnight and sync it to Even on your iPhone after waking. Repeat the next night. Confirm each night appears on the Mac after it appears on the phone.</li>
+<li>A repeat export of the first night does not verify the second night.</li>
+</ul>
+<h2 id="test-a-private-chatgpt-query-and-record-the-result">Test a private ChatGPT query and record the result</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Test a private ChatGPT query and record the result" aria-controls="prompt-test-a-private-chatgpt-query-and-record-the-result"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-test-a-private-chatgpt-query-and-record-the-result">Help me test the optional Even R1 Ring Data for ChatGPT connection using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. Use my own private ChatGPT workspace. Guide me through a fresh chat with the connector selected and no attachments. Ask for sleep over seven local wake dates, then one available health card and its age. I will compare results privately with Even. Draft a short test report here with versions, language, step, expected behavior and pass, missing or different. Omit values and identifiers. At the end, offer to stop services started for this test.</pre></details>
+  </div>
+<ul>
+<li>If you only want to test the Mac app, skip the connector. The export tests still count.</li>
+<li>Keep results in your private chat. In a public report, include the failing step and a redacted error. Leave out ZIPs, exact readings, keys, tunnel identifiers and screenshots of readings.</li>
+<li>Check that the schedule and tunnel can stop independently. Preserve any service you already used before testing. <a href="../../guides/privacy/">Pausing or removing the app</a></li>
+</ul>
+<p>The alpha still needs feedback on second-device setup, Python installation and first launch. Developer ID signing and notarization are separate release work. Physical G2 gesture tests and listing images are also pending. <a href="../../guides/glasses/">Optional glasses tests</a></p>
 </article>
 </div>
-<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Check your equipment, allow the collector and run your first export.</p><span aria-hidden="true">→</span></a>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Let Codex install the two Mac apps and check your first ring export.</p><span aria-hidden="true">→</span></a>
 <a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a></div></section>
   </main>
   <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>

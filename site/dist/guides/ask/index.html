@@ -7,48 +7,51 @@
   <meta name="description" content="Ask about seven nights of sleep or the six health cards, without attaching a file.">
   <title>Ask ChatGPT about your ring readings · Even R1 Ring Exporter for Mac</title>
   <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=2">
+  <link rel="stylesheet" href="../../guides.css?v=3">
+  <script defer src="../../guide-prompts.js"></script>
 </head>
 <body class="docs-page">
   <a class="skip" href="#content">Skip to content</a>
   <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
   <main id="content" class="wrap docs-shell">
 <nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Ask about your readings</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Ask ChatGPT about your ring readings</h1></header>
+<header class="docs-hero"><h1 id="page-title">Ask ChatGPT about your ring readings</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
 <div class="docs-layout">
-<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#ask-about-seven-nights">Ask about seven nights</a></li><li class="docs-toc-level-2"><a href="#read-the-sleep-results">Read the sleep results</a></li><li class="docs-toc-level-2"><a href="#ask-about-the-six-latest-readings">Ask about the six latest readings</a></li></ol></nav>
+<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#how-much-did-i-sleep-each-night">How much did I sleep each night?</a></li><li class="docs-toc-level-2"><a href="#how-much-time-did-i-spend-in-each-sleep-stage">How much time did I spend in each sleep stage?</a></li><li class="docs-toc-level-2"><a href="#what-are-my-latest-readings-and-what-changed">What are my latest readings and what changed?</a></li></ol></details></nav>
 <article class="docs-article" aria-labelledby="page-title">
-<p>Use <strong>Even R1 Ring Data for ChatGPT</strong> to read the latest verified export on your Mac. You can leave the ZIP in its archive folder.</p>
-<h2 id="ask-about-seven-nights">Ask about seven nights</h2>
-<ol>
-<li>Open <strong>Even R1 Ring Exporter for Mac</strong>. In <strong>Mac Collection</strong>, select <strong>Refresh</strong>. Check the latest recorded wake date.</li>
-<li>Pick seven consecutive local wake dates that include a night you recognize. The example below uses November 16 through November 22, 2026.</li>
-<li>Keep your Mac awake and online. In ChatGPT on the web, open the connected <strong>Even R1 Ring Data for ChatGPT</strong> plugin and choose <strong>Try in chat</strong>. <a href="../../guides/chatgpt/">Connect the plugin</a></li>
-<li>Send this message without adding an attachment.</li>
-</ol>
-<pre><code class="language-text">Use Even R1 Ring Data for ChatGPT. For each wake date from November 16 through November 22, 2026 inclusive, list my recorded sleep in hours and minutes. Mark dates without a session. If you calculate an average, give the number of usable dates.
-</code></pre>
-<ol start="5">
-<li>Compare one result with <strong>Health</strong> in Even on your iPhone. Match the date you woke up. To check for a new night, ask for the dates after the last one you recognized.</li>
-</ol>
-<h2 id="read-the-sleep-results">Read the sleep results</h2>
+<p>Keep your Mac awake and online. Open <strong>Even R1 Ring Data for ChatGPT → Try in chat</strong> in your personal ChatGPT web workspace. You can paste the prompts below into Codex on your Mac for help, or type the short questions directly in that web chat. <a href="../../guides/chatgpt/">Connect your Mac to ChatGPT</a></p>
+<h2 id="how-much-did-i-sleep-each-night">How much did I sleep each night?</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — How much did I sleep each night?" aria-controls="prompt-how-much-did-i-sleep-each-night"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-how-much-did-i-sleep-each-night">Use the private Even R1 Ring Data for ChatGPT connector in my personal ChatGPT web account. Ask it to call sleep_durations for the seven local wake dates ending today, without a file attachment. List all seven dates and each duration in hours and minutes. Label a missing session or an ambiguous duration explicitly. Average only usable dates and give their count. If I give you a previous wake date, check whether the export contains a later one through today, using separate requests of up to 31 dates if needed. Confirm that the result came from the web connector. If it is unavailable, identify the connection problem instead of guessing a duration.</pre></details>
+  </div>
 <ul>
-<li>A day’s total includes distinct recorded sleep sessions ending on that date, including naps.</li>
-<li>A missing date means the export has no sleep session for that wake date. Sleeping without wearing the ring can leave a gap.</li>
-<li>A <code>null</code> duration means the records were inconsistent or ambiguous. Exclude missing and ambiguous dates from averages.</li>
-<li>For stages, ask “For the wake date November 22, how many minutes did Even record as awake, light, deep and REM?” Awake time covers the recorded sessions.</li>
-<li>One query can cover up to 31 local wake dates. <a href="../../guides/troubleshooting/">Troubleshoot a missing night</a></li>
+<li>In ChatGPT, ask “How much did I sleep on each of the last seven wake dates? Has a new night appeared since [date]?”</li>
+<li>Match the date you woke up with <strong>Health</strong> in Even on your iPhone. Naps count toward the date they ended.</li>
+<li>A missing date means Even supplied no session. A <code>null</code> duration means the data was ambiguous. Both are excluded from the average. <a href="../../guides/troubleshooting/">Check a missing night</a></li>
 </ul>
-<h2 id="ask-about-the-six-latest-readings">Ask about the six latest readings</h2>
-<p>Send this follow-up in the same chat.</p>
-<pre><code class="language-text">List my latest steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Include the unit, how old each reading was when observed, and when my Mac observed it.
-</code></pre>
+<h2 id="how-much-time-did-i-spend-in-each-sleep-stage">How much time did I spend in each sleep stage?</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — How much time did I spend in each sleep stage?" aria-controls="prompt-how-much-time-did-i-spend-in-each-sleep-stage"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-how-much-time-did-i-spend-in-each-sleep-stage">In my personal ChatGPT web account, use the private Even R1 Ring Data for ChatGPT connector without an attachment. Ask which wake date I want if I did not supply one. Call sleep_stages for that local date and report the recorded minutes awake, in light sleep, in deep sleep and in REM. Identify any missing session or ambiguous result. Do not estimate missing values. Help me compare the answer with the same wake date in Even on my iPhone.</pre></details>
+  </div>
 <ul>
-<li><strong>Steps and active calories</strong> can be partial daily totals. Adding successive card values can count activity twice.</li>
-<li><strong>Heart rate</strong> is shown in beats per minute. <strong>Heart rate variability</strong> is shown in milliseconds.</li>
-<li><strong>Blood oxygen saturation</strong> is shown as a percentage. <strong>Skin temperature variation</strong> is a temperature change. Keep the unit Even displayed.</li>
-<li>Read each card’s age alongside its observation time. A card labelled “3 days ago” was already three days old when the Mac saw it.</li>
-<li>To check changes, ask “Which readings changed between November 16 and November 22?” Local history starts when the Mac first observes a value. An unchanged card does not create another entry.</li>
+<li>In ChatGPT, ask “For [wake date], how many minutes were awake, light, deep and REM?”</li>
+<li>Awake minutes cover the recorded sessions. You can ask about up to 31 local wake dates in one request.</li>
+</ul>
+<h2 id="what-are-my-latest-readings-and-what-changed">What are my latest readings and what changed?</h2>
+<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — What are my latest readings and what changed?" aria-controls="prompt-what-are-my-latest-readings-and-what-changed"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <span class="copy-status" role="status"></span>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-what-are-my-latest-readings-and-what-changed">Use Even R1 Ring Data for ChatGPT in my personal ChatGPT web account without attaching a file. Call latest_readings for steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Give each card’s value, unit, displayed age and the time my Mac observed it when available. If I ask what changed, call reading_history for my requested dates and report the changes the Mac actually observed. Distinguish a Mac observation from a sensor measurement time. Keep successive step and calorie totals separate, and mark unavailable readings or dates clearly.</pre></details>
+  </div>
+<ul>
+<li>In ChatGPT, ask “Show my six latest readings, with units and freshness.” Then try “Which readings changed between [start date] and [end date]?”</li>
+<li>Steps and active calories may be running daily totals. Adding consecutive cards can count the same activity twice.</li>
+<li>Heart rate uses beats per minute, heart rate variability uses milliseconds, and blood oxygen saturation uses percent. Skin temperature variation is a change in the unit Even displays.</li>
+<li>A card showing “3 days ago” was already that old when the Mac saw it. History starts when the Mac first observes a card and records changes to its value or unit.</li>
 </ul>
 </article>
 </div>

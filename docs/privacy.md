@@ -1,24 +1,43 @@
 # Where your ring readings go
 
-Even R1 Ring Exporter for Mac stores Even exports on the Mac. Each person sets up their own Mac and decides whether to connect it to their ChatGPT account.
+Your Mac can collect readings on its own. Connecting your personal ChatGPT account is optional.
 
-- **Even.** The tested workflow uses Even’s cloud backup so the Mac can see readings from the iPhone. Even controls this setting in its app. [Even’s health data backup guide](https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup)
-- **Your Mac.** The collector operates Even’s export controls and reads the ZIP that Even creates. It saves archives, collection status and observed cards under `~/Library/Application Support/R1 Bridge/`. The ZIP files contain personal data. A backup of this folder will include it.
-- **ChatGPT.** If you enable the tunnel, anyone authorized to use **Even R1 Ring Data for ChatGPT** can request results from its four read-only tools. Keep the connection in your own workspace. The readings returned to ChatGPT become part of that conversation. The dedicated API key is saved in the Mac’s Keychain.
-- **Website and glasses.** The public website contains instructions and sample questions. **Even R1 Ring Guide for G2 Glasses** displays five bundled text cards. Both can be used without providing personal readings.
+## Check who can see your readings
 
-## Stop collection or uninstall
-
-1. In **Mac Collection**, choose **Stop Schedule**. If you enabled the tunnel, you can also choose **Stop Tunnel** in **ChatGPT Connection**. The archives remain available on your Mac.
-2. To remove remote access, disconnect the plugin in ChatGPT, revoke the dedicated key and remove the tunnel association on OpenAI Platform. The password item in Keychain is named **R1 Bridge - OpenAI Tunnel**.
-3. To uninstall, quit **Even R1 Ring Exporter for Mac**, move the app to the Trash and remove **Even R1 Ring Collector for Mac** from **Privacy & Security → Accessibility** in System Settings. Keep or back up any exports you want before deleting the `R1 Bridge` folder in your user Library. Backups, Even’s cloud data and ChatGPT conversations each have their own deletion controls.
-
-You can also stop the two services from Terminal.
-
-```sh
-runtime="$HOME/Library/Application Support/R1 Bridge"
-/usr/bin/python3 -B "$runtime/r1.py" stop
-/usr/bin/python3 -B "$runtime/tunnel.py" stop
+```codex-prompt
+Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/privacy/ as the reference. Check whether the public Mac app and its collection and tunnel services are installed or running on this Mac. Inspect service status only. Leave settings alone and keep archives, readings, keys and tunnel identifiers out of the chat. Tell me which settings I can verify myself in Even and ChatGPT.
 ```
 
-For a bug report, include the Mac exporter version, Even version and macOS version, the interface language, the step that failed and a redacted error message. Keep ZIP files, keys, tunnel identifiers and screenshots of your readings out of public reports.
+- **Even** uses its cloud backup to sync readings from the iPhone to the Mac in the tested setup. You control that setting in Even. [Even’s health data backup guide](https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup)
+- **Your Mac** uses Even’s export controls and stores health ZIPs, collection status and observed cards in `~/Library/Application Support/R1 Bridge/`. A backup that includes this folder also contains your exports.
+- **Your ChatGPT account** receives results when you use the private connector. Anyone you authorize to use it can query its four read-only tools. Keep it in your own workspace. Results become part of that conversation. The dedicated API key is stored in your Mac’s Keychain.
+- **The website and G2 glasses guide** provide instructions. The glasses display five bundled cards. Neither needs your readings.
+
+## Pause collection or ChatGPT access
+
+```codex-prompt
+Help me pause Even R1 Ring Exporter for Mac. Ask which part I want to stop: scheduled collection, the private ChatGPT tunnel, or both. Use the installed public app or its documented stop command for only what I selected. Keep the archives, API key and other services intact. Verify each selected service is stopped and tell me how to restart it from the app. Report only service status.
+```
+
+- In **Mac Collection**, choose **Stop Schedule** to pause automatic exports.
+- In **ChatGPT Connection**, choose **Stop Tunnel** to pause remote queries. Your saved archives stay on the Mac.
+- From Terminal, run the command for the service you want to stop.
+
+```sh
+/usr/bin/python3 -B "$HOME/Library/Application Support/R1 Bridge/r1.py" stop
+```
+
+```sh
+/usr/bin/python3 -B "$HOME/Library/Application Support/R1 Bridge/tunnel.py" stop
+```
+
+## Remove the app or revoke access
+
+```codex-prompt
+Help me remove Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/privacy/. First explain which actions affect the app, collection, its ChatGPT connector and my saved exports. Ask what I want to keep. Stop only the relevant services. Get my confirmation before removing an app, credential, tunnel or archive. Guide me through any account or macOS actions I must take myself. Never display keys or health data. Summarize what was removed and what remains.
+```
+
+1. Stop the schedule and tunnel you used. Quit **Even R1 Ring Exporter for Mac** and move it to the Trash.
+2. In **System Settings → Privacy & Security → Accessibility**, remove **Even R1 Ring Collector for Mac**.
+3. To revoke remote access, disconnect **Even R1 Ring Data for ChatGPT** in ChatGPT. Revoke the dedicated key and remove the tunnel association in your OpenAI Platform account. Its Keychain item is named **R1 Bridge - OpenAI Tunnel**.
+4. Keep any exports you want before deleting the `R1 Bridge` folder. Mac backups, Even cloud data and ChatGPT conversations have their own deletion controls.

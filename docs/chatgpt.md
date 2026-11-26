@@ -1,49 +1,39 @@
-# Set up Even R1 Ring Data for ChatGPT
+# Connect your Mac to ChatGPT
 
-This read-only connector lets your ChatGPT account ask your Mac about ring readings. First complete a [local export](installation.md).
+The Mac app can collect readings on its own. Add this optional, read-only connection if you want to ask about those readings in your personal ChatGPT web account. Your Mac must be awake and online when you ask. [Install and test the Mac app](installation.md)
 
-## What you need
+## Set up my private connection
 
-- A ChatGPT workspace that supports custom MCP servers. In a managed workspace, check that you can add one.
-- An OpenAI Platform organization with access to secure tunnels.
-- Your Mac awake and online when you ask ChatGPT a question. [OpenAI’s tunnel guide](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
+```codex-prompt
+Help me connect Even R1 Ring Exporter for Mac to my personal ChatGPT web account. Work on this Mac and follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. First check that the exporter has completed a local export and check the existing tunnel status. If the local export is missing, follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/ first. It requires the official Even Realities iPhone app on this Mac, signed in with the same Even account as my physical iPhone. Reuse any working configuration. If setup is missing, check that my personal workspace supports custom MCP servers and that my OpenAI Platform organization supports secure tunnels. Help me create a dedicated tunnel, associate it with my workspace, and create a restricted project key with Tunnels Read and Use. Use the app’s connection assistant, which verifies the tunnel client. Let me sign in and enter the key myself at the hidden Terminal prompt. Never request the key in chat or read it back. Finish the private connector setup in my own workspace. Verify the tunnel has connected to OpenAI, then test the connector with a dated reading in my personal ChatGPT web chat, without an attachment. Tell me which steps succeeded and identify any step that still needs my action.
+```
 
-## Create your tunnel and key
+1. **Choose the account.** Sign in to your personal ChatGPT workspace and its OpenAI Platform organization. You need access to custom MCP servers and secure tunnels. [OpenAI tunnel guide](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
+2. **Create the tunnel.** Associate it with your organization and personal ChatGPT workspace. Creating a tunnel requires **Tunnels Read + Manage**. Copy its `tunnel_` identifier. [OpenAI Platform tunnels](https://platform.openai.com/settings/organization/tunnels)
+3. **Create the Mac’s key.** Choose a dedicated project key with **Restricted → Tunnels Read and Use**. [OpenAI Platform API keys](https://platform.openai.com/settings/organization/api-keys)
+4. **Connect the Mac.** In the exporter, select **ChatGPT Connection → Connect Even R1 Ring to ChatGPT…**. The same assistant is available as **Connect Even R1 Ring to ChatGPT.command** inside the disk image. Enter the tunnel ID. Paste the complete key at the hidden Terminal prompt and press Return. The assistant stores it in your Mac’s Keychain.
+5. **Add the connector.** In the personal ChatGPT plugin directory, select **+ → Add custom MCP server**. Name it **Even R1 Ring Data for ChatGPT**, choose **Tunnel**, and select your tunnel. Choose **No authentication** for the local server behind this private tunnel. Keep the connector in your own workspace. Select **Connect**, then **Try in chat**. [Open ChatGPT plugins](https://chatgpt.com/plugins)
 
-1. Open [OpenAI Platform tunnels](https://platform.openai.com/settings/organization/tunnels) and select your organization.
-2. Create a tunnel and associate it with your organization and personal ChatGPT workspace. Creating it requires **Tunnels Read + Manage**.
-3. Copy the identifier beginning with `tunnel_`.
-4. Create a [project API key](https://platform.openai.com/settings/organization/api-keys) dedicated to this Mac. Select **Restricted** and grant **Tunnels Read and Use**.
+## Check that ChatGPT can read an export
 
-## Connect your Mac
+```codex-prompt
+Verify Even R1 Ring Data for ChatGPT end to end. On this Mac, check the latest export status and the latest local wake date. Check that the tunnel has connected to OpenAI. With my Mac awake and online, open my private connector in my personal ChatGPT web workspace and use Try in chat. Ask for sleep duration on the latest recorded wake date, without attaching a file or including the answer in the question. Compare the tool response with the local result and tell me whether they agree. If no night exists yet, test a recorded health card instead. If you can only check one side, identify which side you verified.
+```
 
-1. In the Mac app, choose **ChatGPT Connection → Connect Even R1 Ring to ChatGPT…**. You can also open **Connect Even R1 Ring to ChatGPT.command** from the DMG.
-2. Enter your tunnel identifier. The assistant downloads the official Apple silicon tunnel client and verifies its SHA-256 checksum.
-3. Paste the complete API key at the hidden Terminal prompt and press Return. It will be stored in your Mac’s Keychain.
-4. Wait for confirmation that the tunnel has connected to OpenAI.
+- On the Mac, open **Mac Collection → Refresh**. Note the latest recorded wake date.
+- In your personal ChatGPT web chat, ask “How much sleep did my Even R1 record on [wake date]?” Compare the answer with **Health** in Even on your iPhone.
+- The connector supports sleep duration, sleep stages, the six latest health cards and changes the Mac has observed. [Questions to try](ask-about-readings.md)
 
-## Add the connector in ChatGPT
+## Repair a connection that stopped working
 
-1. In the [ChatGPT plugin directory](https://chatgpt.com/plugins), select **+ → Add custom MCP server**.
-2. Name it **Even R1 Ring Data for ChatGPT**. Choose **Tunnel** and select your tunnel.
-3. Choose **No authentication** for the local MCP server. The tunnel key and workspace association authenticate the connection. Limit access to your own workspace.
-4. Create the plugin, click **Connect**, then **Try in chat**.
-5. Ask “How much did I sleep each night over the last seven days?” Compare a wake-up date with Even on your iPhone.
+```codex-prompt
+Diagnose my existing private Even R1 connection using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. Check the Mac collection status and the tunnel status separately. Use the reported error to choose the next step. For HTTP 401, help me use Update Key and let me enter the complete key privately. For HTTP 403, check the organization, project, Tunnels Read and Use permissions, and personal workspace association with me. If the tunnel is healthy but the plugin shows older tool names, refresh or reconnect that plugin. Reuse the existing tunnel and preserve my archives. Retest from my personal ChatGPT web account without a file and report the result. Keep keys and raw logs out of chat.
+```
 
-If an older alpha shows different tool names, refresh or reconnect the plugin. Your API key stays in Keychain.
-
-## What you can ask
-
-- **Sleep duration** (`sleep_durations`). Get total sleep minutes for each local wake-up date, including recorded naps.
-- **Sleep stages** (`sleep_stages`). Get awake, light, deep and REM minutes. A missing date means Even supplied no session. A `null` value indicates ambiguous data.
-- **Latest measurements** (`latest_readings`). Read Even’s six health cards and their displayed age. A matching export can also establish the batch date.
-- **Changes over time** (`reading_history`). See when the Mac observed a card’s value or unit change. Steps and active calories may be running totals.
-
-## Check the connection
-
-- Run the commands below after setting up the Mac. Scheduled collection and the tunnel can be stopped independently.
-- **HTTP 401** means OpenAI declined the key. Enter the complete key again at the assistant’s hidden prompt.
-- **HTTP 403** means you should check the organization, project, tunnel permissions and workspace association. [OpenAI troubleshooting](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels/#troubleshooting)
+- Select **ChatGPT Connection → Refresh** and check for confirmation of a connection to OpenAI. The app controls scheduled exports and the tunnel separately.
+- **HTTP 401** means the key was declined. Choose **Update Key…** and enter the complete key at the hidden prompt.
+- **HTTP 403** calls for a check of the organization, project, key permissions and workspace association. [OpenAI troubleshooting](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels/#troubleshooting)
+- To check both statuses in Terminal after setup, run these read-only commands.
 
 ```sh
 runtime="$HOME/Library/Application Support/R1 Bridge"

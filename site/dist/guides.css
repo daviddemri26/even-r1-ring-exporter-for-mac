@@ -147,9 +147,46 @@
   gap: .5rem 1.5rem;
 }
 .docs-page .footer { border-top: 1px solid var(--border); }
+.guide-start { margin-top: 1.25rem; }
+.docs-toc summary, .prompt-box summary { cursor: pointer; font-weight: 600; }
+.docs-toc summary:focus-visible, .prompt-box summary:focus-visible {
+  outline: 3px solid #258b68;
+  outline-offset: 3px;
+}
+.prompt-box {
+  padding: clamp(.95rem, 2.6vw, 1.5rem);
+  margin-bottom: 1.15rem;
+  border: 1px solid #c7d6c8;
+  border-radius: .8rem;
+  background: #f0f5ec;
+}
+.copy-prompt { cursor: pointer; min-height: 3.1rem; }
+.copy-mark {
+  width: .85rem;
+  height: 1rem;
+  position: relative;
+  border: 1.5px solid currentColor;
+  border-radius: .13rem;
+}
+.copy-mark::before {
+  content: "";
+  position: absolute;
+  inset: -.3rem .14rem .14rem -.3rem;
+  border: solid currentColor;
+  border-width: 1.5px 0 0 1.5px;
+  border-radius: .13rem;
+}
+.copy-status:not(:empty) { display: block; margin-top: .6rem; color: var(--green); font-weight: 600; }
+.prompt-box details { margin-top: .6rem; }
+.prompt-box summary { width: fit-content; padding: .4rem 0; color: var(--green); font-size: .94rem; }
+.prompt-box pre { margin: .45rem 0 0; background: var(--paper); font: inherit; font-size: .95rem; }
+.prompt-box .codex-start { margin: 1rem 0 .4rem; padding-left: 1.25rem; }
+.codex-start li { margin: .4rem 0; }
+.codex-start kbd { font: inherit; font-weight: 600; }
 @media (max-width: 780px) {
-  .docs-layout { grid-template-columns: minmax(0, 1fr); gap: 1.8rem; }
+  .docs-layout { grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-block: 1.2rem; }
   .docs-shell { width: calc(100% - 2.5rem); }
+  .copy-prompt { width: 100%; }
 }
 @media print {
   .docs-toc, .docs-related, .docs-breadcrumb { display: none; }

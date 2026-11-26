@@ -14,9 +14,9 @@ To ask about those readings without attaching a file, set up **Even R1 Ring Data
 
 ## How it works
 
-1. Keep your R1 ring and G2 glasses paired to Even on your iPhone. With cloud backup enabled, Even makes your readings available under the same account on the Mac.
+1. Open the **Mac App Store on your Mac**. Under **iPhone & iPad Apps**, install **Even Realities** by Even Realities Ltd., marked **Designed for iPhone**. Sign in with the same Even account as on your iPhone. Keep your ring paired to your iPhone and enable Even’s cloud backup to sync the readings. [Even Realities in the App Store](https://apps.apple.com/us/app/even-realities/id6747017725)
 2. The Mac collector triggers Even’s built-in export, checks the ZIP and deduplicates repeated exports. You can run a local export before setting up ChatGPT.
-3. If you enable scheduling, the collector looks for a quiet moment starting at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time. It waits for an idle, unlocked Mac. Use **Test an Export** to run it yourself at any time.
+3. The guided installation verifies the first export and turns on **Schedule Collection**. From then on, the collector opens Even and saves exports automatically when the Mac is awake, unlocked and idle. No daily clicks or file uploads are needed. The three collection windows start at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time.
 4. To use ChatGPT on the web, connect the Mac to a tunnel in your own OpenAI account. Keep it awake and online whenever ChatGPT needs to read an export. [Connect your ring data to ChatGPT](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/)
 
 The pilot completed scheduled collection and queried sleep and all six readings in ChatGPT on the web. A second person testing their own Mac and two consecutive nights of collection are still needed to establish compatibility beyond the pilot. This release supports Mac and ChatGPT. Apple Health would require an iPhone integration with HealthKit.

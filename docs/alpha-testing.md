@@ -1,18 +1,35 @@
-# Test Even R1 Ring Exporter for Mac on another Mac
+# Test the public alpha on a second Mac
 
-This test checks whether someone with an R1 ring can follow the guides on their own Mac and get the same readings in their ChatGPT account as they see in Even.
+This guide is for volunteers testing their own ring and Mac. For everyday use, start with the [Mac installation guide](installation.md).
 
-1. **Record the setup.** Note the Mac model, macOS version, Even version and interface language. Find a recorded night on the iPhone and compare its wake-up date and duration with Even on the Mac.
-2. **Install from scratch.** Download the DMG and follow the [Mac installation guide](installation.md). Note any step where you needed help, including Apple’s Command Line Tools or Accessibility permissions.
-3. **Run two exports.** Test an export, then repeat it while the source data is unchanged. Check that the overnight duration stays the same. A new user with no recorded nights should also be able to start collection and understand its status.
-4. **Check scheduled collection.** Use the Mac during a scheduled check, then leave it idle and unlocked during that collection window. Check the recorded status and whether the ZIP dialog closes. Wear the ring on two consecutive nights and compare each new wake-up date with the iPhone.
-5. **Ask ChatGPT.** Connect the tester’s own workspace through their own tunnel. Start a fresh chat, select **Even R1 Ring Data for ChatGPT** and ask about the last seven wake-up dates. Ask for one card’s value and its age. Compare the answers with Even without attaching any files.
-6. **Stop the services.** Stop the schedule and the tunnel independently and check their status on the Mac. [Data access and removal](privacy.md)
+## Check the first export
 
-A useful report gives the step, expected behavior, observed behavior and versions tested. For personal readings, report “matches,” “missing” or “different.” Keep exact health values, exports and API keys private.
+```codex-prompt
+Help me test the public Even R1 Ring Exporter for Mac alpha on my own Mac. Follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. Record the Mac model, macOS version, Even app version and interface language. Preserve any existing setup. Help me install the app if needed, then run Test an Export twice with unchanged source data. Check collection status for duplicate or missing sessions. I will compare one night privately on my iPhone and Mac. Record only matches, missing or different. Keep measurements, archives and screenshots out of the report.
+```
 
-## What still needs testing
+- Use your own Even account on both devices. If you have a recorded night, compare its wake date and duration privately.
+- Repeat the export before new data arrives. The same night should appear once with the same duration. If you have no recorded night, check that the app explains its status.
+- Record which install steps needed assistance, including Apple’s Command Line Tools and Accessibility.
 
-- Complete this workflow on a second Mac and Even account. Record the versions and interface languages actually verified.
-- Test Apple Developer ID signing and notarization to simplify first launch. Use installation feedback to decide whether the app should bundle Python.
-- Check readability, navigation and exit on physical G2 glasses with the R1. Prepare listing images before deciding whether to submit the companion to Even Hub. [Even’s submission process](https://hub.evenrealities.com/docs/ship/app-submission)
+## Check automatic collection over two nights
+
+```codex-prompt
+Help me test scheduled exports in Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/test/. Check whether scheduling is already on. Enable it for this test if needed. Explain how to observe a check while I am working, then while the Mac is idle and unlocked. I will wear the ring for two consecutive nights and compare each wake date privately in Even. Use local status to distinguish new, unchanged, deferred and failed checks. Report pass, missing, different or pending without reading out health values. Mark future checks pending.
+```
+
+- The schedule checks at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time. Note whether an active session defers the export and whether the ZIP dialog closes after the idle export.
+- Wear the ring overnight and sync it to Even on your iPhone after waking. Repeat the next night. Confirm each night appears on the Mac after it appears on the phone.
+- A repeat export of the first night does not verify the second night.
+
+## Test a private ChatGPT query and record the result
+
+```codex-prompt
+Help me test the optional Even R1 Ring Data for ChatGPT connection using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. Use my own private ChatGPT workspace. Guide me through a fresh chat with the connector selected and no attachments. Ask for sleep over seven local wake dates, then one available health card and its age. I will compare results privately with Even. Draft a short test report here with versions, language, step, expected behavior and pass, missing or different. Omit values and identifiers. At the end, offer to stop services started for this test.
+```
+
+- If you only want to test the Mac app, skip the connector. The export tests still count.
+- Keep results in your private chat. In a public report, include the failing step and a redacted error. Leave out ZIPs, exact readings, keys, tunnel identifiers and screenshots of readings.
+- Check that the schedule and tunnel can stop independently. Preserve any service you already used before testing. [Pausing or removing the app](privacy.md)
+
+The alpha still needs feedback on second-device setup, Python installation and first launch. Developer ID signing and notarization are separate release work. Physical G2 gesture tests and listing images are also pending. [Optional glasses tests](../evenhub/README.md)

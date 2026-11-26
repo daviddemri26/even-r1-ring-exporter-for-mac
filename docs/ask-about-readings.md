@@ -1,38 +1,33 @@
 # Ask ChatGPT about your ring readings
 
-Use **Even R1 Ring Data for ChatGPT** to read the latest verified export on your Mac. You can leave the ZIP in its archive folder.
+Keep your Mac awake and online. Open **Even R1 Ring Data for ChatGPT → Try in chat** in your personal ChatGPT web workspace. You can paste the prompts below into Codex on your Mac for help, or type the short questions directly in that web chat. [Connect your Mac to ChatGPT](chatgpt.md)
 
-## Ask about seven nights
+## How much did I sleep each night?
 
-1. Open **Even R1 Ring Exporter for Mac**. In **Mac Collection**, select **Refresh**. Check the latest recorded wake date.
-2. Pick seven consecutive local wake dates that include a night you recognize. The example below uses November 16 through November 22, 2026.
-3. Keep your Mac awake and online. In ChatGPT on the web, open the connected **Even R1 Ring Data for ChatGPT** plugin and choose **Try in chat**. [Connect the plugin](chatgpt.md)
-4. Send this message without adding an attachment.
-
-```text
-Use Even R1 Ring Data for ChatGPT. For each wake date from November 16 through November 22, 2026 inclusive, list my recorded sleep in hours and minutes. Mark dates without a session. If you calculate an average, give the number of usable dates.
+```codex-prompt
+Use the private Even R1 Ring Data for ChatGPT connector in my personal ChatGPT web account. Ask it to call sleep_durations for the seven local wake dates ending today, without a file attachment. List all seven dates and each duration in hours and minutes. Label a missing session or an ambiguous duration explicitly. Average only usable dates and give their count. If I give you a previous wake date, check whether the export contains a later one through today, using separate requests of up to 31 dates if needed. Confirm that the result came from the web connector. If it is unavailable, identify the connection problem instead of guessing a duration.
 ```
 
-5. Compare one result with **Health** in Even on your iPhone. Match the date you woke up. To check for a new night, ask for the dates after the last one you recognized.
+- In ChatGPT, ask “How much did I sleep on each of the last seven wake dates? Has a new night appeared since [date]?”
+- Match the date you woke up with **Health** in Even on your iPhone. Naps count toward the date they ended.
+- A missing date means Even supplied no session. A `null` duration means the data was ambiguous. Both are excluded from the average. [Check a missing night](troubleshooting.md)
 
-## Read the sleep results
+## How much time did I spend in each sleep stage?
 
-- A day’s total includes distinct recorded sleep sessions ending on that date, including naps.
-- A missing date means the export has no sleep session for that wake date. Sleeping without wearing the ring can leave a gap.
-- A `null` duration means the records were inconsistent or ambiguous. Exclude missing and ambiguous dates from averages.
-- For stages, ask “For the wake date November 22, how many minutes did Even record as awake, light, deep and REM?” Awake time covers the recorded sessions.
-- One query can cover up to 31 local wake dates. [Troubleshoot a missing night](troubleshooting.md)
-
-## Ask about the six latest readings
-
-Send this follow-up in the same chat.
-
-```text
-List my latest steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Include the unit, how old each reading was when observed, and when my Mac observed it.
+```codex-prompt
+In my personal ChatGPT web account, use the private Even R1 Ring Data for ChatGPT connector without an attachment. Ask which wake date I want if I did not supply one. Call sleep_stages for that local date and report the recorded minutes awake, in light sleep, in deep sleep and in REM. Identify any missing session or ambiguous result. Do not estimate missing values. Help me compare the answer with the same wake date in Even on my iPhone.
 ```
 
-- **Steps and active calories** can be partial daily totals. Adding successive card values can count activity twice.
-- **Heart rate** is shown in beats per minute. **Heart rate variability** is shown in milliseconds.
-- **Blood oxygen saturation** is shown as a percentage. **Skin temperature variation** is a temperature change. Keep the unit Even displayed.
-- Read each card’s age alongside its observation time. A card labelled “3 days ago” was already three days old when the Mac saw it.
-- To check changes, ask “Which readings changed between November 16 and November 22?” Local history starts when the Mac first observes a value. An unchanged card does not create another entry.
+- In ChatGPT, ask “For [wake date], how many minutes were awake, light, deep and REM?”
+- Awake minutes cover the recorded sessions. You can ask about up to 31 local wake dates in one request.
+
+## What are my latest readings and what changed?
+
+```codex-prompt
+Use Even R1 Ring Data for ChatGPT in my personal ChatGPT web account without attaching a file. Call latest_readings for steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Give each card’s value, unit, displayed age and the time my Mac observed it when available. If I ask what changed, call reading_history for my requested dates and report the changes the Mac actually observed. Distinguish a Mac observation from a sensor measurement time. Keep successive step and calorie totals separate, and mark unavailable readings or dates clearly.
+```
+
+- In ChatGPT, ask “Show my six latest readings, with units and freshness.” Then try “Which readings changed between [start date] and [end date]?”
+- Steps and active calories may be running daily totals. Adding consecutive cards can count the same activity twice.
+- Heart rate uses beats per minute, heart rate variability uses milliseconds, and blood oxygen saturation uses percent. Skin temperature variation is a change in the unit Even displays.
+- A card showing “3 days ago” was already that old when the Mac saw it. History starts when the Mac first observes a card and records changes to its value or unit.

@@ -12,7 +12,7 @@ const brand = "Even R1 Ring Exporter for Mac";
 const guides = [
   {
     slug: "install", source: "docs/installation.md", title: "Install the Mac app",
-    summary: "Check your equipment, allow the collector and run your first export.",
+    summary: "Let Codex install the two Mac apps and check your first ring export.",
     related: ["chatgpt", "troubleshooting"],
   },
   {
@@ -54,6 +54,25 @@ const guides = [
 
 const markdown = new MarkdownIt({ html: false });
 const escape = markdown.utils.escapeHtml;
+const renderCode = markdown.renderer.rules.fence;
+markdown.renderer.rules.fence = (tokens, index, options, env, renderer) => {
+  const token = tokens[index];
+  if (token.info.trim() !== "codex-prompt") return renderCode(tokens, index, options, env, renderer);
+  if (!token.meta?.section) throw new Error("Place each Codex prompt immediately after its section heading.");
+  const { id, label, fullInstall } = token.meta.section;
+  const buttonText = fullInstall ? "Copy full installation prompt" : "Copy Codex prompt";
+  const help = fullInstall ? `
+    <ol class="codex-start">
+      <li>Open <a href="https://chatgpt.com/download">ChatGPT for Mac</a> and choose <strong>Codex</strong>. Start a local chat in a folder of your choice.</li>
+      <li>Choose <strong>GPT-6.2 Sol</strong> if available, or keep the recommended model. Paste the prompt with <kbd>⌘V</kbd> and press <kbd>Return</kbd>.</li>
+      <li>Use the default permissions. Allow the download and installation when prompted. Handle Apple sign-in and macOS permission dialogs yourself.</li>
+    </ol>` : "";
+  return `<div class="prompt-box" data-prompt>
+    <button type="button" class="primary copy-prompt" hidden aria-label="${buttonText} — ${escape(label)}" aria-controls="prompt-${id}"><span class="copy-mark" aria-hidden="true"></span>${buttonText}</button>
+    <span class="copy-status" role="status"></span>${help}
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-${id}">${escape(token.content.trim())}</pre></details>
+  </div>\n`;
+};
 const guideBySource = new Map(guides.map(guide => [guide.source, guide]));
 const guideBySlug = new Map(guides.map(guide => [guide.slug, guide]));
 const releaseFiles = new Set([...release.assets.map(asset => asset.file), "SHA256SUMS", "source.zip"]);
@@ -131,6 +150,13 @@ function readGuide(guide, source, base) {
     for (let n = 2; ids.has(id); n++) id = prefix + "-" + n;
     ids.add(id);
     token.attrSet("id", id);
+    if (token.tag === "h2") {
+      const prompt = content[index + 3];
+      if (prompt?.type !== "fence" || prompt.info.trim() !== "codex-prompt" || !prompt.content.trim()) {
+        throw new Error(guide.source + ": add a Codex prompt immediately after " + label);
+      }
+      prompt.meta = { section: { id, label, fullInstall: guide.slug === "install" && sections.length === 0 } };
+    }
     sections.push({ label, id, level: Number(token.tag.slice(1)) });
   }
   return { title, sections, html: markdown.renderer.render(content, markdown.options, env) };
@@ -155,7 +181,7 @@ function tableOfContents(sections) {
   for (const { label, id, level } of sections) {
     items += '<li class="docs-toc-level-' + level + '"><a href="#' + id + '">' + escape(label) + '</a></li>';
   }
-  return '<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol>' + items + '</ol></nav>';
+  return '<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol>' + items + '</ol></details></nav>';
 }
 
 function template(base, title, description, main) {
@@ -163,7 +189,8 @@ function template(base, title, description, main) {
     '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     '  <meta name="theme-color" content="#f9faf6">\n  <meta name="description" content="' + escape(description) + '">\n' +
     '  <title>' + escape(title) + ' · ' + brand + '</title>\n' +
-    '  <link rel="stylesheet" href="' + base + 'style.css?v=2">\n  <link rel="stylesheet" href="' + base + 'guides.css?v=2">\n' +
+    '  <link rel="stylesheet" href="' + base + 'style.css?v=2">\n  <link rel="stylesheet" href="' + base + 'guides.css?v=3">\n' +
+    '  <script defer src="' + base + 'guide-prompts.js"></script>\n' +
     '</head>\n<body class="docs-page">\n  <a class="skip" href="#content">Skip to content</a>\n' +
     '  <header class="site-header"><div class="wrap nav">' + brandLink(base) +
     '<nav aria-label="Main navigation"><a href="' + base + '#how-it-works">How it works</a><a href="' + base +
@@ -177,17 +204,19 @@ function template(base, title, description, main) {
 
 function indexPage() {
   const base = "../";
-  const summary = "Set up your Mac, connect ChatGPT and read the dates and units that Even reports.";
+  const summary = "Start with the Mac installation. Once your first export works, you can connect ChatGPT and ask about your ring.";
   const main = breadcrumb(base) + '\n<header class="docs-hero"><h1 id="page-title">Guides</h1><p>' + summary + '</p></header>\n' +
-    '<section class="docs-index" aria-labelledby="browse-title"><h2 id="browse-title">Browse the guides</h2><div class="docs-grid">' +
-    guides.map(guide => card(guide, base)).join("\n") + '</div></section>';
+    '<a class="primary guide-start" href="./install/">Install with Codex <span aria-hidden="true">→</span></a>' +
+    '<section class="docs-index" aria-labelledby="browse-title"><h2 id="browse-title">After installation</h2><div class="docs-grid">' +
+    guides.filter(guide => guide.slug !== "install").map(guide => card(guide, base)).join("\n") + '</div></section>';
   return template(base, "Guides", summary, main);
 }
 
 function guidePage(guide, source) {
   const base = "../../";
   const { title, sections, html } = readGuide(guide, source, base);
-  const main = breadcrumb(base, guide.title) + '\n<header class="docs-hero"><h1 id="page-title">' + escape(title) + '</h1></header>\n' +
+  const instructions = guide.slug === "install" ? "" : '<p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p>';
+  const main = breadcrumb(base, guide.title) + '\n<header class="docs-hero"><h1 id="page-title">' + escape(title) + '</h1>' + instructions + '</header>\n' +
     '<div class="docs-layout">\n' + tableOfContents(sections) + '\n<article class="docs-article" aria-labelledby="page-title">\n' + html +
     '</article>\n</div>\n<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid">' +
     guide.related.map(slug => card(guideBySlug.get(slug), base)).join("\n") + '</div></section>';
