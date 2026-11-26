@@ -1,4 +1,4 @@
-"""Lecture des dernières cartes Health affichées par Even sur ce Mac."""
+"""Read the latest Even Health cards observed on this Mac."""
 import argparse
 import json
 import math
@@ -9,12 +9,12 @@ import stat
 from contextlib import closing
 from datetime import date, datetime, timedelta, timezone
 
-import collecte
-import rapprochement_even
+import collection
+import archive_match
 
 
 UNITS = {
-    "steps": {"pas"},
+    "steps": {"steps"},
     "calories": {"kcal"},
     "heartRate": {"bpm"},
     "hrv": {"ms"},
@@ -22,15 +22,15 @@ UNITS = {
     "skinTemperature": {"°C", "°F"},
 }
 MEANING = (
-    "Dernières cartes publiées par Even. Chaque recorded_at date la capture concernée. "
-    "Le libellé recency est celui affiché à cet instant pour la carte. "
-    "Les valeurs ne constituent pas un relevé ni un cumul pour la date de la requête."
+    "Latest cards shown by Even. Each recorded_at timestamp identifies a local observation. "
+    "Recency expresses the age shown on the card at that time, in English. "
+    "The observation date alone cannot establish a measurement date or daily total."
 )
 CARD_TOOL = {
-    "name": "dernier_releve_even",
-    "description": ("Lit les dernières cartes Health demandées. Un lot_csv éventuel indique "
-                    "la date locale du lot R1 dont la valeur et l’ancienneté concordent, "
-                    "sans établir l’heure exacte de mesure. " + MEANING),
+    "name": "latest_readings",
+    "description": ("Read the latest requested Health cards. An optional csv_batch identifies "
+                    "the local date of a matching R1 batch by value and recency. "
+                    "The exact measurement time is unknown. " + MEANING),
     "inputSchema": {
         "type": "object",
         "properties": {"categories": {"type": "array", "minItems": 1,
@@ -41,32 +41,51 @@ CARD_TOOL = {
     },
     "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
 }
-HISTORY_DB = "cartes_historique.sqlite3"
+HISTORY_DB = "card_history.sqlite3"
 MAX_CHANGES = 3 * 31 * len(UNITS)
 HISTORY_MEANING = (
-    "L’historique débute à la première observation locale de chaque carte. "
-    "Il conserve cette première valeur puis seulement les changements de valeur ou d’unité. "
-    "Les dates sont celles où le Mac a vu les valeurs affichées, et recency est le libellé "
-    "affiché à cet instant. La date de mesure reste inconnue. Les pas et calories "
-    "sont les valeurs des cartes et ne doivent pas être additionnés."
+    "History begins with the first local observation of each card. "
+    "It records that value and subsequent changes in value or unit. "
+    "Dates represent when the Mac observed the displayed values. Recency expresses "
+    "the age shown at the time, in English. The measurement date is unknown. Steps and calories "
+    "can be running totals. Do not add successive readings."
 )
 HISTORY_TOOL = {
-    "name": "evolution_cartes_even",
-    "description": "Changements observés sur 1 à 31 dates locales incluses. " + HISTORY_MEANING,
+    "name": "reading_history",
+    "description": "Changes observed over an inclusive range of 1 to 31 local dates. " + HISTORY_MEANING,
     "inputSchema": {"type": "object", "properties": {
         **CARD_TOOL["inputSchema"]["properties"],
-        "debut": {"type": "string", "format": "date"}, "fin": {"type": "string", "format": "date"}},
-        "required": ["categories", "debut", "fin"], "additionalProperties": False},
+        "start": {"type": "string", "format": "date"}, "end": {"type": "string", "format": "date"}},
+        "required": ["categories", "start", "end"], "additionalProperties": False},
     "annotations": CARD_TOOL["annotations"],
 }
 LIMIT = 16 * 1024
-# Ne restituer que les libellés temporels, sans interpréter leur précision ni leur date.
+# Return only recognizable recency labels, preserving their displayed precision.
 RECENCY = re.compile(
     r"(?:just now|now|today|yesterday|maintenant|à l[’']instant|aujourd[’']hui|hier|"
     r"(?:[0-9]{1,5}|an?|one) (?:seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|years?) ago|"
     r"il y a (?:[0-9]{1,5}|une?) (?:secondes?|minutes?|heures?|jours?|semaines?|mois|ans?|années?|s|min|h|j))",
     re.IGNORECASE,
 )
+FRENCH_RECENCY = {"maintenant": "now", "à l'instant": "just now", "aujourd'hui": "today", "hier": "yesterday"}
+FRENCH_UNITS = {
+    "s": "second", "seconde": "second", "min": "minute", "minute": "minute",
+    "h": "hour", "heure": "hour", "j": "day", "jour": "day", "semaine": "week",
+    "mois": "month", "an": "year", "année": "year",
+}
+
+
+def english_recency(label):
+    """Render a validated device label without converting its unit or guessing an absolute date."""
+    words = " ".join(label.casefold().split()).replace("’", "'")
+    if words in FRENCH_RECENCY:
+        return FRENCH_RECENCY[words]
+    if words.startswith("il y a "):
+        amount, unit = words[7:].split()
+        number = 1 if amount in ("un", "une") else int(amount)
+        english_unit = FRENCH_UNITS.get(unit) or FRENCH_UNITS[unit.removesuffix("s")]
+        return f"{number} {english_unit}{'' if number == 1 else 's'} ago"
+    return label
 
 
 class SnapshotError(Exception):
@@ -78,10 +97,10 @@ class HistoryError(Exception):
 
 
 def date_range(arguments):
-    if not isinstance(arguments, dict) or set(arguments) != {"debut", "fin"}:
+    if not isinstance(arguments, dict) or set(arguments) != {"start", "end"}:
         raise ValueError()
     dates = []
-    for key in ("debut", "fin"):
+    for key in ("start", "end"):
         value = arguments[key]
         if not isinstance(value, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
             raise ValueError()
@@ -114,11 +133,11 @@ def capture_time(when):
             r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}"
             r"(?:\.[0-9]{1,9})?(?:Z|[+-][0-9]{2}:[0-9]{2})", when):
         raise ValueError()
-    return collecte.timestamp(when)
+    return collection.timestamp(when)
 
 
 def load_snapshot(base):
-    fd = os.open(base / "releves_even.json", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    fd = os.open(base / "readings.json", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     with os.fdopen(fd, "rb") as stream:
         info = os.fstat(stream.fileno())
         if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid()
@@ -167,7 +186,7 @@ def card(name, candidate, when, timestamp):
     return {"value": value, "unit": unit, "recency": recency, "recorded_at": captured}
 
 
-def last_cards(base, names, *, avec_lot=True):
+def observed_cards(base, names):
     try:
         snapshot, timestamp = load_snapshot(base)
     except (OSError, ValueError, RecursionError, SnapshotError) as exc:
@@ -177,11 +196,18 @@ def last_cards(base, names, *, avec_lot=True):
         value = card(name, snapshot["metrics"].get(name), snapshot["recorded_at"], timestamp)
         if value is not None:
             values[name] = value
-    if avec_lot:
-        for name, lot in rapprochement_even.corroborate(base, values).items():
-            values[name]["lot_csv"] = lot
-    return {"recorded_at": snapshot["recorded_at"], "description": MEANING,
-            "metrics": values, "indisponibles": [n for n in names if n not in values]}
+    return snapshot["recorded_at"], values
+
+
+def last_cards(base, names, *, include_batch=True):
+    recorded_at, values = observed_cards(base, names)
+    if include_batch:
+        for name, batch in archive_match.corroborate(base, values).items():
+            values[name]["csv_batch"] = batch
+    for reading in values.values():
+        reading["recency"] = english_recency(reading["recency"])
+    return {"recorded_at": recorded_at, "description": MEANING,
+            "metrics": values, "unavailable": [n for n in names if n not in values]}
 
 
 def history_connection(base, writable):
@@ -202,97 +228,99 @@ def utc_key(stamp):
     return capture_time(stamp).astimezone(timezone.utc).isoformat(timespec="microseconds")
 
 
-def enregistrer_changements(base):
-    snapshot = last_cards(base, UNITS, avec_lot=False)
-    instant = utc_key(snapshot["recorded_at"])
+def record_changes(base):
+    recorded_at, values = observed_cards(base, UNITS)
+    instant = utc_key(recorded_at)
     count = 0
     try:
         with closing(history_connection(base, True)) as db, db:
             db.execute("BEGIN IMMEDIATE")
             db.execute("CREATE TABLE IF NOT EXISTS capture (id INTEGER PRIMARY KEY, utc TEXT NOT NULL)")
-            db.execute("""CREATE TABLE IF NOT EXISTS etat (
-                categorie TEXT PRIMARY KEY, utc TEXT NOT NULL, valeur TEXT NOT NULL, unite TEXT NOT NULL)""")
-            db.execute("""CREATE TABLE IF NOT EXISTS changements (
-                categorie TEXT NOT NULL, utc TEXT NOT NULL, observation TEXT NOT NULL,
-                jour TEXT NOT NULL, valeur TEXT NOT NULL, unite TEXT NOT NULL,
-                anciennete TEXT NOT NULL, initiale INTEGER NOT NULL, PRIMARY KEY (categorie,utc))""")
+            db.execute("""CREATE TABLE IF NOT EXISTS status (
+                category TEXT PRIMARY KEY, utc TEXT NOT NULL, value TEXT NOT NULL, unit TEXT NOT NULL)""")
+            db.execute("""CREATE TABLE IF NOT EXISTS changes (
+                category TEXT NOT NULL, utc TEXT NOT NULL, observation TEXT NOT NULL,
+                day TEXT NOT NULL, value TEXT NOT NULL, unit TEXT NOT NULL,
+                recency TEXT NOT NULL, initial INTEGER NOT NULL, PRIMARY KEY (category,utc))""")
             previous = db.execute("SELECT utc FROM capture WHERE id=1").fetchone()
             if previous and instant <= previous[0]:
                 return 0
-            for name, metric in snapshot["metrics"].items():
+            for name, metric in values.items():
                 stamp = metric["recorded_at"]
                 utc = utc_key(stamp)
                 value, unit = metric["value"], metric["unit"]
-                prior = db.execute("SELECT utc,valeur,unite FROM etat WHERE categorie=?", (name,)).fetchone()
+                prior = db.execute("SELECT utc,value,unit FROM status WHERE category=?", (name,)).fetchone()
                 if prior and utc <= prior[0]:
                     continue
                 stored = json.dumps(value, allow_nan=False)
                 if not prior or (json.loads(prior[1]), prior[2]) != (value, unit):
-                    db.execute("INSERT INTO changements VALUES (?,?,?,?,?,?,?,?)",
+                    db.execute("INSERT INTO changes VALUES (?,?,?,?,?,?,?,?)",
                                (name, utc, stamp, stamp[:10], stored, unit, metric["recency"], int(not prior)))
                     count += 1
-                # Même une valeur inchangée avance la limite contre les captures rejouées.
-                db.execute("INSERT OR REPLACE INTO etat VALUES (?,?,?,?)", (name, utc, stored, unit))
+                # Advance the watermark even when the displayed value is unchanged.
+                db.execute("INSERT OR REPLACE INTO status VALUES (?,?,?,?)", (name, utc, stored, unit))
             db.execute("INSERT OR REPLACE INTO capture VALUES (1,?)", (instant,))
     except (OSError, sqlite3.Error, ValueError, OverflowError) as exc:
         raise HistoryError() from exc
     return count
 
 
-def evolution(base, names, first, last):
+def history(base, names, first, last):
     starts = dict.fromkeys(names)
     changes = []
     try:
         with closing(history_connection(base, False)) as db, db:
             db.execute("BEGIN")
             for name in names:
-                first_seen = db.execute("""SELECT observation FROM changements WHERE categorie=?
+                first_seen = db.execute("""SELECT observation FROM changes WHERE category=?
                                         ORDER BY utc LIMIT 1""", (name,)).fetchone()
                 if first_seen:
                     starts[name] = first_seen[0]
             placeholders = ",".join("?" for _ in names)
-            rows = db.execute("""SELECT categorie,observation,valeur,unite,anciennete,initiale
-                              FROM changements WHERE categorie IN (""" + placeholders + """)
-                              AND jour BETWEEN ? AND ? ORDER BY utc DESC, categorie DESC LIMIT ?""",
+            rows = db.execute("""SELECT category,observation,value,unit,recency,initial
+                              FROM changes WHERE category IN (""" + placeholders + """)
+                              AND day BETWEEN ? AND ? ORDER BY utc DESC, category DESC LIMIT ?""",
                               (*names, first.isoformat(), last.isoformat(), MAX_CHANGES + 1))
             for name, stamp, value, unit, recency, initial in rows:
-                changes.append({"categorie": name, "observe_le": stamp, "value": json.loads(value),
-                                "unit": unit, "recency": recency, "initiale": bool(initial)})
+                if not isinstance(recency, str) or not RECENCY.fullmatch(" ".join(recency.split())):
+                    raise HistoryError()
+                changes.append({"category": name, "observed_at": stamp, "value": json.loads(value),
+                                "unit": unit, "recency": english_recency(recency), "initial": bool(initial)})
     except FileNotFoundError:
         pass
     except (OSError, sqlite3.Error, ValueError) as exc:
         raise HistoryError() from exc
-    return {"description": HISTORY_MEANING, "premiere_observation": starts,
-            "changements": list(reversed(changes[:MAX_CHANGES])),
-            "tronque_aux_plus_recents": len(changes) > MAX_CHANGES, "limite": MAX_CHANGES}
+    return {"description": HISTORY_MEANING, "first_observation": starts,
+            "changes": list(reversed(changes[:MAX_CHANGES])),
+            "truncated_to_latest": len(changes) > MAX_CHANGES, "limit": MAX_CHANGES}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     actions = parser.add_mutually_exclusive_group()
-    actions.add_argument("--enregistrer", action="store_true", help="Actualiser l’historique local.")
-    actions.add_argument("--evolution", nargs=2, metavar=("DEBUT", "FIN"), help="Dates locales incluses.")
-    parser.add_argument("categories", nargs="*", metavar="CATÉGORIE", help=", ".join(UNITS))
+    actions.add_argument("--record", action="store_true", help="Record changes in local card history.")
+    actions.add_argument("--history", nargs=2, metavar=("START", "END"), help="Inclusive local dates.")
+    parser.add_argument("categories", nargs="*", metavar="CATEGORY", help=", ".join(UNITS))
     args = parser.parse_args()
     try:
-        if args.enregistrer:
+        if args.record:
             if args.categories:
-                parser.error("--enregistrer ne prend pas de catégorie")
-            enregistrer_changements(collecte.BASE)
+                parser.error("--record does not take categories")
+            record_changes(collection.BASE)
             return
         names = categories({"categories": args.categories})
-        if args.evolution:
-            first, last = date_range(dict(zip(("debut", "fin"), args.evolution)))
-            result = evolution(collecte.BASE, names, first, last)
+        if args.history:
+            first, last = date_range(dict(zip(("start", "end"), args.history)))
+            result = history(collection.BASE, names, first, last)
         else:
-            result = last_cards(collecte.BASE, names)
+            result = last_cards(collection.BASE, names)
         print(json.dumps(result, ensure_ascii=False))
     except ValueError:
-        parser.exit(2, "Choisir une à six catégories distinctes et une période de 1 à 31 dates.\n")
+        parser.exit(2, "Choose one to six distinct categories and an inclusive range of 1 to 31 dates.\n")
     except SnapshotError:
-        parser.exit(1, "Aucune capture locale validée des cartes Even disponible.\n")
+        parser.exit(1, "No verified local snapshot of the Even cards is available.\n")
     except HistoryError:
-        parser.exit(1, "Historique local des cartes indisponible.\n")
+        parser.exit(1, "Local card history is unavailable.\n")
 
 
 if __name__ == "__main__":

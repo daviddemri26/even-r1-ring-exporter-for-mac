@@ -10,7 +10,7 @@ let glasses;
 let pending = Promise.resolve();
 
 function showCard() {
-  document.querySelector('#position').textContent = `Fiche ${index + 1} sur ${cards.length}`;
+  document.querySelector('#position').textContent = `Card ${index + 1} of ${cards.length}`;
   document.querySelector('#title').textContent = cards[index].title;
   document.querySelector('#body').textContent = cards[index].body;
 }
@@ -25,7 +25,7 @@ function move(delta) {
 }
 
 function reportDisplayError() {
-  document.querySelector('#status').textContent = 'Affichage des lunettes indisponible. Le guide reste consultable ici.';
+  document.querySelector('#status').textContent = 'Glasses display unavailable. You can still browse the guide here.';
 }
 
 async function connectDisplay() {

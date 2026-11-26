@@ -2,7 +2,7 @@ import AppKit
 import ApplicationServices
 import Foundation
 
-// Les seuls messages renvoyés à Automator sont les résultats constants de cette liste.
+// Only these fixed codes are returned to Automator.
 enum ExportError: String, Error {
     case accessibility = "ACCESSIBILITY"
     case unavailable = "EVEN_UNAVAILABLE"
@@ -43,7 +43,7 @@ func windows(_ app: AXUIElement) -> [AXUIElement] {
     }
 }
 
-// Recherche limitée aux fenêtres du processus Even ou à la feuille qu’il héberge.
+// Search only Even windows and the sheets hosted by those windows.
 func first(_ roots: [AXUIElement], where matches: (AXUIElement) -> Bool) -> AXUIElement? {
     var pending = roots
     var seen = Set<AXUIElement>()
@@ -112,9 +112,8 @@ func archiveName(_ text: String) -> Bool {
     text.range(of: #"^Even_health_data_[0-9]{8}(?:\.zip)?$"#, options: .regularExpression) != nil
 }
 
-// Chaque cible provient des fenêtres qu’Even héberge. Les noeuds AX du service
-// distant peuvent avoir un PID distinct de celui de la fenêtre hôte.
-// Les contrôles d’une feuille imbriquée ne sont jamais associés à sa fenêtre parente.
+// Accessibility elements in a hosted save panel may belong to a separate process.
+// Match the controls within a single sheet so an unrelated dialog stays untouched.
 func isExportSaveDialog(archive: Bool, save: Bool, cancelCount: Int) -> Bool {
     archive && save && cancelCount == 1
 }
@@ -171,8 +170,8 @@ func sharingPanel(in app: AXUIElement) -> AXUIElement? {
     }
 }
 
-// NSSavePanel et le popover de partage peuvent se succéder. Les actions AX
-// ciblent un contrôle déjà identifié, sans événement clavier ni clic global.
+// A save panel and a share popover may appear in succession.
+// Act on the identified accessibility control to preserve keyboard and pointer focus.
 func closeExportPanels(_ app: AXUIElement, observeFor seconds: TimeInterval) throws {
     let started = ProcessInfo.processInfo.systemUptime
     var quietUntil = started + seconds
@@ -216,7 +215,7 @@ func backButton(in roots: [AXUIElement]) -> AXUIElement? {
         guard let id: String = attribute(node, kAXIdentifierAttribute) else { return false }
         return known.contains(id)
     }) { return back }
-    // Certains écrans Dashboard ne nomment que le titre et le rôle du bouton Retour.
+    // Some Dashboard screens expose only the back button’s role and label.
     let title = first(roots) { node in
         let role: String? = attribute(node, kAXRoleAttribute)
         let desc: String? = attribute(node, kAXDescriptionAttribute)
@@ -240,7 +239,7 @@ func leaveDetail(_ app: AXUIElement, back: AXUIElement) throws {
 
 func exportButton(in app: AXUIElement) throws -> AXUIElement {
     try requireClear(app)
-    // Les identifiants Flutter servent de liste blanche. Aucun chemin Bluetooth ou Calendrier.
+    // Match the Flutter controls used by the Health export.
     let exportID = "health.settings.export"
     let settingsID = "nav_bar.health.button.settings"
     var current = windows(app)
@@ -249,8 +248,7 @@ func exportButton(in app: AXUIElement) throws -> AXUIElement {
         try leaveDetail(app, back: back)
         current = windows(app)
     }
-    // Flutter peut exposer la roue dentée des onglets en arrière-plan.
-    // Activer d'abord Santé lorsque la navigation principale est disponible.
+    // Flutter may expose settings controls from background tabs. Select Health first.
     if let health = namedID("main.nav.health", in: current) {
         try requireClear(app)
         try press(health)
@@ -276,7 +274,7 @@ func importArchive(_ step: String, manifest: URL) throws {
     python.standardError = FileHandle.nullDevice
     python.currentDirectoryURL = support
     do { try python.run() } catch { throw ExportError.importFailed }
-    let timeout: TimeInterval = step == "recuperer" ? 120 : 48
+    let timeout: TimeInterval = step == "receive" ? 120 : 48
     if waitFor(timeout, { python.isRunning ? nil : true }) == nil {
         python.terminate()
         if waitFor(2, { python.isRunning ? nil : true }) == nil {
@@ -295,23 +293,23 @@ func importArchive(_ step: String, manifest: URL) throws {
 
 func exportArchive(in runDir: URL) throws {
     let app = try accessibleEven()
-    // Un panneau qui précède cet essai peut appartenir à un export manuel.
+    // An existing panel may belong to a manual export.
     try requireClear(app)
     let manifest = runDir.appendingPathComponent("manifest")
-    try importArchive("avant", manifest: manifest)
+    try importArchive("baseline", manifest: manifest)
     let export = try exportButton(in: app)
     try requireClear(app)
     do {
         try press(export)
-        try importArchive("recuperer", manifest: manifest)
+        try importArchive("receive", manifest: manifest)
     } catch {
         try closeExportPanels(app, observeFor: 3)
         throw error
     }
-    // Le ZIP est déjà copié avant la fermeture du sélecteur macOS.
+    // The archive is already copied before dismissing the macOS save panel.
     try closeExportPanels(app, observeFor: 4)
     if (try? requireClear(app)) != nil {
-        try? importArchive("cartes", manifest: manifest)
+        try? importArchive("cards", manifest: manifest)
     }
     try closeExportPanels(app, observeFor: 1)
 }

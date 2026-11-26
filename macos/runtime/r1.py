@@ -1,4 +1,4 @@
-"""Commande locale pour l'export Even R1 et son LaunchAgent macOS."""
+"""Manage local Even R1 exports and the macOS collection schedule."""
 import argparse
 import json
 import ctypes
@@ -13,10 +13,12 @@ from contextlib import closing
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import collecte
+import collection
+import legacy_upgrade
+import legacy_services
 
-BASE = collecte.BASE
-LABEL = "local.r1bridge.collecte"
+BASE = collection.BASE
+LABEL = "local.r1bridge.collection"
 DOMAIN = "gui/%d" % os.getuid()
 SERVICE = DOMAIN + "/" + LABEL
 PLIST = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
@@ -43,32 +45,32 @@ def current_slot(current):
 
 def quiet_reason():
     try:
-        collecte.check_session()
+        collection.check_session()
         raw = subprocess.check_output(["/usr/sbin/ioreg", "-a", "-r", "-c", "IOHIDSystem", "-d", "1"],
                                       stderr=subprocess.DEVNULL, timeout=5)
         values = [item.get("HIDIdleTime") for item in plistlib.loads(raw)]
         if not values or any(type(v) is not int or v < 0 for v in values):
-            return "activité du Mac indéterminée"
+            return "the Mac's activity could not be determined"
         if min(values) < IDLE_SECONDS * 1_000_000_000:
-            return "Mac utilisé au cours des deux dernières minutes"
-    except collecte.CollectError as error:
+            return "the Mac was in use within the last two minutes"
+    except collection.CollectError as error:
         return str(error)
     except (subprocess.SubprocessError, OSError, ValueError, AttributeError, TypeError, plistlib.InvalidFileException):
-        return "activité du Mac indéterminée"
+        return "the Mac's activity could not be determined"
     return None
 
 
 def schedule_db(base):
-    db = collecte.connect(base)
-    db.execute("""CREATE TABLE IF NOT EXISTS controles_planifies (
-        creneau TEXT PRIMARY KEY, controle TEXT NOT NULL, etat TEXT NOT NULL, detail TEXT NOT NULL
+    db = collection.connect(base)
+    db.execute("""CREATE TABLE IF NOT EXISTS schedule_checks (
+        slot TEXT PRIMARY KEY, checked_at TEXT NOT NULL, status TEXT NOT NULL, detail TEXT NOT NULL
     )""")
     return db
 
 
 def previous_export_in_slot(db, slot):
     # Upgrades can occur after an export run by the previous calendar schedule.
-    row = db.execute("""SELECT debut FROM essais WHERE mode='launchd' AND etat <> 'occupé'
+    row = db.execute("""SELECT start FROM attempts WHERE mode='launchd' AND status <> 'busy'
                         ORDER BY id DESC LIMIT 1""").fetchone()
     if not row:
         return False
@@ -80,31 +82,31 @@ def scheduled_run(base, current=None):
     current = current or datetime.now()
     slot = current_slot(current)
     if slot is None:
-        return 0, "Hors créneau de collecte discrète."
+        return 0, "Outside a scheduled collection window."
     key = slot.isoformat(timespec="minutes")
-    collecte.setup(base)
+    collection.setup(base)
     with closing(schedule_db(base)) as db:
         with db:
             db.execute("BEGIN IMMEDIATE")
-            row = db.execute("SELECT etat FROM controles_planifies WHERE creneau=?", (key,)).fetchone()
-            if row and row[0] != "différé":
-                return 0, "Le créneau a déjà été pris en compte."
+            row = db.execute("SELECT status FROM schedule_checks WHERE slot=?", (key,)).fetchone()
+            if row and row[0] != "deferred":
+                return 0, "This collection window was already handled."
             if not row and previous_export_in_slot(db, slot):
-                state, detail = "traité", "Un export avait déjà été tenté pendant ce créneau."
+                state, detail = "handled", "An export was already attempted in this window."
             else:
                 reason = quiet_reason()
-                state, detail = (("différé", "Export différé. " + reason)
-                                 if reason else ("réservé", "Lancement de la collecte discrète."))
-            db.execute("INSERT OR REPLACE INTO controles_planifies VALUES (?, ?, ?, ?)",
+                state, detail = (("deferred", "Export deferred because " + reason)
+                                 if reason else ("reserved", "Starting a background export."))
+            db.execute("INSERT OR REPLACE INTO schedule_checks VALUES (?, ?, ?, ?)",
                        (key, datetime.now().astimezone().isoformat(), state, detail))
         # Reserve the slot durably before opening Even. A crash cannot trigger a
         # second export from the same slot. Deferred checks never touch freshness.
-        if state != "réservé":
+        if state != "reserved":
             return 0, detail
-        code, detail = collecte.run(base, "launchd")
-        state = "différé" if code == 75 else ("terminé" if code == 0 else "échec")
+        code, detail = collection.run(base, "launchd")
+        state = "deferred" if code == 75 else ("completed" if code == 0 else "failed")
         with db:
-            db.execute("UPDATE controles_planifies SET controle=?, etat=?, detail=? WHERE creneau=?",
+            db.execute("UPDATE schedule_checks SET checked_at=?, status=?, detail=? WHERE slot=?",
                        (datetime.now().astimezone().isoformat(), state, detail, key))
         return code, detail
 
@@ -121,8 +123,9 @@ def atomic_file(target, content):
             temp.unlink(missing_ok=True)
 
 
-RUNTIME_FILES = ("collecte.py", "rapport_even.py", "rapprochement_even.py",
-                 "serveur_sommeil.py", "controle_sommeil.py", "tunnel_r1.py", "r1.py")
+RUNTIME_FILES = ("collection.py", "card_report.py", "archive_match.py",
+                 "mcp_server.py", "sleep_report.py", "tunnel.py", "legacy_upgrade.py",
+                 "legacy_services.py", "r1.py")
 
 
 def install_runtime(source):
@@ -130,43 +133,45 @@ def install_runtime(source):
     resources = workflow / "Contents" / "Resources"
     helper = resources / "R1 Bridge Collector.app/Contents/MacOS/EvenR1Export"
     if not all((source / name).is_file() for name in RUNTIME_FILES):
-        raise collecte.CollectError("Le moteur est incomplet. Réinstaller l’application Mac.")
-    if not helper.is_file() or not os.access(helper, os.X_OK) or not os.access(resources / "cartes_even", os.X_OK):
-        raise collecte.CollectError("Le collecteur doit être compilé. Installer l’application Mac construite.")
+        raise collection.CollectError("The runtime is incomplete. Reinstall the Mac app.")
+    if not helper.is_file() or not os.access(helper, os.X_OK) or not os.access(resources / "even_cards", os.X_OK):
+        raise collection.CollectError("The compiled collector is missing. Install the built Mac app.")
     target = BASE / workflow.name
     if target.is_symlink() or (target.exists() and not target.is_dir()):
-        raise collecte.CollectError("La destination du workflow doit être un dossier local.")
-    # Valider et copier tous les composants avant de remplacer la version active.
-    with tempfile.TemporaryDirectory(dir=BASE, prefix=".installation-") as stage:
+        raise collection.CollectError("The workflow destination must be a local directory.")
+    # Stage and verify all components before switching the active installation.
+    with tempfile.TemporaryDirectory(dir=BASE, prefix=".install-") as stage:
         staged = Path(stage) / workflow.name
         subprocess.run(["/usr/bin/ditto", str(workflow), str(staged)], check=True)
         for name in RUNTIME_FILES:
             atomic_file(Path(stage) / name, (source / name).read_bytes())
         if target.exists():
-            # Darwin RENAME_SWAP conserve les exécutables en cours sans fenêtre
-            # pendant laquelle le workflow installé serait absent.
+            # Darwin RENAME_SWAP preserves running executables while atomically
+            # replacing the workflow at its installed path.
             swap = ctypes.CDLL(None, use_errno=True).renamex_np
             swap.argtypes = (ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint)
             swap.restype = ctypes.c_int
             if swap(os.fsencode(staged), os.fsencode(target), 0x00000002):
-                raise collecte.CollectError("Échange du workflow impossible.")
+                raise collection.CollectError("Could not replace the installed workflow.")
         else:
             staged.rename(target)
         for name in RUNTIME_FILES:
             os.replace(Path(stage) / name, BASE / name)
 
 
-def preparer():
-    collecte.setup(BASE)
+def prepare():
+    collection.setup(BASE)
     source = Path(__file__).resolve().parent
-    with (BASE / ".collecte.lock").open("a") as lock:
+    with legacy_upgrade.previous_collection_lock(BASE), (BASE / ".collection.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if source != BASE.resolve():
             install_runtime(source)
-        if (BASE / collecte.DATABASE).is_file():
-            with closing(collecte.connect(BASE)):
+        legacy_upgrade.import_data(BASE)
+        if (BASE / collection.DATABASE).is_file():
+            with closing(collection.connect(BASE)):
                 pass
-    print("Moteur R1 Bridge installé dans", BASE)
+        legacy_services.migrate_services(BASE, schedule)
+    print("R1 Bridge runtime installed at", BASE)
 
 
 def ctl(*args):
@@ -178,9 +183,9 @@ def loaded():
     return ctl("print", SERVICE) == 0
 
 
-def planifier():
+def schedule():
     if not (BASE / "r1.py").is_file() or not (BASE / "Export.workflow").exists():
-        raise collecte.CollectError("Préparer le pilote et installer Export.workflow d’abord.")
+        raise collection.CollectError("Prepare the runtime and install Export.workflow first.")
     PLIST.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     spec = plistlib.dumps({
         "Label": LABEL,
@@ -195,50 +200,50 @@ def planifier():
     same = PLIST.exists() and PLIST.read_bytes() == spec
     if not same:
         if loaded() and ctl("bootout", SERVICE):
-            raise collecte.CollectError("Impossible de recharger le LaunchAgent.")
+            raise collection.CollectError("Could not reload the collection LaunchAgent.")
         atomic_file(PLIST, spec)
     if not loaded():
         if ctl("enable", SERVICE) or ctl("bootstrap", DOMAIN, str(PLIST)) or not loaded():
-            raise collecte.CollectError("Le LaunchAgent n’a pas été chargé dans la session GUI.")
-    print("Collecte discrète à partir de 08 h 15, 12 h 15 et 18 h 15. Contrôle toutes les dix minutes pendant une heure.")
+            raise collection.CollectError("The collection LaunchAgent could not load in the graphical session.")
+    print("Collection windows start at 08:15, 12:15 and 18:15 local time. Activity is checked every ten minutes for an hour.")
 
 
-def arreter():
+def stop():
     if loaded() and ctl("bootout", SERVICE):
-        raise collecte.CollectError("Impossible d’arrêter le LaunchAgent.")
+        raise collection.CollectError("Could not stop the collection LaunchAgent.")
     PLIST.unlink(missing_ok=True)
-    print("Collecte planifiée arrêtée. Les archives restent disponibles.")
+    print("Scheduled collection stopped. Your archives are still available.")
 
 
-def essai_planifie():
+def test_schedule():
     if not loaded():
-        raise collecte.CollectError("Le LaunchAgent doit être chargé pour cet essai.")
+        raise collection.CollectError("Load the collection LaunchAgent before running a scheduled test.")
     slot = current_slot(datetime.now())
     if slot is None:
-        print("Hors créneau. Utilisez « essai » pour demander un export manuel immédiat.")
+        print("Outside a collection window. Use the export command to run a manual export now.")
         return 0
     key = slot.isoformat(timespec="minutes")
     with closing(schedule_db(BASE)) as db:
         def record():
-            return db.execute("SELECT controle, etat, detail FROM controles_planifies WHERE creneau=?",
+            return db.execute("SELECT checked_at, status, detail FROM schedule_checks WHERE slot=?",
                               (key,)).fetchone()
         prior = record()
-        if prior and prior["etat"] != "différé":
+        if prior and prior["status"] != "deferred":
             print(prior["detail"])
-            return 0 if prior["etat"] != "échec" else 1
+            return 0 if prior["status"] != "failed" else 1
         if ctl("kickstart", SERVICE):
-            raise collecte.CollectError("launchctl n’a pas pu démarrer l’essai.")
-        deadline = time.monotonic() + collecte.TIMEOUT + 45
+            raise collection.CollectError("launchctl could not start the scheduled test.")
+        deadline = time.monotonic() + collection.TIMEOUT + 45
         while time.monotonic() < deadline:
             latest = record()
-            if latest and latest != prior and latest["etat"] != "réservé":
-                print("Essai launchd.", latest["detail"])
-                return 0 if latest["etat"] != "échec" else 1
+            if latest and latest != prior and latest["status"] != "reserved":
+                print("Scheduled test.", latest["detail"])
+                return 0 if latest["status"] != "failed" else 1
             if current_slot(datetime.now()) != slot:
-                print("La fenêtre de collecte est terminée.")
+                print("The collection window has ended.")
                 return 0
             time.sleep(0.5)
-    raise collecte.CollectError("Aucun résultat du LaunchAgent dans le délai prévu.")
+    raise collection.CollectError("The collection LaunchAgent did not report a result in time.")
 
 
 def next_attempt(current=None, consumed=None):
@@ -249,78 +254,78 @@ def next_attempt(current=None, consumed=None):
                 return check.astimezone().strftime("%Y-%m-%d %H:%M %Z")
 
 
-def etat():
+def status():
     latest_control = None
-    if (BASE / collecte.DATABASE).is_file():
+    if (BASE / collection.DATABASE).is_file():
         with closing(schedule_db(BASE)) as db:
-            latest_control = db.execute("""SELECT * FROM controles_planifies
-                                          ORDER BY controle DESC LIMIT 1""").fetchone()
+            latest_control = db.execute("""SELECT * FROM schedule_checks
+                                          ORDER BY checked_at DESC LIMIT 1""").fetchone()
     if loaded():
-        consumed = latest_control["creneau"] if latest_control and latest_control["etat"] != "différé" else None
-        print("Prochain contrôle programmé", next_attempt(consumed=consumed))
+        consumed = latest_control["slot"] if latest_control and latest_control["status"] != "deferred" else None
+        print("Next scheduled check", next_attempt(consumed=consumed))
     else:
-        print("Planification inactive.")
+        print("Scheduled collection is off.")
     if latest_control:
-        print("Dernier contrôle de planification", latest_control["controle"], latest_control["etat"])
+        print("Last scheduled check", latest_control["checked_at"], latest_control["status"])
         print(latest_control["detail"])
-    snapshot = BASE / "releves_even.json"
+    snapshot = BASE / "readings.json"
     if snapshot.is_file():
         try:
             cards_data = json.loads(snapshot.read_text())
-            observed = collecte.timestamp(cards_data["recorded_at"])
+            observed = collection.timestamp(cards_data["recorded_at"])
             count = len(cards_data["metrics"])
             if observed.utcoffset() is not None and 0 < count <= 6:
-                print("Dernière mise à jour des cartes", observed.isoformat(timespec="minutes"),
-                      "(%d catégories disponibles)" % count)
+                print("Latest card update", observed.isoformat(timespec="minutes"),
+                      "(%d categories available)" % count)
         except (ValueError, KeyError, OSError, TypeError):
-            print("Date des cartes indisponible.")
-    cards = BASE / "etat_cartes.txt"
+            print("The card capture date is unavailable.")
+    cards = BASE / "card_status.txt"
     if cards.is_file():
         status = cards.read_text().strip()
         if status == "CARDS_OK":
-            print("Dernier contrôle des cartes Even : six cartes lisibles.")
+            print("Latest check read all six Even cards.")
         elif status == "CARDS_PARTIAL":
-            print("Dernier contrôle des cartes Even : lecture partielle.")
+            print("Latest check read some Even cards.")
         elif status == "CARDS_HISTORY_ERROR":
-            print("Cartes lues ; enregistrement de leur historique à vérifier.")
+            print("Cards were read. Check that history was saved.")
         else:
-            print("Dernier contrôle des cartes Even : interface indisponible.")
-    if not (BASE / collecte.DATABASE).is_file():
-        print("Aucun export enregistré.")
+            print("The Even interface was unavailable at the last card check.")
+    if not (BASE / collection.DATABASE).is_file():
+        print("No export has been recorded.")
         return
-    with closing(collecte.connect(BASE)) as db:
-        attempt = db.execute("SELECT * FROM essais ORDER BY id DESC LIMIT 1").fetchone()
+    with closing(collection.connect(BASE)) as db:
+        attempt = db.execute("SELECT * FROM attempts ORDER BY id DESC LIMIT 1").fetchone()
         if attempt:
-            print("Dernière tentative", attempt["debut"], attempt["mode"], attempt["etat"])
+            print("Last attempt", attempt["start"], attempt["mode"], attempt["status"])
             if attempt["detail"]:
                 print(attempt["detail"])
-        latest = db.execute("SELECT MAX(jour) FROM nuits").fetchone()[0]
-        print("Dernière date de réveil enregistrée", latest or "aucune")
-        print("Synchronisation quotidienne confirmée." if collecte.evidence(db)
-              else "Deux nuits successives en collecte automatique restent à confirmer.")
+        latest = db.execute("SELECT MAX(day) FROM nights").fetchone()[0]
+        print("Latest recorded wake date", latest or "none")
+        print("Daily synchronization confirmed." if collection.evidence(db)
+              else "Two consecutive nights have yet to be verified by automatic collection.")
 
 
 def main():
     os.umask(0o077)
-    choices = ("preparer", "essai", "planifier", "essai-planifie", "etat", "arreter", "_launchd")
+    choices = ("prepare", "export", "schedule", "test-schedule", "status", "stop", "_launchd")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=choices)
     action = parser.parse_args().action
-    if action in ("essai", "_launchd"):
-        code, msg = scheduled_run(BASE) if action == "_launchd" else collecte.run(BASE, "manuel")
+    if action in ("export", "_launchd"):
+        code, msg = scheduled_run(BASE) if action == "_launchd" else collection.run(BASE, "manual")
         print(msg)
         return code
-    dispatch = {"preparer": preparer, "planifier": planifier,
-                "essai-planifie": essai_planifie, "etat": etat, "arreter": arreter}
+    dispatch = {"prepare": prepare, "schedule": schedule,
+                "test-schedule": test_schedule, "status": status, "stop": stop}
     return dispatch[action]() or 0
 
 
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except collecte.CollectError as error:
+    except collection.CollectError as error:
         print(error, file=sys.stderr)
         sys.exit(1)
     except (OSError, subprocess.SubprocessError) as error:
-        print("Échec local (%s)." % type(error).__name__, file=sys.stderr)
+        print("Local operation failed (%s)." % type(error).__name__, file=sys.stderr)
         sys.exit(1)

@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 
 CACHE = Path.home() / "Library/Containers/com.even.sg/Data/Library/Caches"
-RECEPTION = Path.home() / "Library/Application Support/R1 Bridge/Reception"
+INCOMING = Path.home() / "Library/Application Support/R1 Bridge/Incoming"
 UUID = re.compile(r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", re.I)
 ZIP = re.compile(r"Even_health_data_[0-9]{8}\.zip", re.I)
 
@@ -48,7 +48,7 @@ def scan_exports():
 
 def finished_copy(relative, signature):
     src = CACHE / relative
-    with tempfile.NamedTemporaryFile(dir=RECEPTION, prefix=".even-", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(dir=INCOMING, prefix=".even-", delete=False) as tmp:
         temp = Path(tmp.name)
     try:
         with src.open("rb") as f, temp.open("wb") as dest:
@@ -65,7 +65,7 @@ def finished_copy(relative, signature):
                 return False
             if archive.testzip() is not None:
                 return False
-        temp.replace(RECEPTION / (temp.name.removeprefix(".") + ".zip"))
+        temp.replace(INCOMING / (temp.name.removeprefix(".") + ".zip"))
         return True
     except (FileNotFoundError, EOFError, zipfile.BadZipFile):
         return False
@@ -74,8 +74,8 @@ def finished_copy(relative, signature):
 
 
 def capture_cards():
-    # Les cartes sont un complément. Un écran indisponible ne doit pas perdre le ZIP.
-    helper = Path(__file__).with_name("cartes_even")
+    # Card capture is optional once the ZIP has been saved.
+    helper = Path(__file__).with_name("even_cards")
     try:
         process = subprocess.run([str(helper), "--capture"], stdout=subprocess.PIPE,
                                  stderr=subprocess.DEVNULL, timeout=32)
@@ -88,31 +88,31 @@ def capture_cards():
     if status in {"CARDS_OK", "CARDS_PARTIAL"}:
         try:
             history = subprocess.run(
-                ["/usr/bin/python3", "-B", str(RECEPTION.parent / "rapport_even.py"), "--enregistrer"],
+                ["/usr/bin/python3", "-B", str(INCOMING.parent / "card_report.py"), "--record"],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=12)
             if history.returncode:
                 status = "CARDS_HISTORY_ERROR"
         except (OSError, subprocess.TimeoutExpired):
             status = "CARDS_HISTORY_ERROR"
-    # Aucune valeur de mesure ni information de compte dans le suivi technique.
+    # The status file contains only the result code.
     try:
-        with tempfile.NamedTemporaryFile(dir=RECEPTION.parent, mode="w", delete=False) as out:
+        with tempfile.NamedTemporaryFile(dir=INCOMING.parent, mode="w", delete=False) as out:
             out.write(status + "\n")
-        Path(out.name).replace(RECEPTION.parent / "etat_cartes.txt")
+        Path(out.name).replace(INCOMING.parent / "card_status.txt")
     except OSError:
         pass
 
 
 def run(mode, manifest):
     os.umask(0o077)
-    if mode == "cartes":
+    if mode == "cards":
         capture_cards()
         return 0
-    if mode == "avant":
+    if mode == "baseline":
         with manifest.open("x", encoding="utf-8") as out:
             json.dump(exports(), out)
         return 0
-    if mode != "recuperer":
+    if mode != "receive":
         return 64
     before = json.loads(manifest.read_text(encoding="utf-8"))
     deadline = time.monotonic() + 110

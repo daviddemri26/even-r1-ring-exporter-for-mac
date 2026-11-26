@@ -24,13 +24,13 @@
     const prompt = item
       .querySelector(".example-prompt")
       .textContent.trim()
-      .replace(/^«\s*|\s*»$/g, "");
+      .replace(/^“\s*|\s*”$/g, "");
     try {
       await navigator.clipboard.writeText(prompt);
-      copyStatus.textContent = "Question copiée.";
+      copyStatus.textContent = "Question copied.";
     } catch {
       copyStatus.textContent =
-        "Sélectionnez le texte de la question pour le copier.";
+        "Select the question text to copy it.";
     }
   });
 })();

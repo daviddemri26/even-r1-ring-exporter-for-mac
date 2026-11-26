@@ -1,4 +1,4 @@
-"""Attribue une date de lot aux seules cartes Even qui concordent avec leur export R1."""
+"""Match displayed Even cards to dated R1 export batches."""
 import csv
 import hashlib
 import io
@@ -13,15 +13,15 @@ from contextlib import closing, contextmanager
 from decimal import Decimal, localcontext
 from pathlib import PurePosixPath
 
-import collecte
+import collection
 
 
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
 MAX_CSV_BYTES = 32 * 1024 * 1024
 MAX_TOTAL_CSV_BYTES = 64 * 1024 * 1024
-# Fichier, colonne comparable, unité de la carte. Les cartes thermiques n'ont pas de correspondance.
+# Archive member, comparable column and card unit. Temperature cards have no matching export.
 SPECS = {
-    "steps": ("steps.csv", "value", "pas"),
+    "steps": ("steps.csv", "value", "steps"),
     "calories": ("calories.csv", "active", "kcal"),
     "heartRate": ("heart_rate.csv", "avg", "bpm"),
     "hrv": ("hrv.csv", "avg", "ms"),
@@ -38,12 +38,12 @@ READ_ERRORS = (DataError, OSError, ValueError, EOFError, RuntimeError, OverflowE
 
 
 def latest_digest(base):
-    uri = (base / collecte.DATABASE).resolve().as_uri() + "?mode=ro"
+    uri = (base / collection.DATABASE).resolve().as_uri() + "?mode=ro"
     with closing(sqlite3.connect(uri, uri=True, timeout=3)) as db:
         row = db.execute("""
-            SELECT essais.empreinte,archives.empreinte FROM essais
-            LEFT JOIN archives ON archives.empreinte = essais.empreinte
-            WHERE essais.etat = 'réussi' ORDER BY essais.id DESC LIMIT 1
+            SELECT attempts.checksum,archives.checksum FROM attempts
+            LEFT JOIN archives ON archives.checksum = attempts.checksum
+            WHERE attempts.status = 'succeeded' ORDER BY attempts.id DESC LIMIT 1
         """).fetchone()
     if not row or not isinstance(row[0], str) or row[0] != row[1] or not re.fullmatch(r"[a-f0-9]{64}", row[0]):
         raise DataError()
@@ -90,7 +90,7 @@ def numeric(text, name):
     return value
 
 
-def match_lot(archive, member, name, card, age):
+def match_batch(archive, member, name, card, age):
     _, field, unit = SPECS[name]
     average = field == "avg"
     required = {"timestamp", "source", "value", "ty"} if average else {"timestamp", "source", field}
@@ -108,7 +108,7 @@ def match_lot(archive, member, name, card, age):
                 raise DataError()
             if row["source"] != "R1":
                 continue
-            stamp = collecte.timestamp(row["timestamp"])
+            stamp = collection.timestamp(row["timestamp"])
             day = stamp.date()
             kind = row["ty"] if average else field
             value = numeric(row["value"] if average else row[field], name)
@@ -122,7 +122,7 @@ def match_lot(archive, member, name, card, age):
             days[stamp].add((day, stamp.utcoffset()))
     if latest is None or latest in conflicting or len(days[latest]) != 1:
         return None
-    seconds = (collecte.timestamp(card["recorded_at"]) - latest).total_seconds()
+    seconds = (collection.timestamp(card["recorded_at"]) - latest).total_seconds()
     target, tolerance = age
     if seconds < 0 or abs(seconds - target) > tolerance:
         return None
@@ -132,7 +132,7 @@ def match_lot(archive, member, name, card, age):
         value = stats.get("avg")
         if value is None or stats.get("min", value) > value or stats.get("max", value) < value:
             return None
-        meaning = "Moyenne du dernier lot R1, durée du lot inconnue."
+        meaning = "Average of the latest R1 batch. Its duration is unknown."
     else:
         value = Decimal(0)
         with localcontext() as context:
@@ -142,11 +142,11 @@ def match_lot(archive, member, name, card, age):
                     if labels != {(local_day, local_offset)} or stamp in conflicting:
                         return None
                     value += groups[stamp][field]
-        meaning = ("Total partiel des pas R1 observés à cette date." if name == "steps" else
-                   "Total partiel des calories actives R1 observées à cette date.")
+        meaning = ("Partial R1 step total observed on this date." if name == "steps" else
+                   "Partial R1 active-calorie total observed on this date.")
     if card["unit"] != unit or Decimal(str(card["value"])) != value:
         return None
-    return {"date_locale": local_day.isoformat(), "source": "R1", "correspondance": meaning}
+    return {"local_date": local_day.isoformat(), "source": "R1", "match": meaning}
 
 
 def corroborate(base, cards):
@@ -170,7 +170,7 @@ def corroborate(base, cards):
                     continue
                 budget -= members[0].file_size
                 try:
-                    match = match_lot(archive, members[0], name, card, age)
+                    match = match_batch(archive, members[0], name, card, age)
                     if match:
                         matches[name] = match
                 except READ_ERRORS:

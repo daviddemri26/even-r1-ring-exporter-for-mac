@@ -1,4 +1,4 @@
-"""Serveur MCP privé pour les durées de sommeil. Aucun accès réseau sortant."""
+"""Private, read-only MCP server for sleep and card data. No outbound connections."""
 import argparse
 import csv
 import hmac
@@ -14,44 +14,44 @@ from collections import defaultdict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 
-import collecte
-import rapport_even
-from rapport_even import date_range
-from rapprochement_even import DataError, verified_stream
+import collection
+import card_report
+from card_report import date_range
+from archive_match import DataError, verified_stream
 
 
 VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26")
 TOOL = {
-    "name": "durees_sommeil",
+    "name": "sleep_durations",
     "description": (
-        "Durée totale de sommeil par date locale de réveil, en minutes, sur une plage "
-        "inclusive de 1 à 31 dates. Le cumul comprend les sessions distinctes et les "
-        "siestes. Une date absente signifie aucune session dans cet export. Une durée "
-        "nulle (JSON null) signale des données ambiguës ou incohérentes."
+        "Total sleep duration in minutes by local wake date over an inclusive range "
+        "of 1 to 31 dates. Totals include distinct sessions and naps. "
+        "A missing date means the export contained no session for that date. "
+        "A null duration indicates ambiguous or inconsistent data."
     ),
     "inputSchema": {
         "type": "object",
-        "properties": {k: {"type": "string", "format": "date"} for k in ("debut", "fin")},
-        "required": ["debut", "fin"],
+        "properties": {k: {"type": "string", "format": "date"} for k in ("start", "end")},
+        "required": ["start", "end"],
         "additionalProperties": False,
     },
     "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
 }
 PHASE_TOOL = {
     **TOOL,
-    "name": "phases_sommeil",
+    "name": "sleep_stages",
     "description": (
-        "Minutes d’éveil pendant les sessions de sommeil, de sommeil paradoxal (REM), "
-        "léger et profond par date locale de réveil. Plage inclusive de 1 à 31 dates. "
-        "Le cumul comprend les siestes distinctes. Les copies identiques ne comptent "
-        "qu’une fois. Les quatre valeurs sont null si les phases sont ambiguës ou "
-        "incohérentes. Une date absente signifie aucune session dans cet export."
+        "Minutes awake, in REM, light and deep sleep by local wake date, "
+        "over an inclusive range of 1 to 31 dates. "
+        "Totals include distinct naps. Identical copies are counted once. "
+        "All four durations are null when stages are ambiguous or inconsistent. "
+        "A missing date means the export contained no session for that date."
     ),
 }
 MAX_CSV_BYTES = 32 * 1024 * 1024
 MAX_REQUEST_BYTES = 16 * 1024
 DURATION_COLUMNS = ("total_time", "wake_time", "rem_time", "light_time", "deep_time")
-PHASE_FIELDS = ("eveil_minutes", "paradoxal_minutes", "leger_minutes", "profond_minutes")
+PHASE_FIELDS = ("awake_minutes", "rem_minutes", "light_minutes", "deep_minutes")
 
 
 def stage_seconds(encoded):
@@ -65,7 +65,7 @@ def stage_seconds(encoded):
         return None
     if not isinstance(stages, list) or not stages:
         return None
-    # Codes Even : éveil, paradoxal, léger, profond. Une unité vaut 30 secondes.
+    # Even encodes awake, REM, light and deep stages in 30-second increments.
     totals = [0, 0, 0, 0]
     for stage in stages:
         if not isinstance(stage, dict):
@@ -87,13 +87,13 @@ def row_seconds(row, interval, detailed):
         return None
     if not detailed:
         return (total,)
-    phases = (awake, rem, light, deep)
-    return phases if stage_seconds(row.get("stages")) == phases else None
+    stages = (awake, rem, light, deep)
+    return stages if stage_seconds(row.get("stages")) == stages else None
 
 
 def read_sessions(stream, detailed):
-    # Les datetimes avec décalage comparent des instants absolus. Conserver
-    # séparément la date locale imprimée dans la ligne de chaque source.
+    # Offset-aware timestamps compare absolute instants. Also preserve
+    # the local date printed on each source row.
     sessions = defaultdict(set)
     with zipfile.ZipFile(stream) as archive:
         members = [m for m in archive.infolist()
@@ -110,8 +110,8 @@ def read_sessions(stream, detailed):
             for n, row in enumerate(reader):
                 if n >= 100_000:
                     raise DataError()
-                start = collecte.timestamp(row["start_ts"])
-                end = collecte.timestamp(row["end_ts"])
+                start = collection.timestamp(row["start_ts"])
+                end = collection.timestamp(row["end_ts"])
                 interval = (end - start).total_seconds()
                 if not 0 < interval <= 86400:
                     raise DataError()
@@ -130,7 +130,7 @@ def daily_totals(sessions, first, last, fields):
             active_days = set()
             active_end = end
         else:
-            # Toute la chaîne d'intervalles qui se chevauchent est ambiguë.
+            # Every interval in an overlapping chain is ambiguous.
             ambiguous.update(active_days | days)
             active_end = max(active_end, end)
         active_days.update(days)
@@ -145,7 +145,7 @@ def daily_totals(sessions, first, last, fields):
     result = []
     for day in sorted(totals.keys() | ambiguous):
         if first <= day <= last:
-            record = {"date_reveil": day.isoformat()}
+            record = {"wake_date": day.isoformat()}
             for i, field in enumerate(fields):
                 record[field] = None if day in ambiguous else round(totals[day][i] / 60, 2)
             result.append(record)
@@ -154,7 +154,7 @@ def daily_totals(sessions, first, last, fields):
 
 def summary(base, first, last, detailed=False):
     with verified_stream(base) as stream:
-        fields = PHASE_FIELDS if detailed else ("duree_minutes",)
+        fields = PHASE_FIELDS if detailed else ("duration_minutes",)
         return daily_totals(read_sessions(stream, detailed), first, last, fields)
 
 
@@ -164,18 +164,18 @@ def rpc(request, base):
 
     ident = None
     if not isinstance(request, dict) or request.get("jsonrpc") != "2.0":
-        return error(-32600, "Requête JSON-RPC invalide.")
+        return error(-32600, "Invalid JSON-RPC request.")
     method = request.get("method")
     if not isinstance(method, str):
-        return error(-32600, "Méthode invalide.")
+        return error(-32600, "Invalid method.")
     if "id" not in request:
-        return None  # Notification, sans réponse JSON-RPC.
+        return None  # JSON-RPC notifications have no response.
     if type(request["id"]) not in (int, str):
-        return error(-32600, "Identifiant invalide.")
+        return error(-32600, "Invalid request ID.")
     ident = request["id"]
     params = request.get("params", {})
     if not isinstance(params, dict):
-        return error(-32602, "Paramètres invalides.")
+        return error(-32602, "Invalid parameters.")
     if method == "initialize":
         version = params.get("protocolVersion")
         result = {"protocolVersion": version if version in VERSIONS else VERSIONS[0],
@@ -184,48 +184,48 @@ def rpc(request, base):
     elif method == "ping":
         result = {}
     elif method == "tools/list":
-        result = {"tools": [TOOL, PHASE_TOOL, rapport_even.CARD_TOOL, rapport_even.HISTORY_TOOL]}
+        result = {"tools": [TOOL, PHASE_TOOL, card_report.CARD_TOOL, card_report.HISTORY_TOOL]}
     elif method == "tools/call":
         name = params.get("name")
         arguments = params.get("arguments")
         try:
-            if name == rapport_even.HISTORY_TOOL["name"]:
+            if name == card_report.HISTORY_TOOL["name"]:
                 try:
                     if not isinstance(arguments, dict):
                         raise ValueError()
                     dates = arguments.copy()
-                    requested = rapport_even.categories({"categories": dates.pop("categories", None)})
+                    requested = card_report.categories({"categories": dates.pop("categories", None)})
                     first, last = date_range(dates)
                 except ValueError:
-                    return error(-32602, "Choisir une à six catégories et une période de 1 à 31 dates.")
-                data = rapport_even.evolution(base, requested, first, last)
-            elif name == rapport_even.CARD_TOOL["name"]:
+                    return error(-32602, "Choose one to six categories and an inclusive range of 1 to 31 dates.")
+                data = card_report.history(base, requested, first, last)
+            elif name == card_report.CARD_TOOL["name"]:
                 try:
-                    requested = rapport_even.categories(arguments)
+                    requested = card_report.categories(arguments)
                 except ValueError:
-                    return error(-32602, "Choisir une à six catégories distinctes.")
-                data = rapport_even.last_cards(base, requested)
+                    return error(-32602, "Choose one to six distinct categories.")
+                data = card_report.last_cards(base, requested)
             elif name in (TOOL["name"], PHASE_TOOL["name"]):
                 try:
                     first, last = date_range(arguments)
                 except ValueError:
-                    return error(-32602, "Deux dates ISO sont requises, sur 1 à 31 jours inclus.")
+                    return error(-32602, "Provide two ISO dates covering 1 to 31 days, inclusive.")
                 data = summary(base, first, last, detailed=name == PHASE_TOOL["name"])
             else:
-                return error(-32602, "Outil inconnu.")
+                return error(-32602, "Unknown tool.")
             result = {"content": [{"type": "text", "text": json.dumps(data, ensure_ascii=False)}]}
-        except rapport_even.SnapshotError:
+        except card_report.SnapshotError:
             result = {"isError": True, "content": [{"type": "text", "text":
-                      "Aucune capture locale validée des cartes Even disponible."}]}
-        except rapport_even.HistoryError:
+                      "No verified local snapshot of the Even cards is available."}]}
+        except card_report.HistoryError:
             result = {"isError": True, "content": [{"type": "text", "text":
-                      "Historique local des cartes indisponible."}]}
+                      "Local card history is unavailable."}]}
         except (DataError, OSError, ValueError, sqlite3.Error, RuntimeError,
                 csv.Error, zipfile.BadZipFile, EOFError):
             result = {"isError": True, "content": [{"type": "text", "text":
-                      "Aucune archive validée lisible pour cette requête."}]}
+                      "No readable, verified archive is available for this request."}]}
     else:
-        return error(-32601, "Méthode inconnue.")
+        return error(-32601, "Unknown method.")
     return {"jsonrpc": "2.0", "id": ident, "result": result}
 
 
@@ -233,7 +233,7 @@ class LocalHandler(BaseHTTPRequestHandler):
     timeout = 10
 
     def log_message(self, *args):
-        pass  # Ne jamais journaliser de requête ni de réponse de santé.
+        pass  # Avoid logging health requests and responses.
 
     def reply(self, status, data=None, extra=()):
         body = b"" if data is None else json.dumps(data, ensure_ascii=False).encode("utf-8")
@@ -296,7 +296,7 @@ class LocalHandler(BaseHTTPRequestHandler):
             request = json.loads(self.rfile.read(length).decode("utf-8"))
         except (ValueError, RecursionError):
             self.reply(400, {"jsonrpc": "2.0", "id": None,
-                             "error": {"code": -32700, "message": "JSON illisible."}})
+                             "error": {"code": -32700, "message": "Invalid JSON."}})
             return
         response = rpc(request, self.server.base)
         self.reply(202 if response is None else 200, response)
@@ -307,10 +307,10 @@ def private_token(path):
     with os.fdopen(fd, "rb") as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
-            raise ValueError("Le fichier de jeton doit être privé et appartenir à cet utilisateur.")
+            raise ValueError("The token file must be private and owned by this user.")
         raw = stream.read(258).rstrip(b"\n")
         if info.st_size > 257 or not re.fullmatch(rb"[A-Za-z0-9_-]{32,256}", raw):
-            raise ValueError("Le fichier doit contenir un jeton aléatoire URL-safe de 32 à 256 caractères.")
+            raise ValueError("The file must contain a random URL-safe token of 32 to 256 characters.")
         return b"Bearer " + raw
 
 
@@ -318,29 +318,29 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8741)
     transport = parser.add_mutually_exclusive_group(required=True)
-    transport.add_argument("--jeton", type=Path, help="Fichier privé du jeton pour le serveur HTTP.")
+    transport.add_argument("--token", type=Path, help="Private bearer-token file for the HTTP server.")
     transport.add_argument("--stdio", action="store_true",
-                           help="Pour un client MCP local ou Secure MCP Tunnel, sans port d’écoute.")
+                           help="Use stdio with a local MCP client or Secure MCP Tunnel.")
     args = parser.parse_args()
     try:
         if args.stdio:
-            # Le processus est enfant du client local autorisé. stdout est réservé au protocole.
+            # The authorized client starts this process. Reserve stdout for protocol messages.
             while True:
                 line = sys.stdin.buffer.readline(MAX_REQUEST_BYTES + 1)
                 if not line:
                     return
                 if len(line) > MAX_REQUEST_BYTES:
-                    raise ValueError("Requête trop longue.")
-                response = rpc(json.loads(line.decode("utf-8")), collecte.BASE)
+                    raise ValueError("Request too large.")
+                response = rpc(json.loads(line.decode("utf-8")), collection.BASE)
                 if response is not None:
                     print(json.dumps(response, ensure_ascii=True), flush=True)
-        auth = private_token(args.jeton)
+        auth = private_token(args.token)
         with ThreadingHTTPServer(("127.0.0.1", args.port), LocalHandler) as server:
-            server.base = collecte.BASE
+            server.base = collection.BASE
             server.auth = auth
             server.serve_forever()
     except (OSError, ValueError) as exc:
-        parser.exit(1, "Démarrage impossible (%s).\n" % type(exc).__name__)
+        parser.exit(1, "Could not start the server (%s).\n" % type(exc).__name__)
     except KeyboardInterrupt:
         pass
 

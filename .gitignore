@@ -8,6 +8,8 @@ __pycache__/
 .codex/
 .openai/
 .site-deploy/
+.r1-site-deploy/
+AGENTS.override.md
 /dist/
 /build/
 .build/
@@ -25,8 +27,18 @@ node_modules/
 *.mobileprovision
 *.log
 Archives/
-Reception/
-releves_even.json
-etat_cartes.txt
+Incoming/
+readings.json
+card_status.txt
+.collection.lock
+.export-run.*/
+.upgrade-*/
+.resume-tunnel
+.app-payload.sha256
+/tunnel/
+# Also ignore files created by earlier local installations.
+Rece?tion/
+*_even.json
+*_cartes.txt
 health.url
 client.pid

@@ -1,9 +1,9 @@
 export const cards = [
-  { title: 'Porter la bague', body: 'Pour suivre une nuit, portez la R1 pendant votre sommeil. Au réveil, ouvrez Health dans Even sur l’iPhone.' },
-  { title: 'Retrouver une nuit', body: 'Vérifiez sa date de réveil sur l’iPhone, puis dans Even sur le Mac connecté au même compte.' },
-  { title: 'Collecter sur le Mac', body: 'Gardez la session Mac ouverte et déverrouillée à l’heure de collecte. Consultez le dernier essai dans R1 Bridge.' },
-  { title: 'Interroger ChatGPT', body: 'Sélectionnez votre connecteur privé. Demandez « Combien ai-je dormi ces sept derniers jours ? »' },
-  { title: 'Comprendre un manque', body: 'Une date sans session signifie qu’Even n’a fourni aucune durée. Comparez la date de réveil à celle affichée sur l’iPhone.' }
+  { title: 'Wear your ring', body: 'Wear the R1 while you sleep. When you wake up, open Health in the Even app on your iPhone.' },
+  { title: 'Find a night', body: 'Find the date you woke up on your iPhone. Look for the same date in Even on your Mac, signed in to the same account.' },
+  { title: 'Collect on your Mac', body: 'Leave the Mac unlocked during a scheduled collection window. Open R1 Bridge to check the last export.' },
+  { title: 'Ask ChatGPT', body: 'Select your private connector and ask “How much did I sleep each night over the last seven days?”' },
+  { title: 'Check a missing night', body: 'A missing date means Even supplied no sleep session for that date. Compare the wake-up date with Health on your iPhone.' }
 ];
 
 export function step(index, delta) {
@@ -12,5 +12,5 @@ export function step(index, delta) {
 
 export function deviceText(index) {
   const card = cards[index];
-  return [`${index + 1}/${cards.length}  ${card.title}`, '', card.body, '', 'Appui : suite · Double appui : quitter'].join('\n');
+  return [`${index + 1}/${cards.length}  ${card.title}`, '', card.body, '', 'Tap to continue · Double-tap to exit'].join('\n');
 }

@@ -1,35 +1,36 @@
 # R1 Bridge
 
-R1 Bridge est une application Mac indépendante pour les personnes qui portent une bague Even R1 et veulent retrouver leurs mesures dans ChatGPT. Le Mac déclenche l’export officiel d’Even, conserve les archives et répond aux questions via un connecteur privé en lecture seule.
+R1 Bridge brings sleep and activity readings from your Even R1 ring into ChatGPT. The Mac app runs Even’s health export, keeps the ZIP archives on your Mac, and lets your personal ChatGPT account query them through a read-only connector.
 
-**Alpha privée pour Mac Apple Silicon.** [Télécharger la version Mac](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.2) · [Installer et faire un premier essai](docs/installation.md) · [Connecter son propre ChatGPT](docs/chatgpt.md).
+**Public alpha for Macs with Apple silicon.** [Project website](https://daviddemri26.github.io/r1-bridge/) · [Download the Mac app](https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.3) · [Installation guide](docs/installation.md)
 
-## Ce que vous pouvez demander
+## Questions you can ask
 
-- « Combien ai-je dormi chaque nuit sur les sept dernières dates de réveil ? » Les sessions distinctes, siestes comprises, sont regroupées par date locale de réveil. Une date absente indique une absence de relevé.
-- « Quelle durée Even a-t-il enregistrée en sommeil léger, profond et paradoxal ? » Le connecteur peut aussi renvoyer la durée d’éveil et signale les données ambiguës.
-- « De quand datent mes dernières mesures ? » Le Mac relève les cartes de pas, calories actives, fréquence cardiaque, VFC, SpO₂ et variation de température cutanée. L’ancienneté affichée par Even accompagne chaque valeur.
+- **“How much did I sleep each night over the last seven days?”** R1 Bridge groups distinct sessions, including naps, by the local date you woke up. A missing date means Even supplied no session for that date.
+- **“How much light, deep and REM sleep did Even record?”** The connector can also report time awake during recorded sessions. It flags readings whose stages cannot be reliably determined.
+- **“What were my latest readings, and how old are they?”** You can query steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Each reading includes the age shown in Even.
 
-## Comment les données arrivent
+## How it works
 
-1. La R1 et les G2 restent appairées à l’iPhone. Even synchronise les données entre appareils du même compte lorsque la sauvegarde cloud est activée.
-2. R1 Bridge utilise le bouton d’export d’Even sur le Mac. Le collecteur enregistre le ZIP, vérifie son contenu et dédoublonne les exports répétés.
-3. Si vous activez la planification, R1 Bridge cherche un moment de pause à partir de **8 h 15, 12 h 15 et 18 h 15**, en heure locale. Il reporte l’export si vous utilisez le Mac ou si la session est verrouillée. Vous pouvez aussi choisir **Tester un export** quand vous voulez lancer la collecte vous-même.
-4. Pour ChatGPT web, votre Mac se connecte au tunnel de votre propre compte OpenAI. Les questions interrogent l’archive locale disponible. Le tunnel doit être connecté au moment de la question.
+1. Keep your R1 ring and G2 glasses paired to Even on your iPhone. With cloud backup enabled, Even makes your readings available under the same account on the Mac.
+2. R1 Bridge triggers Even’s built-in export, checks the ZIP and deduplicates repeated exports. You can run a local export before setting up ChatGPT.
+3. If you enable scheduling, the collector looks for a quiet moment starting at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time. It waits for an idle, unlocked Mac. Use **Test an Export** to run it yourself at any time.
+4. To use ChatGPT on the web, connect the Mac to a tunnel in your own OpenAI account. Keep it awake and online whenever ChatGPT needs to read an export. [Connect ChatGPT](docs/chatgpt.md)
 
-Le prototype personnel a effectué une collecte programmée et répondu dans ChatGPT web pour le sommeil et les six cartes. La distribution alpha permet de reproduire ce parcours sur un autre Mac. La compatibilité chez un deuxième utilisateur et la remontée de deux nuits consécutives restent à valider. Le support Apple Santé nécessiterait un parcours iPhone avec HealthKit.
+The pilot completed scheduled collection and queried sleep and all six readings in ChatGPT on the web. A second person testing their own Mac and two consecutive nights of collection are still needed to establish compatibility beyond the pilot. This release supports Mac and ChatGPT. Apple Health would require an iPhone integration with HealthKit.
 
-## Dans ce dépôt
+## Guides
 
-- [Installation, matériel, permissions et dépannage](docs/installation.md)
-- [Connexion à ChatGPT et commandes utiles](docs/chatgpt.md)
-- [Données, accès et désinstallation](docs/confidentialite.md)
-- [Guide facultatif pour les lunettes G2](evenhub/README.md)
-- [Validation de l’alpha et prochaines étapes](docs/beta.md)
-- Application et collecteur dans `macos/`, assistant de connexion dans `integration/`, site statique dans `site/dist/`.
+- [Hardware, installation, permissions and troubleshooting](docs/installation.md)
+- [Set up your ChatGPT connector](docs/chatgpt.md)
+- [Data access, storage and removal](docs/privacy.md)
+- [Optional offline guide for Even G2](evenhub/README.md)
+- [Test the alpha on another Mac](docs/alpha-testing.md)
 
-## Construire depuis les sources
+## Build from source
 
-Sur un Mac Apple Silicon équipé des outils de développement Apple, lancez `./scripts/build-macos.sh` depuis le dépôt. Le DMG produit se trouve dans `dist/`. Les sources du guide G2 ont leur propre procédure de construction dans [evenhub/](evenhub/README.md). Le site peut être servi avec `python3 -m http.server --bind 127.0.0.1 --directory site/dist 8080`.
+On an Apple silicon Mac with Apple’s Command Line Tools installed, run `./scripts/build-macos.sh` from the repository root. Find the resulting DMG in `dist/`. Use `./scripts/verify-macos.sh` to verify its contents.
 
-R1 Bridge est un projet indépendant. Les marques Even Realities, OpenAI, ChatGPT et Apple appartiennent à leurs titulaires respectifs.
+The Mac app and collector are in `macos/`, and the ChatGPT setup assistant is in `integration/`. The [G2 project](evenhub/README.md) has its own build. To preview the public website, run `python3 -m http.server --bind 127.0.0.1 --directory site/dist 8080` and open `http://localhost:8080`.
+
+R1 Bridge is an independent project. Even Realities, Apple, OpenAI and ChatGPT are trademarks of their respective owners.

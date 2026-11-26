@@ -2,7 +2,7 @@ import AppKit
 import ApplicationServices
 import Foundation
 
-// Outil en ligne de commande du R1 Bridge Collector. Aucun transfert ni invite TCC.
+// Read the six Even cards locally without requesting additional permissions.
 enum CardError: Int32, Error {
     case unreadable = 65, unavailable = 69, navigation = 70, storage = 74, session = 75, accessibility = 77
 
@@ -75,7 +75,7 @@ func parse(_ key: String, _ title: String, _ rawValue: String, _ recency: String
     let unit: String
     if key == "steps" {
         guard matches(raw, #"[0-9]+|[0-9]{1,3}(?:[ ,][0-9]{3})+"#) else { return nil }
-        unit = "pas"
+        unit = "steps"
         number = raw.replacingOccurrences(of: ",", with: "").replacingOccurrences(of: " ", with: "")
     } else {
         let units: [String: [String]] = ["calories": ["kcal"], "heartRate": ["bpm"],
@@ -103,7 +103,7 @@ func attr<T>(_ node: AXUIElement, _ key: String) -> T? {
     return value as? T
 }
 
-// Seul l’arbre d’accessibilité des fenêtres appartenant au PID d’Even est visité.
+// Only visit accessibility elements owned by the Even process.
 func walk(_ roots: [AXUIElement], pid: pid_t, _ visit: (AXUIElement) -> Bool) {
     var nodes = roots
     var seen = Set<AXUIElement>()
@@ -189,7 +189,7 @@ struct Even {
     }
 
     func capture(at file: URL) throws -> Int {
-        // Le collecteur a déjà fermé ses propres panneaux après la copie du ZIP.
+        // The collector closes its export panels before reading the cards.
         guard !hasModal() else { throw CardError.navigation }
         let settings = "nav_bar.health.button.settings"
         let exportID = "health.settings.export"
@@ -215,7 +215,7 @@ struct Even {
             guard let gear = element(settings), onOverview(), !hasModal() else { throw CardError.navigation }
             _ = AXUIElementPerformAction(gear, kAXPressAction as CFString)
             if wait(2, onSettings) { return }
-            // L’export suivant sait également partir de l’accueil Santé reconnu.
+            // The next export can start from the Health overview.
             guard onOverview(), !hasModal() else { throw CardError.navigation }
         }
     }
@@ -250,7 +250,7 @@ func merge(_ current: [String: Reading], previous: Snapshot?, observed: String) 
         merged[key] = value
     }
     guard changed else { return nil }
-    // Toute carte conservée garde son instant de lecture, même dans l’ancien format.
+    // Retain the original observation time for unchanged cards from older snapshots.
     for key in Array(merged.keys) where merged[key]?.recorded_at == nil {
         merged[key]?.recorded_at = previous?.recorded_at
     }
@@ -271,7 +271,7 @@ func persist(_ values: [String: Reading], at url: URL) throws {
     guard let snapshot = merge(values, previous: prev, observed: fmt.string(from: Date())) else { return }
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.sortedKeys]
-    // umask 077 s’applique au temporaire atomique avant le remplacement.
+    // The process umask protects the temporary file during the atomic write.
     try encoder.encode(snapshot).write(to: url, options: .atomic)
     try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
 }
@@ -292,7 +292,7 @@ func collect() throws -> Int {
     guard let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first else { throw CardError.unavailable }
     let even = Even(app: AXUIElementCreateApplication(running.processIdentifier), pid: running.processIdentifier)
     AXUIElementSetMessagingTimeout(even.app, 1)
-    let file = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/R1 Bridge/releves_even.json")
+    let file = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/R1 Bridge/readings.json")
     return try even.capture(at: file)
 }
 
@@ -300,7 +300,7 @@ func selfTest() -> Bool {
     let steps = parse("steps", "Steps", "1234", "2 hours ago")
     let temp = parse("skinTemperature", "température", "−0,8 °C", "il y a 2 jours")
     let newer = parse("steps", "Steps", "1234", "3 hours ago")
-    guard let steps = steps, steps.unit == "pas", let temp = temp, temp.value == -0.8,
+    guard let steps = steps, steps.unit == "steps", let temp = temp, temp.value == -0.8,
           parse("spo2", "SpO₂", "92%", "2 days ago")?.value == 92,
           parse("hrv", "HRV", "—", "3 days ago") == nil,
           parse("calories", "Heart rate", "140 kcal", "3 hours ago") == nil,

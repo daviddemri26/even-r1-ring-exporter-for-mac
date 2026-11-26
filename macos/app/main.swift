@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 
 private let fm = FileManager.default
-private let collectTimes = "08 h 15, 12 h 15 et 18 h 15, heure locale."
+private let collectTimes = "8:15 AM, 12:15 PM, and 6:15 PM local time."
 
 private struct CommandResult {
     let code: Int32
@@ -17,10 +17,10 @@ private struct Bridge {
     var installed: URL { home.appendingPathComponent("Library/Application Support/R1 Bridge", isDirectory: true) }
     var archives: URL { installed.appendingPathComponent("Archives", isDirectory: true) }
     var collector: URL { installed.appendingPathComponent("Export.workflow/Contents/Resources/R1 Bridge Collector.app", isDirectory: true) }
-    var securePrompt: URL { installed.appendingPathComponent("tunnel/Enregistrer la clé.command") }
+    var securePrompt: URL { installed.appendingPathComponent("tunnel/Store Key.command") }
     var ready: Bool {
         guard fm.fileExists(atPath: collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path),
-              fm.fileExists(atPath: installed.appendingPathComponent("tunnel_r1.py").path),
+              fm.fileExists(atPath: installed.appendingPathComponent("tunnel.py").path),
               let stamp = try? Data(contentsOf: resources.appendingPathComponent("runtime.sha256")),
               let active = try? Data(contentsOf: installed.appendingPathComponent(".app-payload.sha256")) else { return false }
         return stamp == active
@@ -49,19 +49,19 @@ private struct Bridge {
     func prepare() -> CommandResult {
         guard command("/usr/bin/xcode-select", ["-p"]).succeeded,
               command("/usr/bin/python3", ["-c", "import sys; sys.exit(sys.version_info < (3,9))"]).succeeded else {
-            return CommandResult(code: 1, message: "Installez les outils en ligne de commande d’Apple avec « xcode-select --install » dans Terminal. Rouvrez R1 Bridge une fois l’installation terminée.")
+            return CommandResult(code: 1, message: "Run xcode-select --install in Terminal to install the Apple Command Line Tools. Reopen R1 Bridge when installation finishes.")
         }
-        let result = python("r1.py", ["preparer"], from: runtime)
+        let result = python("r1.py", ["prepare"], from: runtime)
         guard result.succeeded else { return result }
         do {
             let stamp = try Data(contentsOf: resources.appendingPathComponent("runtime.sha256"))
             try stamp.write(to: installed.appendingPathComponent(".app-payload.sha256"), options: .atomic)
-        } catch { return CommandResult(code: 1, message: "Impossible d’enregistrer la version installée. \(error.localizedDescription)") }
-        return CommandResult(code: 0, message: "Le Mac est prêt. Ouvrez Even et vérifiez qu’une mesure y est visible, puis testez un export.")
+        } catch { return CommandResult(code: 1, message: "Could not save the installed version. \(error.localizedDescription)") }
+        return CommandResult(code: 0, message: "This Mac is ready. Open Even, check that a ring reading is visible, then test an export.")
     }
 
     func collect(_ action: String) -> CommandResult { python("r1.py", [action], from: installed) }
-    func tunnel(_ args: [String]) -> CommandResult { python("tunnel_r1.py", args, from: installed) }
+    func tunnel(_ args: [String]) -> CommandResult { python("tunnel.py", args, from: installed) }
 }
 
 private func label(_ text: String, size: CGFloat, weight: NSFont.Weight = .regular, secondary: Bool = false) -> NSTextField {
@@ -118,14 +118,14 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "À propos de R1 Bridge", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "About R1 Bridge", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Quitter R1 Bridge", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit R1 Bridge", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         menu.addItem(appItem)
         let editItem = NSMenuItem()
-        let edit = NSMenu(title: "Édition")
-        for (title, action, key) in [("Couper", "cut:", "x"), ("Copier", "copy:", "c"), ("Coller", "paste:", "v"), ("Tout sélectionner", "selectAll:", "a")] {
+        let edit = NSMenu(title: "Edit")
+        for (title, action, key) in [("Cut", "cut:", "x"), ("Copy", "copy:", "c"), ("Paste", "paste:", "v"), ("Select All", "selectAll:", "a")] {
             edit.addItem(withTitle: title, action: NSSelectorFromString(action), keyEquivalent: key)
         }
         editItem.submenu = edit
@@ -147,8 +147,8 @@ private final class WindowController: NSObject, NSApplicationDelegate {
             collectPage.isHidden = tab != 0
             tunnelPage.isHidden = tab != 1
             controls()
-            status.stringValue = tab == 0 ? "État de la collecte" : "État du tunnel"
-            detail.stringValue = "Dernière tentative vérifiée.\nAucune mesure dans le jeu de test."
+            status.stringValue = tab == 0 ? "Collection status" : "Tunnel status"
+            detail.stringValue = "Last attempt verified.\nThe test dataset contains no readings."
             guard let content = window.contentView else { return false }
             content.layoutSubtreeIfNeeded()
             let primary = tab == 0 ? test! : connectTunnel!
@@ -185,7 +185,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
             root.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -18)
         ])
         root.addArrangedSubview(label("R1 Bridge", size: 30, weight: .bold))
-        section = NSSegmentedControl(labels: ["Collecte sur le Mac", "Connexion ChatGPT"], trackingMode: .selectOne, target: self, action: #selector(changeSection))
+        section = NSSegmentedControl(labels: ["Mac Collection", "ChatGPT Connection"], trackingMode: .selectOne, target: self, action: #selector(changeSection))
         section.selectedSegment = 0
         root.addArrangedSubview(section)
         for page in [collectPage, tunnelPage] {
@@ -194,33 +194,33 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         }
         tunnelPage.isHidden = true
 
-        wrapped(label("Exporter les données de la bague", size: 20, weight: .semibold), in: collectPage)
-        wrapped(label("Gardez la R1 appairée à l’iPhone. Sur le Mac, ouvrez l’app Even avec le même compte et vérifiez que les données de la bague y apparaissent.", size: 13, secondary: true), in: collectPage)
-        setup = button("Préparer ce Mac", #selector(prepareMac))
-        test = button("Tester un export", #selector(tryExport))
+        wrapped(label("Export your ring data", size: 20, weight: .semibold), in: collectPage)
+        wrapped(label("Keep your R1 paired with your iPhone. Open Even on your Mac, sign in to the same account, and confirm that you can see your ring data.", size: 13, secondary: true), in: collectPage)
+        setup = button("Set Up This Mac", #selector(prepareMac))
+        test = button("Test an Export", #selector(tryExport))
         collectPage.addArrangedSubview(row([setup, test]))
-        wrapped(label("Créneaux de collecte à " + collectTimes + " L’export programmé attend deux minutes d’inactivité dans une session déverrouillée.", size: 13, secondary: true), in: collectPage)
-        schedule = button("Programmer la collecte", #selector(startSchedule))
-        stop = button("Arrêter la planification", #selector(stopSchedule))
+        wrapped(label("Collection windows start at " + collectTimes + " Scheduled exports wait until your Mac is unlocked and has been idle for two minutes.", size: 13, secondary: true), in: collectPage)
+        schedule = button("Schedule Collection", #selector(startSchedule))
+        stop = button("Stop Schedule", #selector(stopSchedule))
         collectPage.addArrangedSubview(row([schedule, stop]))
-        reveal = button("Afficher le collecteur", #selector(showCollector))
-        openArchives = button("Ouvrir les archives", #selector(showArchives))
-        collectPage.addArrangedSubview(row([reveal, button("Réglages d’accessibilité", #selector(openAccess)), openArchives]))
+        reveal = button("Show Collector", #selector(showCollector))
+        openArchives = button("Open Archives", #selector(showArchives))
+        collectPage.addArrangedSubview(row([reveal, button("Accessibility Settings", #selector(openAccess)), openArchives]))
 
-        wrapped(label("Relier votre compte personnel", size: 20, weight: .semibold), in: tunnelPage)
-        wrapped(label("Le tunnel permet à votre ChatGPT personnel de lire les données depuis ce Mac. Chaque utilisateur configure son propre tunnel OpenAI et sa propre clé.", size: 13, secondary: true), in: tunnelPage)
-        connectTunnel = button("Connecter ChatGPT…", #selector(openAssistant))
-        tunnelPage.addArrangedSubview(row([connectTunnel, button("Guide de connexion ↗", #selector(openGuide))]))
-        wrapped(label("L’assistant s’ouvre dans Terminal. Il vous guide pour installer le client officiel et conserver la clé dans votre Trousseau. Les archives restent sur le Mac.", size: 13, secondary: true), in: tunnelPage)
-        enterKey = button("Mettre à jour la clé…", #selector(openKeyPrompt))
-        stopTunnel = button("Arrêter le tunnel", #selector(endTunnel))
-        tunnelPage.addArrangedSubview(row([enterKey, stopTunnel, button("Gérer mes tunnels ↗", #selector(openTunnels))]))
+        wrapped(label("Connect your ChatGPT account", size: 20, weight: .semibold), in: tunnelPage)
+        wrapped(label("Your ChatGPT account can use a private tunnel to read data from this Mac. Set it up with your own OpenAI tunnel and key.", size: 13, secondary: true), in: tunnelPage)
+        connectTunnel = button("Connect ChatGPT…", #selector(openAssistant))
+        tunnelPage.addArrangedSubview(row([connectTunnel, button("Connection Guide ↗", #selector(openGuide))]))
+        wrapped(label("The assistant opens in Terminal. It installs the official client and stores your key in the macOS Keychain. Your ZIP archives stay on this Mac.", size: 13, secondary: true), in: tunnelPage)
+        enterKey = button("Update Key…", #selector(openKeyPrompt))
+        stopTunnel = button("Stop Tunnel", #selector(endTunnel))
+        tunnelPage.addArrangedSubview(row([enterKey, stopTunnel, button("Manage Tunnels ↗", #selector(openTunnels))]))
 
         let divider = NSBox()
         divider.boxType = .separator
         root.addArrangedSubview(divider)
         divider.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
-        refresh = button("Actualiser", #selector(refreshStatus))
+        refresh = button("Refresh", #selector(refreshStatus))
         root.addArrangedSubview(row([status, refresh]))
         detail.isSelectable = true
         wrapped(detail, in: root)
@@ -237,7 +237,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         let prepared = bridge.ready
         setup.isHidden = prepared
         [test, schedule, reveal, openArchives].forEach { $0?.isEnabled = prepared }
-        stop.isEnabled = prepared && fm.fileExists(atPath: bridge.home.appendingPathComponent("Library/LaunchAgents/local.r1bridge.collecte.plist").path)
+        stop.isEnabled = prepared && fm.fileExists(atPath: bridge.home.appendingPathComponent("Library/LaunchAgents/local.r1bridge.collection.plist").path)
         connectTunnel.isEnabled = prepared
         enterKey.isEnabled = prepared && fm.isExecutableFile(atPath: bridge.securePrompt.path)
         stopTunnel.isEnabled = prepared && fm.fileExists(atPath: bridge.home.appendingPathComponent("Library/LaunchAgents/local.r1bridge.tunnel.plist").path)
@@ -247,8 +247,8 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         feedback.stringValue = message
         controls()
         guard bridge.ready else {
-            status.stringValue = "Préparation requise"
-            detail.stringValue = "Cliquez sur « Préparer ce Mac » dans l’onglet Collecte. Les fichiers seront installés dans le dossier Application Support de votre session."
+            status.stringValue = "Set up this Mac"
+            detail.stringValue = "Select Set Up This Mac on the Mac Collection tab to install the collector in your user account."
             return
         }
         let tunnel = isTunnelPage
@@ -256,11 +256,11 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         controls()
         let bridge = self.bridge
         DispatchQueue.global(qos: .utility).async {
-            let result = tunnel ? bridge.tunnel(["etat"]) : bridge.collect("etat")
+            let result = tunnel ? bridge.tunnel(["status"]) : bridge.collect("status")
             DispatchQueue.main.async {
                 self.busy = false
-                self.status.stringValue = tunnel ? "État du tunnel" : "État de la collecte"
-                self.detail.stringValue = result.message.isEmpty ? "Aucun état disponible." : result.message
+                self.status.stringValue = tunnel ? "Tunnel status" : "Collection status"
+                self.detail.stringValue = result.message.isEmpty ? "Status unavailable." : result.message
                 self.controls()
             }
         }
@@ -277,7 +277,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
             let result = block(bridge)
             DispatchQueue.main.async {
                 self.busy = false
-                let message = result.message.isEmpty ? (result.succeeded ? "Opération terminée." : "L’opération a échoué.") : result.message
+                let message = result.message.isEmpty ? (result.succeeded ? "Done." : "The operation failed.") : result.message
                 self.update(message)
             }
         }
@@ -289,34 +289,34 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         update()
     }
     @objc private func refreshStatus() { update() }
-    @objc private func prepareMac() { perform("Préparation en cours…") { $0.prepare() } }
-    @objc private func tryExport() { perform("Export en cours…") { $0.collect("essai") } }
-    @objc private func startSchedule() { perform("Activation de la collecte…") { $0.collect("planifier") } }
-    @objc private func stopSchedule() { perform("Arrêt de la planification…") { $0.collect("arreter") } }
-    @objc private func endTunnel() { perform("Arrêt du tunnel…") { $0.tunnel(["arreter"]) } }
+    @objc private func prepareMac() { perform("Preparing this Mac…") { $0.prepare() } }
+    @objc private func tryExport() { perform("Exporting…") { $0.collect("export") } }
+    @objc private func startSchedule() { perform("Scheduling collection…") { $0.collect("schedule") } }
+    @objc private func stopSchedule() { perform("Stopping the schedule…") { $0.collect("stop") } }
+    @objc private func endTunnel() { perform("Stopping the tunnel…") { $0.tunnel(["stop"]) } }
     @objc private func showCollector() { NSWorkspace.shared.activateFileViewerSelecting([bridge.collector]) }
     @objc private func showArchives() { NSWorkspace.shared.open(bridge.archives) }
     @objc private func openAccess() { NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!) }
     @objc private func openTunnels() { NSWorkspace.shared.open(URL(string: "https://platform.openai.com/settings/organization/tunnels")!) }
     @objc private func openGuide() { NSWorkspace.shared.open(URL(string: "https://github.com/daviddemri26/r1-bridge/blob/main/docs/chatgpt.md")!) }
     @objc private func openAssistant() {
-        openTerminal(bridge.resources.appendingPathComponent("Connecter ChatGPT.command"))
+        openTerminal(bridge.resources.appendingPathComponent("Connect ChatGPT.command"))
     }
     @objc private func openKeyPrompt() { openTerminal(bridge.securePrompt) }
 
     private func openTerminal(_ file: URL) {
         guard fm.isExecutableFile(atPath: file.path) else {
-            feedback.stringValue = "L’assistant est introuvable. Réinstallez R1 Bridge depuis l’image disque."
+            feedback.stringValue = "The setup assistant is missing. Reinstall R1 Bridge from the disk image."
             return
         }
         guard let terminal = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Terminal") else {
-            feedback.stringValue = "Ouvrez l’assistant dans Terminal."
+            feedback.stringValue = "Open the setup assistant in Terminal."
             NSWorkspace.shared.activateFileViewerSelecting([file])
             return
         }
         NSWorkspace.shared.open([file], withApplicationAt: terminal, configuration: NSWorkspace.OpenConfiguration()) { _, error in
             DispatchQueue.main.async {
-                self.feedback.stringValue = error?.localizedDescription ?? "Suivez les indications dans Terminal, puis cliquez sur Actualiser."
+                self.feedback.stringValue = error?.localizedDescription ?? "Follow the steps in Terminal, then click Refresh."
             }
         }
     }
@@ -330,16 +330,16 @@ if CommandLine.arguments.contains("--verify-install") {
         defer { try? fm.removeItem(at: scratch) }
         let testBridge = Bridge(resources: resources, home: scratch)
         let result = testBridge.prepare()
-        guard result.succeeded, testBridge.ready, fm.fileExists(atPath: testBridge.archives.path) else { fputs("Échec du test d’installation : \(result.message)\n", stderr); exit(1) }
-        let report = testBridge.collect("etat")
+        guard result.succeeded, testBridge.ready, fm.fileExists(atPath: testBridge.archives.path) else { fputs("Installation test failed. \(result.message)\n", stderr); exit(1) }
+        let report = testBridge.collect("status")
         guard report.succeeded, fm.isExecutableFile(atPath: testBridge.collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path) else { exit(1) }
-        guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connecter ChatGPT.command").path) else { exit(1) }
+        guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect ChatGPT.command").path) else { exit(1) }
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
         let check = WindowController(testBridge)
-        guard check.checkLayout() else { fputs("Le contrôle des vues de l’app a échoué.\n", stderr); exit(1) }
-        print("Installation, lecture d’état et vues Collecte/ChatGPT vérifiées dans un dossier temporaire.")
-    } catch { fputs("Impossible de tester le paquet.\n", stderr); exit(1) }
+        guard check.checkLayout() else { fputs("App view verification failed.\n", stderr); exit(1) }
+        print("Verified installation, status, and both app views in a temporary user folder.")
+    } catch { fputs("Package verification failed.\n", stderr); exit(1) }
 } else {
     let app = NSApplication.shared
     let bridge = Bridge(resources: resources, home: FileManager.default.homeDirectoryForCurrentUser)

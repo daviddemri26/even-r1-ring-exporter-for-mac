@@ -13,8 +13,8 @@ from contextlib import closing
 
 RUNTIME = Path(__file__).resolve().parents[1] / "runtime"
 sys.path.insert(0, str(RUNTIME))
-import collecte
-import rapport_even
+import collection
+import card_report
 
 
 def export_fixture(base, *, include_sleep):
@@ -23,11 +23,11 @@ def export_fixture(base, *, include_sleep):
     writer.writerow(("start_ts", "end_ts", "total_time", "wake_time", "rem_time",
                      "light_time", "deep_time", "stages"))
     if include_sleep:
-        phases = json.dumps([{"type": i, "half_minutes": n}
+        stages = json.dumps([{"type": i, "half_minutes": n}
                              for i, n in enumerate((20, 30, 60, 10))])
-        row = ("2001-03-04T00:00:00Z", "2001-03-04T01:00:00Z", 3000, 600, 900, 1800, 300, phases)
+        row = ("2001-03-04T00:00:00Z", "2001-03-04T01:00:00Z", 3000, 600, 900, 1800, 300, stages)
         writer.writerows([row, row])  # Identical overlapping sessions are a single night.
-    with zipfile.ZipFile(base / "Reception" / "fixture.zip", "w") as archive:
+    with zipfile.ZipFile(base / "Incoming" / "fixture.zip", "w") as archive:
         # Fixed member timestamps keep the archive byte-identical on repeated exports.
         archive.writestr(zipfile.ZipInfo("sleep.csv"), csv_data.getvalue())
         archive.writestr(zipfile.ZipInfo("steps.csv"),
@@ -40,11 +40,11 @@ class RuntimeTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.home = Path(self.temp.name)
         self.base = self.home / "Library/Application Support/R1 Bridge"
-        self.dates = {"debut": "2001-03-01", "fin": "2001-03-07"}
+        self.dates = {"start": "2001-03-01", "end": "2001-03-07"}
 
     def request(self, method, params):
         message = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
-        proc = subprocess.run([sys.executable, "-B", str(RUNTIME / "serveur_sommeil.py"), "--stdio"],
+        proc = subprocess.run([sys.executable, "-B", str(RUNTIME / "mcp_server.py"), "--stdio"],
                               env={**os.environ, "HOME": str(self.home)}, check=True,
                               capture_output=True, text=True, timeout=10, input=json.dumps(message) + "\n")
         response = json.loads(proc.stdout)
@@ -61,51 +61,76 @@ class RuntimeTest(unittest.TestCase):
         def exporter(base):
             export_fixture(base, include_sleep=include_sleep)
 
-        code, detail = collecte.run(self.base, "launchd", exporter)
+        code, detail = collection.run(self.base, "launchd", exporter)
         self.assertEqual(code, 0, detail)
 
     def test_sleep_phases_dates_and_replay(self):
         self.collect(True)
         self.collect(True)
         self.assertEqual(len(list((self.base / "Archives").glob("*.zip"))), 1)
-        self.assertEqual(self.call("durees_sommeil", self.dates),
-                         [{"date_reveil": "2001-03-04", "duree_minutes": 50}])
-        self.assertEqual(self.call("phases_sommeil", self.dates),
-                         [{"date_reveil": "2001-03-04", "eveil_minutes": 10,
-                           "paradoxal_minutes": 15, "leger_minutes": 30, "profond_minutes": 5}])
+        self.assertEqual(self.call("sleep_durations", self.dates),
+                         [{"wake_date": "2001-03-04", "duration_minutes": 50}])
+        self.assertEqual(self.call("sleep_stages", self.dates),
+                         [{"wake_date": "2001-03-04", "awake_minutes": 10,
+                           "rem_minutes": 15, "light_minutes": 30, "deep_minutes": 5}])
 
     def test_empty_first_export(self):
         self.collect(False)
-        self.assertEqual(self.call("durees_sommeil", self.dates), [])
-        with closing(collecte.connect(self.base)) as db:
-            self.assertFalse(collecte.evidence(db))
-            self.assertEqual(db.execute("SELECT COUNT(*) FROM nuits").fetchone()[0], 0)
+        self.assertEqual(self.call("sleep_durations", self.dates), [])
+        with closing(collection.connect(self.base)) as db:
+            self.assertFalse(collection.evidence(db))
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM nights").fetchone()[0], 0)
 
     def test_six_cards_and_unchanged_observations(self):
         self.collect(True)
-        measurements = {"steps": (1234, "pas"), "calories": (100, "kcal"),
+        measurements = {"steps": (1234, "steps"), "calories": (100, "kcal"),
                         "hrv": (40, "ms"), "heartRate": (60, "bpm"), "spo2": (97, "%"),
                         "skinTemperature": (-0.2, "°C")}
         metrics = {name: {"value": value, "unit": unit, "recency": "1 hour ago"}
                    for name, (value, unit) in measurements.items()}
-        path = self.base / "releves_even.json"
+        path = self.base / "readings.json"
         for hour, expected in [(2, 6), (3, 0)]:
             snapshot = {"version": 1, "recorded_at": f"2001-03-04T{hour:02d}:00:00Z", "metrics": metrics}
             path.write_text(json.dumps(snapshot), encoding="utf-8")
             path.chmod(0o600)
-            self.assertEqual(rapport_even.enregistrer_changements(self.base), expected)
+            self.assertEqual(card_report.record_changes(self.base), expected)
         categories = {"categories": list(measurements)}
-        latest = self.call("dernier_releve_even", categories)
-        self.assertEqual(latest["indisponibles"], [])
-        self.assertEqual(latest["metrics"]["steps"]["lot_csv"]["date_locale"], "2001-03-04")
+        latest = self.call("latest_readings", categories)
+        self.assertEqual(latest["unavailable"], [])
+        self.assertEqual(latest["metrics"]["steps"]["csv_batch"]["local_date"], "2001-03-04")
         for name, (value, unit) in measurements.items():
             self.assertEqual((latest["metrics"][name]["value"], latest["metrics"][name]["unit"]), (value, unit))
-        history = self.call("evolution_cartes_even", {**categories, **self.dates})
-        self.assertEqual(len(history["changements"]), 6)
-        self.assertTrue(all(change["initiale"] for change in history["changements"]))
+        history = self.call("reading_history", {**categories, **self.dates})
+        self.assertEqual(len(history["changes"]), 6)
+        self.assertTrue(all(change["initial"] for change in history["changes"]))
         tools = self.request("tools/list", {})["tools"]
         self.assertEqual(len(tools), 4)
         self.assertTrue(all(tool["annotations"]["readOnlyHint"] for tool in tools))
+
+    def test_localized_card_age_is_translated_only_on_output(self):
+        self.collect(True)
+        translations = {"steps": ("il y a une heure", "1 hour ago"),
+                        "hrv": ("il y a 3 jours", "3 days ago"),
+                        "spo2": ("AUJOURD’HUI", "today"),
+                        "calories": ("il y a 2 mois", "2 months ago")}
+        metrics = {name: {"value": 1234 if name == "steps" else 42, "unit": next(iter(card_report.UNITS[name])),
+                          "recency": original} for name, (original, _) in translations.items()}
+        snapshot = {"version": 1, "recorded_at": "2001-03-04T02:00:00Z", "metrics": metrics}
+        path = self.base / "readings.json"
+        path.write_text(json.dumps(snapshot))
+        path.chmod(0o600)
+        self.assertEqual(card_report.record_changes(self.base), len(metrics))
+        selection = {"categories": list(metrics)}
+        latest = self.call("latest_readings", selection)["metrics"]
+        self.assertEqual(latest["steps"]["csv_batch"]["local_date"], "2001-03-04")
+        history = self.call("reading_history", {**selection, **self.dates})["changes"]
+        expected = {name: translated for name, (_, translated) in translations.items()}
+        self.assertEqual({name: reading["recency"] for name, reading in latest.items()}, expected)
+        self.assertEqual({reading["category"]: reading["recency"] for reading in history}, expected)
+        with closing(card_report.history_connection(self.base, False)) as db:
+            self.assertEqual(dict(db.execute("SELECT category,recency FROM changes")),
+                             {name: original for name, (original, _) in translations.items()})
+        self.assertEqual(json.loads(path.read_text()), snapshot)
 
 
 if __name__ == "__main__":
