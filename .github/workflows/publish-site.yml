@@ -4,7 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'site/dist/**'
+      - 'site/**'
+      - 'docs/**'
+      - 'evenhub/README.md'
+      - 'README.md'
       - '.github/workflows/publish-site.yml'
   workflow_dispatch:
 
@@ -24,6 +27,15 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Install the guide builder
+        run: npm ci --prefix site
+      - name: Build the guides
+        run: npm run build:guides --prefix site
+      - name: Verify and stage the public downloads
+        run: python3 site/prepare_downloads.py
+      - name: Check links and page anchors
+        run: python3 site/check_links.py
       - name: Upload the static site
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:

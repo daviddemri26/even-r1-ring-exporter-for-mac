@@ -1,6 +1,7 @@
 {
   "repository": "daviddemri26/even-r1-ring-exporter-for-mac",
   "tag": "v0.1.0-alpha.4",
+  "commit": "38261da48c6753d2921db97f85363ee30268688b",
   "assets": [
     {
       "file": "Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg",
