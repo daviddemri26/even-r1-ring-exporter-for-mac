@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Check your equipment, allow the collector and run your first export.">
+  <title>Install Even R1 Ring Exporter for Mac · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Install the Mac app</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Install Even R1 Ring Exporter for Mac</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#check-your-equipment">Check your equipment</a></li><li class="docs-toc-level-2"><a href="#sync-your-ring-first">Sync your ring first</a></li><li class="docs-toc-level-2"><a href="#install-the-mac-app">Install the Mac app</a></li><li class="docs-toc-level-2"><a href="#allow-the-collector">Allow the collector</a></li><li class="docs-toc-level-2"><a href="#test-an-export">Test an export</a></li><li class="docs-toc-level-2"><a href="#turn-on-automatic-exports">Turn on automatic exports</a></li><li class="docs-toc-level-2"><a href="#update-from-r1-bridge">Update from R1 Bridge</a></li><li class="docs-toc-level-2"><a href="#troubleshoot-a-missing-night">Troubleshoot a missing night</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<h2 id="check-your-equipment">Check your equipment</h2>
+<ul>
+<li>Use an Even R1 ring and an iPhone running <strong>Even Realities</strong>. The pilot also paired Even G2 glasses to the iPhone.</li>
+<li>Use a Mac with Apple silicon (M1 or later), macOS 14 or later and a compatible version of the Even app. The pilot used macOS 26.5.1 and Even 2.4.1. <a href="https://apps.apple.com/us/app/even-realities/id6747017725">Even on the App Store</a></li>
+<li>In Terminal, run <code>/usr/bin/python3 --version</code>. The Mac app needs Python 3.9 or later. If it is missing, run <code>xcode-select --install</code> and finish installing Apple’s Command Line Tools.</li>
+</ul>
+<h2 id="sync-your-ring-first">Sync your ring first</h2>
+<ul>
+<li>Sign in to the same Even account on the iPhone and Mac.</li>
+<li>In Even, open <strong>Health → Settings → Cloud processing &amp; backup</strong>. Enable it if you agree to save your readings with Even. <a href="https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup">Even’s backup guide</a></li>
+<li>Find a reading on the iPhone. Check that it also appears in <strong>Health</strong> on the Mac.</li>
+<li>To test sleep, wear the ring overnight and check the date you woke up.</li>
+</ul>
+<h2 id="install-the-mac-app">Install the Mac app</h2>
+<ol>
+<li><a href="../../downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg">Download the Apple silicon DMG</a> and double-click it.</li>
+<li>Drag <strong>Even R1 Ring Exporter for Mac.app</strong> into <strong>Applications</strong>. Eject the DMG.</li>
+<li>Open the app from Applications. Select <strong>Set Up This Mac</strong>.</li>
+</ol>
+<p>This alpha is ad hoc signed. Apple notarization is pending. If Gatekeeper blocks the app, check the <a href="../../downloads/SHA256SUMS">release checksum</a> and Apple’s instructions for downloaded apps. <a href="https://support.apple.com/en-us/102445">Apple’s opening guide</a></p>
+<h2 id="allow-the-collector">Allow the collector</h2>
+<ul>
+<li>Select <strong>Show Collector</strong> to reveal <strong>Even R1 Ring Collector for Mac.app</strong>.</li>
+<li>Open <strong>System Settings → Privacy &amp; Security → Accessibility</strong>.</li>
+<li>Add or enable that collector. Its permission lets it press the export button in Even.</li>
+<li>If an update shows a blue switch but the app reports a denial, remove the old entry and add the new collector. In the file picker, press <strong>⌘⇧G</strong> and enter the path below.</li>
+</ul>
+<pre><code class="language-text">~/Library/Application Support/R1 Bridge/Export.workflow/Contents/Resources/Even R1 Ring Collector for Mac.app
+</code></pre>
+<h2 id="test-an-export">Test an export</h2>
+<ol>
+<li>Keep your Mac unlocked. In <strong>Mac Collection</strong>, select <strong>Test an Export</strong>.</li>
+<li>If macOS asks the collector for access to other apps’ data, it needs that permission to read the new ZIP in Even’s cache. Run the test again after granting access.</li>
+<li>Check the last attempt and latest wake-up date in the Mac app. A successful export can contain the same nights as the previous one.</li>
+</ol>
+<p>The collector uses Even’s <strong>Health → Settings → Export Health data</strong> control. Even may briefly show a Save dialog. If it stays open, choose <strong>Cancel</strong> in the panel named <code>Even_health_data_…zip</code> and check the export status. <a href="https://support.evenrealities.com/hc/en-us/articles/17995748835599-Export-Your-Health-Data">Even’s export guide</a></p>
+<h2 id="turn-on-automatic-exports">Turn on automatic exports</h2>
+<ul>
+<li>Select <strong>Schedule Collection</strong>.</li>
+<li>Scheduled checks start at <strong>8:15 a.m., 12:15 p.m. and 6:15 p.m.</strong> local time.</li>
+<li>For one hour, the collector checks every ten minutes for an unlocked Mac with two minutes of keyboard and mouse inactivity.</li>
+<li>If the Mac stays busy, it waits for the next window. <strong>Test an Export</strong> is available at any time.</li>
+</ul>
+<h2 id="update-from-r1-bridge">Update from R1 Bridge</h2>
+<ol>
+<li>Quit the old <strong>R1 Bridge</strong> app. Copy <strong>Even R1 Ring Exporter for Mac.app</strong> into Applications.</li>
+<li>Remove the old <strong>R1 Bridge.app</strong> bundle from Applications. Keep <code>~/Library/Application Support/R1 Bridge/</code>. It holds your archives and tunnel setup.</li>
+<li>Open the new app, select <strong>Set Up This Mac</strong>, recheck Accessibility, then <strong>Test an Export</strong>.</li>
+<li>If you used scheduled exports, select <strong>Schedule Collection</strong> again. Reconnect the ChatGPT plugin if it still lists older tool names.</li>
+</ol>
+<h2 id="troubleshoot-a-missing-night">Troubleshoot a missing night</h2>
+<ul>
+<li><strong>Missing on the iPhone.</strong> Check that you wore the ring, enabled health tracking and synced with Even. <a href="https://support.evenrealities.com/hc/en-us/articles/17144131645327-Detected-Health-Data-Is-Missing">Even’s missing data guide</a></li>
+<li><strong>Visible only on the iPhone.</strong> Check the Even account and cloud backup setting on both devices, then open Health on the Mac.</li>
+<li><strong>Visible on the Mac but the export failed.</strong> Unlock the session, check Accessibility permission and close any unrelated dialog in Even. Updated or localized export controls may change what the collector can recognize.</li>
+<li><strong>Export succeeded but the value stayed the same.</strong> An export only collects what Even has recorded. Steps and active calories may be partial daily totals.</li>
+</ul>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

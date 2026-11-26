@@ -174,8 +174,8 @@ def export(base):
         raise CollectError("The Automator workflow timed out.") from exc
     # Only recognized workflow messages are suitable for logging.
     messages = {
-        "ACCESSIBILITY": "Allow R1 Bridge Collector in System Settings > Privacy & Security > Accessibility.",
-        "APP_DATA_PERMISSION": "macOS denied R1 Bridge Collector access to the Even export.",
+        "ACCESSIBILITY": "Allow Even R1 Ring Collector for Mac in System Settings > Privacy & Security > Accessibility.",
+        "APP_DATA_PERMISSION": "macOS denied Even R1 Ring Collector for Mac access to the Even export.",
         "EVEN_UNAVAILABLE": "Could not open the Even window.",
         "EVEN_NAVIGATION": "The collector could not reach the export button in Even.",
         "EVEN_SHARE": "The collector could not dismiss the Even export panel.",
@@ -188,7 +188,7 @@ def export(base):
         if key in messages:
             raise CollectError("%s — %s" % (key, messages[key]))
     if b"Even R1: helper did not complete" in result.stdout:
-        raise CollectError("R1 Bridge Collector exited before reporting its result.")
+        raise CollectError("Even R1 Ring Collector for Mac exited before reporting its result.")
     if result.returncode:
         error = result.stdout.lower()
         if any(word in error for word in [b"-1743", b"-25211", b"not authorized",

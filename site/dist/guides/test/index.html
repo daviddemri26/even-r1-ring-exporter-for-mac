@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Check an export on a second Mac and compare it with Even on your phone.">
+  <title>Test Even R1 Ring Exporter for Mac on another Mac · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Test the public alpha</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Test Even R1 Ring Exporter for Mac on another Mac</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#what-still-needs-testing">What still needs testing</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>This test checks whether someone with an R1 ring can follow the guides on their own Mac and get the same readings in their ChatGPT account as they see in Even.</p>
+<ol>
+<li><strong>Record the setup.</strong> Note the Mac model, macOS version, Even version and interface language. Find a recorded night on the iPhone and compare its wake-up date and duration with Even on the Mac.</li>
+<li><strong>Install from scratch.</strong> Download the DMG and follow the <a href="../../guides/install/">Mac installation guide</a>. Note any step where you needed help, including Apple’s Command Line Tools or Accessibility permissions.</li>
+<li><strong>Run two exports.</strong> Test an export, then repeat it while the source data is unchanged. Check that the overnight duration stays the same. A new user with no recorded nights should also be able to start collection and understand its status.</li>
+<li><strong>Check scheduled collection.</strong> Use the Mac during a scheduled check, then leave it idle and unlocked during that collection window. Check the recorded status and whether the ZIP dialog closes. Wear the ring on two consecutive nights and compare each new wake-up date with the iPhone.</li>
+<li><strong>Ask ChatGPT.</strong> Connect the tester’s own workspace through their own tunnel. Start a fresh chat, select <strong>Even R1 Ring Data for ChatGPT</strong> and ask about the last seven wake-up dates. Ask for one card’s value and its age. Compare the answers with Even without attaching any files.</li>
+<li><strong>Stop the services.</strong> Stop the schedule and the tunnel independently and check their status on the Mac. <a href="../../guides/privacy/">Data access and removal</a></li>
+</ol>
+<p>A useful report gives the step, expected behavior, observed behavior and versions tested. For personal readings, report “matches,” “missing” or “different.” Keep exact health values, exports and API keys private.</p>
+<h2 id="what-still-needs-testing">What still needs testing</h2>
+<ul>
+<li>Complete this workflow on a second Mac and Even account. Record the versions and interface languages actually verified.</li>
+<li>Test Apple Developer ID signing and notarization to simplify first launch. Use installation feedback to decide whether the app should bundle Python.</li>
+<li>Check readability, navigation and exit on physical G2 glasses with the R1. Prepare listing images before deciding whether to submit the companion to Even Hub. <a href="https://hub.evenrealities.com/docs/ship/app-submission">Even’s submission process</a></li>
+</ul>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Check your equipment, allow the collector and run your first export.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

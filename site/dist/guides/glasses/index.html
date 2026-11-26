@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Download the optional offline guide and move through its five cards.">
+  <title>Even R1 Ring Guide for G2 Glasses · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Use the G2 glasses guide</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Even R1 Ring Guide for G2 Glasses</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#using-the-guide">Using the guide</a></li><li class="docs-toc-level-2"><a href="#building-the-package">Building the package</a></li><li class="docs-toc-level-2"><a href="#try-the-guide-on-a-phone-or-g2-glasses">Try the guide on a phone or G2 glasses</a></li><li class="docs-toc-level-2"><a href="#even-hub-listing-draft">Even Hub listing draft</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>This optional guide displays five short cards on the G2 glasses. They explain how to check a night on the Even R1 ring, sync it to the Even app, and ask about it through <strong>Even R1 Ring Data for ChatGPT</strong>. The guide runs offline after loading. Its text is bundled with the app and it requests no network or health permissions. <a href="../../guides/install/">Install Even R1 Ring Exporter for Mac separately</a>.</p>
+<h2 id="using-the-guide">Using the guide</h2>
+<ul>
+<li>Tap or scroll down to advance one card. Scroll up to go back.</li>
+<li>Double-tap to open the system exit menu. On the phone, use <strong>Previous</strong> and <strong>Next</strong> to browse the same cards.</li>
+<li><a href="../../downloads/Even-R1-Ring-Guide-for-G2-Glasses.ehpk">Download the G2 guide package</a>. The English guide is version 0.1.2. Physical G2 testing is pending before an Even Hub catalog submission.</li>
+</ul>
+<h2 id="building-the-package">Building the package</h2>
+<p>Run the following in <code>evenhub/</code> with Node.js 22 and npm. The official CLI packages the app for Even Hub SDK 0.0.16.</p>
+<pre><code class="language-sh">npm ci
+npm test
+npm run pack
+</code></pre>
+<p>The build produces <code>dist/</code> with the phone interface, glasses code and SDK license. Packaging creates <code>Even-R1-Ring-Guide-for-G2-Glasses.ehpk</code>. Edit <code>app.json</code> to update the manifest or <code>src/guide.js</code> to change the cards.</p>
+<h2 id="try-the-guide-on-a-phone-or-g2-glasses">Try the guide on a phone or G2 glasses</h2>
+<ol>
+<li>Build the package using the steps above. In the same <code>evenhub/</code> folder, start a server for the guide files.</li>
+</ol>
+<pre><code class="language-sh">python3 -m http.server 8080 --bind 0.0.0.0 --directory dist
+</code></pre>
+<ol start="2">
+<li>On your Mac, open <code>http://localhost:8080/</code>. Use <strong>Next</strong> and <strong>Previous</strong> to try the five cards.</li>
+<li>For a glasses test, connect the iPhone and Mac to the same trusted Wi-Fi network. Pair the G2 with the Even app. Sign in to Even Hub and the phone app using the same account.</li>
+<li>Find your Mac’s Wi-Fi address in <strong>System Settings → Wi-Fi → Details → TCP/IP</strong>. Open a second Terminal in <code>evenhub/</code>. Replace <code>YOUR_MAC_IP</code> with that address and generate a QR code.</li>
+</ol>
+<pre><code class="language-sh">node node_modules/@evenrealities/evenhub-cli/main.js qr --url http://YOUR_MAC_IP:8080/
+</code></pre>
+<ol start="5">
+<li>In the Even app, open <strong>Even Hub → Profile → Prototype Mode</strong> and scan the code. When you finish, stop the server with <strong>Control-C</strong> in the first Terminal. <a href="https://hub.evenrealities.com/docs/learn/videos">Even’s developer tutorials</a></li>
+</ol>
+<h2 id="even-hub-listing-draft">Even Hub listing draft</h2>
+<p>Even Hub limits the display name to 20 characters. The package appears there as <strong>Even R1 Guide for G2</strong>.</p>
+<p><strong>Even R1 Ring Guide for G2 Glasses</strong> helps R1 owners check a missing night from their G2 glasses. Browse five cards to find the wake-up date in Even, collect an export on the Mac and ask your own ChatGPT connector about it. Available in English. An independent project for Even G2.</p>
+<p>The guide uses the gestures exposed by the Even Hub SDK. The separate Mac app reads the official health export from Even. <a href="https://hub.evenrealities.com/docs/build/device-apis">Device APIs</a> · <a href="https://hub.evenrealities.com/docs/get-started/quickstart/first-app">Even Hub quick start</a> · <a href="https://hub.evenrealities.com/docs/ship/app-submission">Submission process</a></p>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Check your equipment, allow the collector and run your first export.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/build/"><h3>Build from source</h3><p>Download the release source, build the Mac app or G2 guide and preview the website.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

@@ -131,7 +131,7 @@ RUNTIME_FILES = ("collection.py", "card_report.py", "archive_match.py",
 def install_runtime(source):
     workflow = source / "Export.workflow"
     resources = workflow / "Contents" / "Resources"
-    helper = resources / "R1 Bridge Collector.app/Contents/MacOS/EvenR1Export"
+    helper = resources / "Even R1 Ring Collector for Mac.app/Contents/MacOS/EvenR1Export"
     if not all((source / name).is_file() for name in RUNTIME_FILES):
         raise collection.CollectError("The runtime is incomplete. Reinstall the Mac app.")
     if not helper.is_file() or not os.access(helper, os.X_OK) or not os.access(resources / "even_cards", os.X_OK):
@@ -171,7 +171,7 @@ def prepare():
             with closing(collection.connect(BASE)):
                 pass
         legacy_services.migrate_services(BASE, schedule)
-    print("R1 Bridge runtime installed at", BASE)
+    print("Even R1 Ring Exporter for Mac runtime installed at", BASE)
 
 
 def ctl(*args):

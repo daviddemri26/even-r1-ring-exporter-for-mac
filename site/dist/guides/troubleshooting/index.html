@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Follow a missing night from the iPhone to the Mac and ChatGPT.">
+  <title>Troubleshoot a missing reading · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Troubleshoot missing readings</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Troubleshoot a missing reading</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#the-night-is-missing-on-the-iphone">The night is missing on the iPhone</a></li><li class="docs-toc-level-2"><a href="#the-night-is-on-the-iphone-but-missing-on-the-mac">The night is on the iPhone but missing on the Mac</a></li><li class="docs-toc-level-2"><a href="#the-scheduled-export-did-not-run">The scheduled export did not run</a></li><li class="docs-toc-level-2"><a href="#the-mac-shows-a-permission-error-or-a-zip-window">The Mac shows a permission error or a ZIP window</a></li><li class="docs-toc-level-2"><a href="#the-mac-has-the-reading-but-chatgpt-cannot-find-it">The Mac has the reading but ChatGPT cannot find it</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>Start with one reading you recognize. For sleep, use the local date when you woke up. Follow that date from the iPhone to the Mac, then to ChatGPT.</p>
+<h2 id="the-night-is-missing-on-the-iphone">The night is missing on the iPhone</h2>
+<ul>
+<li>Open <strong>Even → Health</strong> on the iPhone paired with your ring.</li>
+<li>Check whether you wore the R1 that night. In Health settings, check <strong>Health tracking</strong>.</li>
+<li>Let the ring sync with Even. Look for the same wake date again.</li>
+<li>If Even still has no session, the exporter has no duration for that date. <a href="https://support.evenrealities.com/hc/en-us/articles/17144131645327-Detected-Health-Data-Is-Missing">Even’s guide to missing readings</a></li>
+</ul>
+<h2 id="the-night-is-on-the-iphone-but-missing-on-the-mac">The night is on the iPhone but missing on the Mac</h2>
+<ul>
+<li>Check that Even is signed into the same account on both devices.</li>
+<li>In Even’s Health settings, check <strong>Cloud processing &amp; backup</strong>. This workflow uses Even’s cloud to sync between devices. <a href="https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup">How Even backup works</a></li>
+<li>Open <strong>Health</strong> in Even on the Mac. When the night appears, open <strong>Even R1 Ring Exporter for Mac</strong>.</li>
+<li>Select <strong>Mac Collection → Test an Export</strong>, then <strong>Refresh</strong>. Check the result of the last attempt and the latest recorded wake date.</li>
+</ul>
+<h2 id="the-scheduled-export-did-not-run">The scheduled export did not run</h2>
+<ul>
+<li>Check that you selected <strong>Schedule Collection</strong> in the Mac app.</li>
+<li>The Mac checks every ten minutes for an hour starting at 8:15 a.m., 12:15 p.m. and 6:15 p.m. local time.</li>
+<li>Leave the Mac awake and unlocked. An export can start after two minutes without keyboard or mouse input.</li>
+<li>If the Mac stays busy throughout the hour, collection waits for the next window. Select <strong>Test an Export</strong> to collect now.</li>
+</ul>
+<h2 id="the-mac-shows-a-permission-error-or-a-zip-window">The Mac shows a permission error or a ZIP window</h2>
+<ul>
+<li>For <code>ACCESSIBILITY</code>, select <strong>Show Collector</strong> in the exporter. Open <strong>Accessibility Settings</strong> and enable <strong>Even R1 Ring Collector for Mac</strong>.</li>
+<li>After an app update, macOS can still list the old helper. If the switch is on and the error persists, replace the entry with the helper revealed by <strong>Show Collector</strong>. <a href="../../guides/install/">Installation steps</a></li>
+<li>For <code>APP_DATA_PERMISSION</code>, the collector needs permission to read the ZIP that Even creates. Allow that request for the collector and repeat <strong>Test an Export</strong>.</li>
+<li>If a Save window stays open for <code>Even_health_data_…zip</code>, select <strong>Cancel</strong> in that window. The collector reads Even’s cached copy.</li>
+<li>Return to <strong>Mac Collection → Refresh</strong> and check the last attempt. An export can succeed without adding a new night.</li>
+</ul>
+<h2 id="the-mac-has-the-reading-but-chatgpt-cannot-find-it">The Mac has the reading but ChatGPT cannot find it</h2>
+<ol>
+<li>Keep the Mac awake and online. Open <strong>ChatGPT Connection</strong> in the exporter and select <strong>Refresh</strong>. Look for confirmation that the tunnel connected to OpenAI.</li>
+<li>In ChatGPT, open the connected <strong>Even R1 Ring Data for ChatGPT</strong> plugin. Select <strong>Try in chat</strong> and ask about the same wake date. <a href="../../guides/ask/">Try a dated question</a></li>
+<li>For <strong>HTTP 401</strong>, OpenAI rejected the key. Use <strong>ChatGPT Connection → Update Key…</strong> to enter the complete key at the hidden prompt.</li>
+<li>For <strong>HTTP 403</strong>, check the OpenAI organization and project that own the tunnel. Check the key’s <strong>Tunnels Read</strong> and <strong>Use</strong> permissions and the tunnel’s association with your ChatGPT workspace. <a href="../../guides/chatgpt/">Connection setup</a></li>
+<li>After upgrading, refresh or reconnect the plugin if it still shows older tool names.</li>
+</ol>
+<p>For a support report, include the app version, macOS version, Even version and the error code. Omit your key, ZIP and personal readings. <a href="../../guides/privacy/">Data and privacy</a></p>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Check your equipment, allow the collector and run your first export.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/ask/"><h3>Ask about your readings</h3><p>Ask about seven nights of sleep or the six health cards, without attaching a file.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

@@ -2,17 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleDisplayName</key><string>R1 Bridge</string>
-  <key>CFBundleName</key><string>R1 Bridge</string>
-  <key>CFBundleExecutable</key><string>R1 Bridge</string>
+  <key>CFBundleDisplayName</key><string>Even R1 Ring Exporter for Mac</string>
+  <key>CFBundleName</key><string>Even R1 Ring Exporter for Mac</string>
+  <key>CFBundleExecutable</key><string>Even R1 Ring Exporter for Mac</string>
   <key>CFBundleIdentifier</key><string>local.r1bridge.app</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
-  <key>CFBundleVersion</key><string>3</string>
+  <key>CFBundleVersion</key><string>4</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>NSHumanReadableCopyright</key><string>R1 Bridge · 0.1.0-alpha.3</string>
+  <key>NSHumanReadableCopyright</key><string>Even R1 Ring Exporter for Mac · 0.1.0-alpha.4</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>
 </dict>

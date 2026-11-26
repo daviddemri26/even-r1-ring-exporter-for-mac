@@ -4,6 +4,8 @@ import io
 import json
 import os
 from pathlib import Path
+import plistlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -63,6 +65,52 @@ class RuntimeTest(unittest.TestCase):
 
         code, detail = collection.run(self.base, "launchd", exporter)
         self.assertEqual(code, 0, detail)
+
+    @unittest.skipUnless(sys.platform == "darwin", "the installer swaps whole workflows using the macOS filesystem API")
+    def test_named_exporter_upgrade_keeps_alpha3_data_and_tunnel(self):
+        self.collect(True)
+        workflow = Path("Export.workflow/Contents/Resources")
+        previous_helper = self.base / workflow / "R1 Bridge Collector.app"
+        previous_helper.mkdir(parents=True)
+        connection = self.base / "tunnel/even-r1.yaml"
+        connection.parent.mkdir()
+        connection.write_text(f"command: '/usr/bin/python3' '{self.base}/mcp_server.py' --stdio\n")
+        agent = self.home / "Library/LaunchAgents/local.r1bridge.tunnel.plist"
+        agent.parent.mkdir(parents=True)
+        agent.write_bytes(plistlib.dumps({"Label": "local.r1bridge.tunnel",
+                                         "ProgramArguments": ["/usr/bin/python3", "-B", str(self.base / "tunnel.py"),
+                                                              "run-keychain"]}))
+        original = [path.read_bytes() for path in (connection, agent)]
+
+        # The DMG check separately verifies real compiled executables. These stubs
+        # exercise just the install transition without starting an export or tunnel.
+        package = self.home / "packaged-runtime"
+        package.mkdir()
+        for script in RUNTIME.glob("*.py"):
+            shutil.copy2(script, package / script.name)
+        executable = workflow / "Even R1 Ring Collector for Mac.app/Contents/MacOS/EvenR1Export"
+        for stub in (executable, workflow / "even_cards"):
+            path = package / stub
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("#!/bin/sh\nexit 0\n")
+            path.chmod(0o755)
+        env = {**os.environ, "HOME": str(self.home)}
+        subprocess.run([sys.executable, "-B", str(package / "r1.py"), "prepare"],
+                       env=env, check=True, capture_output=True, timeout=10)
+        self.assertTrue(os.access(self.base / executable, os.X_OK))
+        self.assertFalse(previous_helper.exists())
+        self.assertEqual([path.read_bytes() for path in (connection, agent)], original)
+        request = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                   "params": {"protocolVersion": "2025-11-25"}}
+        latest = {"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                  "params": {"name": "sleep_durations", "arguments": self.dates}}
+        session = subprocess.run([sys.executable, "-B", str(self.base / "mcp_server.py"), "--stdio"],
+                                 env=env, input="".join(json.dumps(x) + "\n" for x in (request, latest)),
+                                 capture_output=True, text=True, check=True, timeout=10)
+        setup, reading = [json.loads(line)["result"] for line in session.stdout.splitlines()]
+        self.assertEqual(setup["serverInfo"]["title"], "Even R1 Ring Data for ChatGPT")
+        self.assertEqual(setup["serverInfo"]["name"], "even-r1-ring-data")
+        self.assertEqual(json.loads(reading["content"][0]["text"])[0]["duration_minutes"], 50)
 
     def test_sleep_phases_dates_and_replay(self):
         self.collect(True)

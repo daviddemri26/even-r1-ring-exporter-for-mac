@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Download the release source, build the Mac app or G2 guide and preview the website.">
+  <title>Build from source · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Build from source</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Build from source</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#get-the-release-source">Get the release source</a></li><li class="docs-toc-level-2"><a href="#build-and-verify-the-mac-app">Build and verify the Mac app</a></li><li class="docs-toc-level-2"><a href="#build-the-optional-g2-guide">Build the optional G2 guide</a></li><li class="docs-toc-level-2"><a href="#preview-the-website">Preview the website</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>Use the tagged source to reproduce a particular alpha. The Mac app, G2 guide and website can each be built or previewed separately.</p>
+<h2 id="get-the-release-source">Get the release source</h2>
+<ol>
+<li>Download the <a href="../../downloads/source.zip">alpha 4 source ZIP</a>.</li>
+<li>Extract the ZIP. Open Terminal in the extracted folder containing <code>README.md</code>, <code>macos/</code> and <code>scripts/</code>.</li>
+<li>Run the commands below from that folder. If you only need the app, use the <a href="../../guides/install/">installation guide</a>.</li>
+</ol>
+<h2 id="build-and-verify-the-mac-app">Build and verify the Mac app</h2>
+<ul>
+<li>Use a Mac with Apple silicon running macOS 14 or later.</li>
+<li>Install Apple’s Command Line Tools. Run <code>xcode-select --install</code> if they are missing.</li>
+<li>Check that <code>/usr/bin/python3 --version</code> reports Python 3.9 or later.</li>
+<li>Run the runtime tests, build the disk image and verify it.</li>
+</ul>
+<pre><code class="language-sh">/usr/bin/python3 -B -m unittest discover -s macos/tests
+./scripts/build-macos.sh
+./scripts/verify-macos.sh
+</code></pre>
+<ul>
+<li>Find <code>Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg</code> and its SHA-256 checksum in <code>dist/</code>.</li>
+<li>The verification script mounts the DMG read-only. It checks signatures, architecture and setup in a temporary user folder.</li>
+<li>The local build uses ad hoc signing. To try a real export, follow the <a href="../../guides/install/">first export steps</a>.</li>
+</ul>
+<h2 id="build-the-optional-g2-guide">Build the optional G2 guide</h2>
+<ul>
+<li>Install Node.js 22 and npm. The G2 and website builds use them.</li>
+<li>Run the following commands from the extracted project folder. The parentheses return you to that folder afterward.</li>
+</ul>
+<pre><code class="language-sh">(
+  cd evenhub || exit 1
+  npm ci &amp;&amp; npm test &amp;&amp; npm run pack
+)
+</code></pre>
+<ul>
+<li>Find <code>Even-R1-Ring-Guide-for-G2-Glasses.ehpk</code> in <code>evenhub/</code>.</li>
+<li>The package contains the offline guide. Publishing it in the Even Hub catalog is a separate step. <a href="../../guides/glasses/">About the G2 guide</a></li>
+</ul>
+<h2 id="preview-the-website">Preview the website</h2>
+<ul>
+<li>Rebuild the website guides from the Markdown sources. Then start a local server from the project folder.</li>
+</ul>
+<pre><code class="language-sh">npm ci --prefix site
+npm run build:guides --prefix site
+/usr/bin/python3 -m http.server --bind 127.0.0.1 --directory site/dist 8080
+</code></pre>
+<ul>
+<li>Open <code>http://127.0.0.1:8080/</code> in your browser. The server serves the pages in <code>site/dist/</code> on this Mac. Use the public website for release downloads.</li>
+<li>Press <strong>Control-C</strong> in Terminal when you finish.</li>
+</ul>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/test/"><h3>Test the public alpha</h3><p>Check an export on a second Mac and compare it with Even on your phone.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/glasses/"><h3>Use the G2 glasses guide</h3><p>Download the optional offline guide and move through its five cards.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

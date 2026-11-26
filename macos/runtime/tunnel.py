@@ -1,4 +1,4 @@
-"""Manage the user's private Even R1 tunnel in the current macOS session."""
+"""Manage the private tunnel for Even R1 Ring Data for ChatGPT."""
 import argparse
 import getpass
 import hmac
@@ -97,7 +97,7 @@ def keychain_item(read_password=False, *, keychain=None):
                             stdout=subprocess.PIPE if read_password else subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, timeout=60)
     if result.returncode == 44:  # errSecItemNotFound
-        raise SetupError("Could not find the R1 Bridge - OpenAI Tunnel item in Keychain.")
+        raise SetupError("Could not find the “R1 Bridge - OpenAI Tunnel” item in Keychain. The exporter keeps this name for existing keys.")
     if result.returncode:
         raise SetupError("Could not access Keychain. Check that it is unlocked and that access is allowed.")
     if read_password:
@@ -169,7 +169,7 @@ def validate_runtime_key(key):
 
 
 def enroll_keychain():
-    print("Even R1 private connection to OpenAI", flush=True)
+    print("Connect Even R1 Ring Data for ChatGPT", flush=True)
     print("Paste the complete key and press Return. Input is hidden.", flush=True)
     print("Once OpenAI verifies the key, it will replace the dedicated Keychain item.", flush=True)
     try:
@@ -213,7 +213,7 @@ def prepare(tunnel_id, client):
         raise SetupError("Select the executable tunnel-client binary from the OpenAI release.")
     server = BASE / "mcp_server.py"
     if not server.is_file() or not RUNNER.is_file():
-        raise SetupError("Install the runtime from R1 Bridge before configuring the tunnel.")
+        raise SetupError("Set up the runtime in Even R1 Ring Exporter for Mac before configuring the tunnel.")
     TUNNEL.mkdir(parents=True, mode=0o700, exist_ok=True)
     TUNNEL.chmod(0o700)
     TOOL.parent.mkdir(mode=0o700, exist_ok=True)

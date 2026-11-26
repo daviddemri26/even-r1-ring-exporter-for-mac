@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Create a private tunnel and connect your own ChatGPT workspace to the Mac.">
+  <title>Set up Even R1 Ring Data for ChatGPT · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Connect ChatGPT</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Set up Even R1 Ring Data for ChatGPT</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#what-you-need">What you need</a></li><li class="docs-toc-level-2"><a href="#create-your-tunnel-and-key">Create your tunnel and key</a></li><li class="docs-toc-level-2"><a href="#connect-your-mac">Connect your Mac</a></li><li class="docs-toc-level-2"><a href="#add-the-connector-in-chatgpt">Add the connector in ChatGPT</a></li><li class="docs-toc-level-2"><a href="#what-you-can-ask">What you can ask</a></li><li class="docs-toc-level-2"><a href="#check-the-connection">Check the connection</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>This read-only connector lets your ChatGPT account ask your Mac about ring readings. First complete a <a href="../../guides/install/">local export</a>.</p>
+<h2 id="what-you-need">What you need</h2>
+<ul>
+<li>A ChatGPT workspace that supports custom MCP servers. In a managed workspace, check that you can add one.</li>
+<li>An OpenAI Platform organization with access to secure tunnels.</li>
+<li>Your Mac awake and online when you ask ChatGPT a question. <a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels">OpenAI’s tunnel guide</a></li>
+</ul>
+<h2 id="create-your-tunnel-and-key">Create your tunnel and key</h2>
+<ol>
+<li>Open <a href="https://platform.openai.com/settings/organization/tunnels">OpenAI Platform tunnels</a> and select your organization.</li>
+<li>Create a tunnel and associate it with your organization and personal ChatGPT workspace. Creating it requires <strong>Tunnels Read + Manage</strong>.</li>
+<li>Copy the identifier beginning with <code>tunnel_</code>.</li>
+<li>Create a <a href="https://platform.openai.com/settings/organization/api-keys">project API key</a> dedicated to this Mac. Select <strong>Restricted</strong> and grant <strong>Tunnels Read and Use</strong>.</li>
+</ol>
+<h2 id="connect-your-mac">Connect your Mac</h2>
+<ol>
+<li>In the Mac app, choose <strong>ChatGPT Connection → Connect Even R1 Ring to ChatGPT…</strong>. You can also open <strong>Connect Even R1 Ring to ChatGPT.command</strong> from the DMG.</li>
+<li>Enter your tunnel identifier. The assistant downloads the official Apple silicon tunnel client and verifies its SHA-256 checksum.</li>
+<li>Paste the complete API key at the hidden Terminal prompt and press Return. It will be stored in your Mac’s Keychain.</li>
+<li>Wait for confirmation that the tunnel has connected to OpenAI.</li>
+</ol>
+<h2 id="add-the-connector-in-chatgpt">Add the connector in ChatGPT</h2>
+<ol>
+<li>In the <a href="https://chatgpt.com/plugins">ChatGPT plugin directory</a>, select <strong>+ → Add custom MCP server</strong>.</li>
+<li>Name it <strong>Even R1 Ring Data for ChatGPT</strong>. Choose <strong>Tunnel</strong> and select your tunnel.</li>
+<li>Choose <strong>No authentication</strong> for the local MCP server. The tunnel key and workspace association authenticate the connection. Limit access to your own workspace.</li>
+<li>Create the plugin, click <strong>Connect</strong>, then <strong>Try in chat</strong>.</li>
+<li>Ask “How much did I sleep each night over the last seven days?” Compare a wake-up date with Even on your iPhone.</li>
+</ol>
+<p>If an older alpha shows different tool names, refresh or reconnect the plugin. Your API key stays in Keychain.</p>
+<h2 id="what-you-can-ask">What you can ask</h2>
+<ul>
+<li><strong>Sleep duration</strong> (<code>sleep_durations</code>). Get total sleep minutes for each local wake-up date, including recorded naps.</li>
+<li><strong>Sleep stages</strong> (<code>sleep_stages</code>). Get awake, light, deep and REM minutes. A missing date means Even supplied no session. A <code>null</code> value indicates ambiguous data.</li>
+<li><strong>Latest measurements</strong> (<code>latest_readings</code>). Read Even’s six health cards and their displayed age. A matching export can also establish the batch date.</li>
+<li><strong>Changes over time</strong> (<code>reading_history</code>). See when the Mac observed a card’s value or unit change. Steps and active calories may be running totals.</li>
+</ul>
+<h2 id="check-the-connection">Check the connection</h2>
+<ul>
+<li>Run the commands below after setting up the Mac. Scheduled collection and the tunnel can be stopped independently.</li>
+<li><strong>HTTP 401</strong> means OpenAI declined the key. Enter the complete key again at the assistant’s hidden prompt.</li>
+<li><strong>HTTP 403</strong> means you should check the organization, project, tunnel permissions and workspace association. <a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels/#troubleshooting">OpenAI troubleshooting</a></li>
+</ul>
+<pre><code class="language-sh">runtime=&quot;$HOME/Library/Application Support/R1 Bridge&quot;
+/usr/bin/python3 -B &quot;$runtime/r1.py&quot; status
+/usr/bin/python3 -B &quot;$runtime/tunnel.py&quot; status
+</code></pre>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/ask/"><h3>Ask about your readings</h3><p>Ask about seven nights of sleep or the six health cards, without attaching a file.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/privacy/"><h3>Understand your privacy</h3><p>See what stays on your Mac, what ChatGPT receives and how to stop collection.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

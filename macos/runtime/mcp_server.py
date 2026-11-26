@@ -180,7 +180,8 @@ def rpc(request, base):
         version = params.get("protocolVersion")
         result = {"protocolVersion": version if version in VERSIONS else VERSIONS[0],
                   "capabilities": {"tools": {}},
-                  "serverInfo": {"name": "r1-bridge", "version": "0.1.0"}}
+                  "serverInfo": {"name": "even-r1-ring-data", "title": "Even R1 Ring Data for ChatGPT",
+                                 "version": "0.1.0"}}
     elif method == "ping":
         result = {}
     elif method == "tools/list":

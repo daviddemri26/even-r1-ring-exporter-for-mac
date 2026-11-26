@@ -4,19 +4,21 @@ umask 077
 
 runtime="$HOME/Library/Application Support/R1 Bridge/tunnel.py"
 if [[ ! -f "$runtime" ]]; then
-  echo 'Open R1 Bridge and choose Set Up This Mac first.'
+  echo 'Open Even R1 Ring Exporter for Mac and choose Set Up This Mac first.'
+  echo 'https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/'
   exit 1
 fi
 if [[ "$(/usr/bin/uname -m)" != arm64 ]]; then
-  echo 'This version of R1 Bridge requires a Mac with Apple silicon.'
+  echo 'This version of Even R1 Ring Exporter for Mac requires a Mac with Apple silicon.'
   exit 1
 fi
 
 cat <<'GUIDE'
-Connect R1 Bridge to your ChatGPT account
+Connect Even R1 Ring to ChatGPT
 
 Your private connector sends the requested results to OpenAI.
 The original ZIP archives stay on this Mac.
+Setup guide: https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/
 
 1. Open https://platform.openai.com/settings/organization/tunnels and create a
    tunnel associated with your organization and personal ChatGPT workspace.

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="Ask about seven nights of sleep or the six health cards, without attaching a file.">
+  <title>Ask ChatGPT about your ring readings · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Ask about your readings</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Ask ChatGPT about your ring readings</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#ask-about-seven-nights">Ask about seven nights</a></li><li class="docs-toc-level-2"><a href="#read-the-sleep-results">Read the sleep results</a></li><li class="docs-toc-level-2"><a href="#ask-about-the-six-latest-readings">Ask about the six latest readings</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>Use <strong>Even R1 Ring Data for ChatGPT</strong> to read the latest verified export on your Mac. You can leave the ZIP in its archive folder.</p>
+<h2 id="ask-about-seven-nights">Ask about seven nights</h2>
+<ol>
+<li>Open <strong>Even R1 Ring Exporter for Mac</strong>. In <strong>Mac Collection</strong>, select <strong>Refresh</strong>. Check the latest recorded wake date.</li>
+<li>Pick seven consecutive local wake dates that include a night you recognize. The example below uses November 16 through November 22, 2026.</li>
+<li>Keep your Mac awake and online. In ChatGPT on the web, open the connected <strong>Even R1 Ring Data for ChatGPT</strong> plugin and choose <strong>Try in chat</strong>. <a href="../../guides/chatgpt/">Connect the plugin</a></li>
+<li>Send this message without adding an attachment.</li>
+</ol>
+<pre><code class="language-text">Use Even R1 Ring Data for ChatGPT. For each wake date from November 16 through November 22, 2026 inclusive, list my recorded sleep in hours and minutes. Mark dates without a session. If you calculate an average, give the number of usable dates.
+</code></pre>
+<ol start="5">
+<li>Compare one result with <strong>Health</strong> in Even on your iPhone. Match the date you woke up. To check for a new night, ask for the dates after the last one you recognized.</li>
+</ol>
+<h2 id="read-the-sleep-results">Read the sleep results</h2>
+<ul>
+<li>A day’s total includes distinct recorded sleep sessions ending on that date, including naps.</li>
+<li>A missing date means the export has no sleep session for that wake date. Sleeping without wearing the ring can leave a gap.</li>
+<li>A <code>null</code> duration means the records were inconsistent or ambiguous. Exclude missing and ambiguous dates from averages.</li>
+<li>For stages, ask “For the wake date November 22, how many minutes did Even record as awake, light, deep and REM?” Awake time covers the recorded sessions.</li>
+<li>One query can cover up to 31 local wake dates. <a href="../../guides/troubleshooting/">Troubleshoot a missing night</a></li>
+</ul>
+<h2 id="ask-about-the-six-latest-readings">Ask about the six latest readings</h2>
+<p>Send this follow-up in the same chat.</p>
+<pre><code class="language-text">List my latest steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Include the unit, how old each reading was when observed, and when my Mac observed it.
+</code></pre>
+<ul>
+<li><strong>Steps and active calories</strong> can be partial daily totals. Adding successive card values can count activity twice.</li>
+<li><strong>Heart rate</strong> is shown in beats per minute. <strong>Heart rate variability</strong> is shown in milliseconds.</li>
+<li><strong>Blood oxygen saturation</strong> is shown as a percentage. <strong>Skin temperature variation</strong> is a temperature change. Keep the unit Even displayed.</li>
+<li>Read each card’s age alongside its observation time. A card labelled “3 days ago” was already three days old when the Mac saw it.</li>
+<li>To check changes, ask “Which readings changed between November 16 and November 22?” Local history starts when the Mac first observes a value. An unchanged card does not create another entry.</li>
+</ul>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

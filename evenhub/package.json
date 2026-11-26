@@ -1,12 +1,12 @@
 {
-  "name": "r1-bridge-guide",
-  "version": "0.1.1",
+  "name": "even-r1-ring-guide-for-g2-glasses",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test src/guide.test.js",
     "build": "node build.mjs",
-    "pack": "npm run build && node ./node_modules/@evenrealities/evenhub-cli/main.js pack --sdk-ver 0.0.16 app.json dist -o r1-bridge-guide.ehpk"
+    "pack": "npm run build && node ./node_modules/@evenrealities/evenhub-cli/main.js pack --sdk-ver 0.0.16 app.json dist -o Even-R1-Ring-Guide-for-G2-Glasses.ehpk"
   },
   "dependencies": {
     "@evenrealities/even_hub_sdk": "0.0.16"

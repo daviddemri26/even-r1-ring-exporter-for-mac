@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9faf6">
+  <meta name="description" content="See what stays on your Mac, what ChatGPT receives and how to stop collection.">
+  <title>Where your ring readings go · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../../guides.css">
+</head>
+<body class="docs-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
+  <main id="content" class="wrap docs-shell">
+<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Understand your privacy</li></ol></nav>
+<header class="docs-hero"><h1 id="page-title">Where your ring readings go</h1></header>
+<div class="docs-layout">
+<nav class="docs-toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ol><li class="docs-toc-level-2"><a href="#stop-collection-or-uninstall">Stop collection or uninstall</a></li></ol></nav>
+<article class="docs-article" aria-labelledby="page-title">
+<p>Even R1 Ring Exporter for Mac stores Even exports on the Mac. Each person sets up their own Mac and decides whether to connect it to their ChatGPT account.</p>
+<ul>
+<li><strong>Even.</strong> The tested workflow uses Even’s cloud backup so the Mac can see readings from the iPhone. Even controls this setting in its app. <a href="https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup">Even’s health data backup guide</a></li>
+<li><strong>Your Mac.</strong> The collector operates Even’s export controls and reads the ZIP that Even creates. It saves archives, collection status and observed cards under <code>~/Library/Application Support/R1 Bridge/</code>. The ZIP files contain personal data. A backup of this folder will include it.</li>
+<li><strong>ChatGPT.</strong> If you enable the tunnel, anyone authorized to use <strong>Even R1 Ring Data for ChatGPT</strong> can request results from its four read-only tools. Keep the connection in your own workspace. The readings returned to ChatGPT become part of that conversation. The dedicated API key is saved in the Mac’s Keychain.</li>
+<li><strong>Website and glasses.</strong> The public website contains instructions and sample questions. <strong>Even R1 Ring Guide for G2 Glasses</strong> displays five bundled text cards. Both can be used without providing personal readings.</li>
+</ul>
+<h2 id="stop-collection-or-uninstall">Stop collection or uninstall</h2>
+<ol>
+<li>In <strong>Mac Collection</strong>, choose <strong>Stop Schedule</strong>. If you enabled the tunnel, you can also choose <strong>Stop Tunnel</strong> in <strong>ChatGPT Connection</strong>. The archives remain available on your Mac.</li>
+<li>To remove remote access, disconnect the plugin in ChatGPT, revoke the dedicated key and remove the tunnel association on OpenAI Platform. The password item in Keychain is named <strong>R1 Bridge - OpenAI Tunnel</strong>.</li>
+<li>To uninstall, quit <strong>Even R1 Ring Exporter for Mac</strong>, move the app to the Trash and remove <strong>Even R1 Ring Collector for Mac</strong> from <strong>Privacy &amp; Security → Accessibility</strong> in System Settings. Keep or back up any exports you want before deleting the <code>R1 Bridge</code> folder in your user Library. Backups, Even’s cloud data and ChatGPT conversations each have their own deletion controls.</li>
+</ol>
+<p>You can also stop the two services from Terminal.</p>
+<pre><code class="language-sh">runtime=&quot;$HOME/Library/Application Support/R1 Bridge&quot;
+/usr/bin/python3 -B &quot;$runtime/r1.py&quot; stop
+/usr/bin/python3 -B &quot;$runtime/tunnel.py&quot; stop
+</code></pre>
+<p>For a bug report, include the Mac exporter version, Even version and macOS version, the interface language, the step that failed and a redacted error message. Keep ZIP files, keys, tunnel identifiers and screenshots of your readings out of public reports.</p>
+</article>
+</div>
+<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a>
+<a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Check your equipment, allow the collector and run your first export.</p><span aria-hidden="true">→</span></a></div></section>
+  </main>
+  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
+</body>
+</html>

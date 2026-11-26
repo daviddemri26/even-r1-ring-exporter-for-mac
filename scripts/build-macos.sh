@@ -6,23 +6,23 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 output="${1:-"$root/dist"}"
 mkdir -p "$output"
 output=$(cd "$output" && pwd)
-build=$(mktemp -d "${TMPDIR:-/tmp}/r1-bridge-build.XXXXXXXX")
+build=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-build.XXXXXXXX")
 trap 'rm -rf "$build"' EXIT
-name='R1 Bridge'
-dmg_name='R1-Bridge-0.1.0-alpha.3-macOS-arm64.dmg'
+name='Even R1 Ring Exporter for Mac'
+dmg_name='Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg'
 app="$build/image/$name.app"
 resources="$app/Contents/Resources"
 source_runtime="$root/macos/runtime"
 runtime="$resources/runtime"
 flow='Export.workflow/Contents'
-helper='R1 Bridge Collector.app'
+helper='Even R1 Ring Collector for Mac.app'
 target=arm64-apple-macos14.0
 sdk=$(/usr/bin/xcrun --sdk macosx --show-sdk-path)
-flags=(-O -sdk "$sdk" -target "$target" -file-prefix-map "$root=R1Bridge" -debug-prefix-map "$root=R1Bridge" -file-prefix-map "$build=build" -debug-prefix-map "$build=build")
+flags=(-O -sdk "$sdk" -target "$target" -file-prefix-map "$root=EvenR1RingExporterForMac" -debug-prefix-map "$root=EvenR1RingExporterForMac" -file-prefix-map "$build=build" -debug-prefix-map "$build=build")
 mkdir -p "$app/Contents/MacOS" "$runtime/$flow/Resources/$helper/Contents/MacOS" "$build/AppIcon.iconset"
 cp "$root/macos/app/Info.plist" "$app/Contents/Info.plist"
-install -m 755 "$root/integration/Connect ChatGPT.command" "$resources/Connect ChatGPT.command"
-install -m 755 "$root/integration/Connect ChatGPT.command" "$build/image/Connect ChatGPT.command"
+install -m 755 "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$resources/Connect Even R1 Ring to ChatGPT.command"
+install -m 755 "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$build/image/Connect Even R1 Ring to ChatGPT.command"
 for script in collection r1 card_report archive_match sleep_report mcp_server tunnel legacy_upgrade legacy_services; do
     cp "$source_runtime/$script.py" "$runtime/"
 done

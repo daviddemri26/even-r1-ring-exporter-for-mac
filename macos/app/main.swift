@@ -16,7 +16,7 @@ private struct Bridge {
     var runtime: URL { resources.appendingPathComponent("runtime", isDirectory: true) }
     var installed: URL { home.appendingPathComponent("Library/Application Support/R1 Bridge", isDirectory: true) }
     var archives: URL { installed.appendingPathComponent("Archives", isDirectory: true) }
-    var collector: URL { installed.appendingPathComponent("Export.workflow/Contents/Resources/R1 Bridge Collector.app", isDirectory: true) }
+    var collector: URL { installed.appendingPathComponent("Export.workflow/Contents/Resources/Even R1 Ring Collector for Mac.app", isDirectory: true) }
     var securePrompt: URL { installed.appendingPathComponent("tunnel/Store Key.command") }
     var ready: Bool {
         guard fm.fileExists(atPath: collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path),
@@ -49,7 +49,7 @@ private struct Bridge {
     func prepare() -> CommandResult {
         guard command("/usr/bin/xcode-select", ["-p"]).succeeded,
               command("/usr/bin/python3", ["-c", "import sys; sys.exit(sys.version_info < (3,9))"]).succeeded else {
-            return CommandResult(code: 1, message: "Run xcode-select --install in Terminal to install the Apple Command Line Tools. Reopen R1 Bridge when installation finishes.")
+            return CommandResult(code: 1, message: "Run xcode-select --install in Terminal to install the Apple Command Line Tools. Reopen Even R1 Ring Exporter for Mac when installation finishes.")
         }
         let result = python("r1.py", ["prepare"], from: runtime)
         guard result.succeeded else { return result }
@@ -118,9 +118,9 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "About R1 Bridge", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "About Even R1 Ring Exporter for Mac", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Quit R1 Bridge", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Quit Even R1 Ring Exporter for Mac", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         menu.addItem(appItem)
         let editItem = NSMenuItem()
@@ -172,7 +172,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     }
 
     private func configureWindow() {
-        window.title = "R1 Bridge"
+        window.title = "Even R1 Ring Exporter for Mac"
         window.minSize = NSSize(width: 670, height: 605)
         let root = column(16)
         root.translatesAutoresizingMaskIntoConstraints = false
@@ -184,7 +184,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
             root.topAnchor.constraint(equalTo: content.topAnchor, constant: 22),
             root.bottomAnchor.constraint(lessThanOrEqualTo: content.bottomAnchor, constant: -18)
         ])
-        root.addArrangedSubview(label("R1 Bridge", size: 30, weight: .bold))
+        root.addArrangedSubview(label("Even R1 Ring Exporter for Mac", size: 30, weight: .bold))
         section = NSSegmentedControl(labels: ["Mac Collection", "ChatGPT Connection"], trackingMode: .selectOne, target: self, action: #selector(changeSection))
         section.selectedSegment = 0
         root.addArrangedSubview(section)
@@ -198,7 +198,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         wrapped(label("Keep your R1 paired with your iPhone. Open Even on your Mac, sign in to the same account, and confirm that you can see your ring data.", size: 13, secondary: true), in: collectPage)
         setup = button("Set Up This Mac", #selector(prepareMac))
         test = button("Test an Export", #selector(tryExport))
-        collectPage.addArrangedSubview(row([setup, test]))
+        collectPage.addArrangedSubview(row([setup, test, button("Installation Guide ↗", #selector(openInstallGuide))]))
         wrapped(label("Collection windows start at " + collectTimes + " Scheduled exports wait until your Mac is unlocked and has been idle for two minutes.", size: 13, secondary: true), in: collectPage)
         schedule = button("Schedule Collection", #selector(startSchedule))
         stop = button("Stop Schedule", #selector(stopSchedule))
@@ -209,7 +209,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
 
         wrapped(label("Connect your ChatGPT account", size: 20, weight: .semibold), in: tunnelPage)
         wrapped(label("Your ChatGPT account can use a private tunnel to read data from this Mac. Set it up with your own OpenAI tunnel and key.", size: 13, secondary: true), in: tunnelPage)
-        connectTunnel = button("Connect ChatGPT…", #selector(openAssistant))
+        connectTunnel = button("Connect Even R1 Ring to ChatGPT…", #selector(openAssistant))
         tunnelPage.addArrangedSubview(row([connectTunnel, button("Connection Guide ↗", #selector(openGuide))]))
         wrapped(label("The assistant opens in Terminal. It installs the official client and stores your key in the macOS Keychain. Your ZIP archives stay on this Mac.", size: 13, secondary: true), in: tunnelPage)
         enterKey = button("Update Key…", #selector(openKeyPrompt))
@@ -298,15 +298,16 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     @objc private func showArchives() { NSWorkspace.shared.open(bridge.archives) }
     @objc private func openAccess() { NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!) }
     @objc private func openTunnels() { NSWorkspace.shared.open(URL(string: "https://platform.openai.com/settings/organization/tunnels")!) }
-    @objc private func openGuide() { NSWorkspace.shared.open(URL(string: "https://github.com/daviddemri26/r1-bridge/blob/main/docs/chatgpt.md")!) }
+    @objc private func openInstallGuide() { NSWorkspace.shared.open(URL(string: "https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/")!) }
+    @objc private func openGuide() { NSWorkspace.shared.open(URL(string: "https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/")!) }
     @objc private func openAssistant() {
-        openTerminal(bridge.resources.appendingPathComponent("Connect ChatGPT.command"))
+        openTerminal(bridge.resources.appendingPathComponent("Connect Even R1 Ring to ChatGPT.command"))
     }
     @objc private func openKeyPrompt() { openTerminal(bridge.securePrompt) }
 
     private func openTerminal(_ file: URL) {
         guard fm.isExecutableFile(atPath: file.path) else {
-            feedback.stringValue = "The setup assistant is missing. Reinstall R1 Bridge from the disk image."
+            feedback.stringValue = "The setup assistant is missing. Reinstall Even R1 Ring Exporter for Mac from the disk image."
             return
         }
         guard let terminal = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Terminal") else {
@@ -324,7 +325,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
 
 guard let resources = Bundle.main.resourceURL else { exit(1) }
 if CommandLine.arguments.contains("--verify-install") {
-    let scratch = fm.temporaryDirectory.appendingPathComponent("r1bridge-verification-" + UUID().uuidString)
+    let scratch = fm.temporaryDirectory.appendingPathComponent("even-r1-ring-exporter-test-" + UUID().uuidString)
     do {
         try fm.createDirectory(at: scratch, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? fm.removeItem(at: scratch) }
@@ -333,7 +334,7 @@ if CommandLine.arguments.contains("--verify-install") {
         guard result.succeeded, testBridge.ready, fm.fileExists(atPath: testBridge.archives.path) else { fputs("Installation test failed. \(result.message)\n", stderr); exit(1) }
         let report = testBridge.collect("status")
         guard report.succeeded, fm.isExecutableFile(atPath: testBridge.collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path) else { exit(1) }
-        guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect ChatGPT.command").path) else { exit(1) }
+        guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect Even R1 Ring to ChatGPT.command").path) else { exit(1) }
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
         let check = WindowController(testBridge)
