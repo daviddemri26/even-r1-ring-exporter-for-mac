@@ -1,0 +1,2 @@
+# Preserve the font authors’ original license files, including their line endings.
+site/dist/assets/*-OFL.txt -text whitespace=-trailing-space

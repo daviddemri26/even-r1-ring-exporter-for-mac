@@ -1,0 +1,18 @@
+{
+  "name": "r1-bridge-guide",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/guide.test.js",
+    "build": "node build.mjs",
+    "pack": "npm run build && node ./node_modules/@evenrealities/evenhub-cli/main.js pack --sdk-ver 0.0.16 app.json dist -o r1-bridge-guide.ehpk"
+  },
+  "dependencies": {
+    "@evenrealities/even_hub_sdk": "0.0.16"
+  },
+  "devDependencies": {
+    "@evenrealities/evenhub-cli": "0.2.0",
+    "esbuild": "0.28.2"
+  }
+}

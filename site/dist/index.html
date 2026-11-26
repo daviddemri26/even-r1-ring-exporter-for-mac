@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f9faf6" />
+    <meta
+      name="description"
+      content="R1 Bridge collecte sur Mac les mesures de votre bague Even R1. Consultez votre sommeil et votre activité dans ChatGPT avec un connecteur personnel."
+    />
+    <title>R1 Bridge — Votre bague Even R1 sur Mac et dans ChatGPT</title>
+    <link
+      rel="preload"
+      href="./assets/instrument-serif.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#contenu">Aller au contenu</a>
+    <header class="site-header">
+      <div class="wrap nav">
+        <a class="brand" href="#contenu" aria-label="R1 Bridge, accueil"
+          ><span class="mark" aria-hidden="true"></span>R1 Bridge</a
+        >
+        <nav aria-label="Navigation principale">
+          <a href="#fonctionnement">Fonctionnement</a>
+          <a href="#prerequis">Prérequis</a>
+          <a href="#guides">Guides</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenu">
+      <div class="wrap hero">
+        <div class="hero-copy">
+          <p class="availability">
+            <span aria-hidden="true"></span> Alpha privée pour Mac
+          </p>
+          <h1>De votre bague R1<br />à <em>ChatGPT.</em></h1>
+          <p class="lede">
+            Votre Mac récupère le sommeil et les mesures de votre bague Even R1.
+            Posez ensuite vos questions dans ChatGPT, sans joindre de fichier.
+          </p>
+          <div class="hero-actions">
+            <a
+              class="primary"
+              href="https://github.com/daviddemri26/r1-bridge/releases/tag/v0.1.0-alpha.1"
+              >Télécharger pour Mac
+              <span class="download" aria-hidden="true">↓</span></a
+            >
+            <a class="text-link" href="#prerequis"
+              >Vérifier les prérequis <span aria-hidden="true">↘</span></a
+            >
+          </div>
+          <p class="access-note">
+            Le téléchargement nécessite une invitation au dépôt GitHub.
+          </p>
+        </div>
+        <figure class="hero-art">
+          <img
+            src="./assets/ring-studio.webp"
+            width="1000"
+            height="750"
+            alt="Illustration d’une bague en métal graphite sur une feuille vert sauge."
+          />
+          <figcaption>Illustration de la bague</figcaption>
+        </figure>
+      </div>
+
+      <section
+        class="flow-section"
+        id="fonctionnement"
+        aria-labelledby="flow-title"
+      >
+        <div class="wrap">
+          <h2 id="flow-title">Comment ça marche&nbsp;?</h2>
+          <ol class="flow">
+            <li>
+              <span class="step-graphic ring" aria-hidden="true"></span>
+              <h3>La bague enregistre</h3>
+              <p>
+                Portez la R1 et synchronisez-la avec Even sur votre iPhone. Vos
+                lunettes G2 et votre bague gardent leur appairage habituel.
+              </p>
+            </li>
+            <li>
+              <span class="step-graphic mac" aria-hidden="true"></span>
+              <h3>Le Mac collecte</h3>
+              <p>
+                R1 Bridge lance l’export de l’app Even et conserve les archives
+                sur votre Mac. La collecte peut se faire aux horaires prévus
+                dans une session déverrouillée.
+              </p>
+            </li>
+            <li>
+              <span class="step-graphic chat" aria-hidden="true"></span>
+              <h3>ChatGPT répond</h3>
+              <p>
+                Si vous activez le connecteur privé, ChatGPT interroge le Mac en
+                lecture seule. Le Mac doit être allumé et connecté lorsque vous
+                posez votre question.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="wrap query-section" aria-labelledby="query-title">
+        <div class="query-intro">
+          <h2 id="query-title">Que demander <br />à ChatGPT&nbsp;?</h2>
+          <p>
+            Le connecteur peut consulter les nuits enregistrées, les dernières
+            mesures et les changements observés depuis le début de la collecte.
+          </p>
+        </div>
+        <div class="examples">
+          <fieldset class="choices" hidden>
+            <legend class="sr-only">Choisir un exemple de question</legend>
+            <label
+              ><input
+                type="radio"
+                name="exemple"
+                value="sommeil"
+                checked
+              /><span>Sommeil</span></label
+            >
+            <label
+              ><input type="radio" name="exemple" value="activite" /><span
+                >Activité</span
+              ></label
+            >
+            <label
+              ><input type="radio" name="exemple" value="mesures" /><span
+                >Autres mesures</span
+              ></label
+            >
+          </fieldset>
+          <div id="questions">
+            <article data-question="sommeil">
+              <p class="example-prompt">
+                « Combien ai-je dormi chaque nuit au cours des sept derniers
+                jours&nbsp;? »
+              </p>
+              <p class="example-detail">
+                Les nuits sont classées par date de réveil. Une date sans relevé
+                indique qu’Even n’a fourni aucune session pour cette nuit.
+              </p>
+            </article>
+            <article data-question="activite">
+              <p class="example-prompt">
+                « Quels sont mes derniers relevés de pas et de calories
+                actives&nbsp;? »
+              </p>
+              <p class="example-detail">
+                La réponse reprend les valeurs affichées par Even avec leur
+                ancienneté. Un relevé pris en cours de journée peut être un
+                cumul partiel.
+              </p>
+            </article>
+            <article data-question="mesures">
+              <p class="example-prompt">
+                « Quelle est ma dernière fréquence cardiaque et de quand date ce
+                relevé&nbsp;? »
+              </p>
+              <p class="example-detail">
+                La fréquence cardiaque, sa variabilité, la saturation en oxygène
+                et la variation de température cutanée sont disponibles quand
+                Even les affiche.
+              </p>
+            </article>
+          </div>
+          <div class="copy-line" hidden>
+            <button type="button" class="copy">Copier la question</button
+            ><span class="copy-status" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="wrap requirements"
+        id="prerequis"
+        aria-labelledby="req-title"
+      >
+        <div class="section-head">
+          <h2 id="req-title">Ce qu’il vous faut</h2>
+          <p>
+            Le parcours de l’alpha a été préparé pour un Mac Apple Silicon et un
+            iPhone.
+          </p>
+        </div>
+        <dl class="requirements-list">
+          <div>
+            <dt>Matériel</dt>
+            <dd>
+              Une bague Even R1, un iPhone et un Mac Apple Silicon. La
+              configuration pilote associe aussi des lunettes Even G2 à
+              l’iPhone.
+            </dd>
+          </div>
+          <div>
+            <dt>Compte Even</dt>
+            <dd>
+              L’app Even sur l’iPhone et sur le Mac, connectée au même compte.
+              Activez « Cloud processing &amp; backup » dans Even et vérifiez
+              qu’une mesure apparaît sur le Mac.
+            </dd>
+          </div>
+          <div>
+            <dt>Autorisations macOS</dt>
+            <dd>
+              Le collecteur utilise l’accessibilité pour actionner l’export et a
+              besoin de lire le fichier produit par Even. Gardez la session
+              ouverte et déverrouillée aux heures de collecte.
+            </dd>
+          </div>
+          <div>
+            <dt>Accès à ChatGPT</dt>
+            <dd>
+              Pour interroger le Mac depuis le web, il faut un compte ChatGPT
+              permettant l’ajout d’un serveur MCP personnalisé, une organisation
+              OpenAI Platform avec accès aux tunnels et une clé dédiée.
+            </dd>
+          </div>
+          <div>
+            <dt>Données partagées</dt>
+            <dd>
+              Les archives restent sur le Mac. Quand vous interrogez le
+              connecteur, OpenAI reçoit les mesures nécessaires à la réponse.
+              Chaque testeur utilise son propre tunnel et sa propre clé.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="guides-section" id="guides" aria-labelledby="guide-title">
+        <div class="wrap guide-layout">
+          <div class="guide-intro">
+            <h2 id="guide-title">Les guides</h2>
+            <p>
+              La documentation et les fichiers d’installation sont accessibles
+              aux personnes invitées à tester l’alpha.
+            </p>
+          </div>
+          <div class="guide-links">
+            <a
+              href="https://github.com/daviddemri26/r1-bridge/blob/main/docs/installation.md"
+              ><span
+                ><strong>Installer R1 Bridge</strong
+                ><small
+                  >Préparer le Mac, vérifier les permissions et tester une
+                  première collecte.</small
+                ></span
+              ><b aria-hidden="true">↗</b></a
+            >
+            <a
+              href="https://github.com/daviddemri26/r1-bridge/blob/main/docs/chatgpt.md"
+              ><span
+                ><strong>Connecter ChatGPT</strong
+                ><small
+                  >Configurer votre tunnel privé et vérifier la première réponse
+                  dans ChatGPT.</small
+                ></span
+              ><b aria-hidden="true">↗</b></a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="wrap footer">
+      <a class="brand" href="#contenu"
+        ><span class="mark" aria-hidden="true"></span>R1 Bridge</a
+      >
+      <p>Projet indépendant d’Even Realities, d’Apple et d’OpenAI.</p>
+      <a class="repo" href="https://github.com/daviddemri26/r1-bridge"
+        >Dépôt GitHub <span aria-hidden="true">↗</span></a
+      >
+    </footer>
+  </body>
+</html>
