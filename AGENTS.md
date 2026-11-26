@@ -6,7 +6,7 @@ Use English for documentation, interface text, source identifiers, commit messag
 
 Use lists instead of tables. Use synthetic data for development and tests. Keep real ring exports, individual readings, credentials, tunnel profiles, and personal Codex settings outside version control.
 
-Publish the complete English instructions on the project website. Link between guides there. The homepage photo is a retouched image supplied by the project owner. For other product imagery, use an official manufacturer source, credit it, and confirm permission before redistributing a photograph.
+Publish the complete English instructions on the project website. Link between guides there. The homepage pairs the owner's photographed Even R1 with a fictional robot hand. Preserve the original faceplate and its markings in photo edits. For other product imagery, use an official manufacturer source, credit it, and confirm permission before redistributing a photograph.
 
 Use sans-serif typography throughout the website and guides. Keep the homepage free of video players and video thumbnails.
 
