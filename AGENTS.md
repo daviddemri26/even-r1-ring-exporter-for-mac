@@ -8,4 +8,6 @@ Use lists instead of tables. Use synthetic data for development and tests. Keep 
 
 Publish the complete English instructions on the project website. Link between guides there. Use real product imagery from an official manufacturer source and credit it. Use the media provider’s supported embed or confirm permission before redistributing a photograph.
 
+Use sans-serif typography throughout the website and guides. Keep the homepage free of video players and video thumbnails.
+
 The application, runtime, release scripts, website, and glasses guide share this Git repository. For build and test commands, see the [README](README.md).

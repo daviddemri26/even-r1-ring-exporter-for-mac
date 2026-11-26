@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#f9faf6" />
     <meta name="description" content="Bring your Even R1 sleep and activity exports to your Mac. Ask ChatGPT about your own readings through a private connection." />
     <title>Even R1 Ring Exporter for Mac · Sleep and activity in ChatGPT</title>
-    <link rel="preload" href="./assets/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="./style.css" />
-    <script defer src="./app.js"></script>
+    <link rel="preload" href="./assets/dm-sans.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="./style.css?v=2" />
+    <script defer src="./app.js?v=2"></script>
   </head>
   <body>
     <a class="skip" href="#content">Skip to content</a>
@@ -24,11 +24,13 @@
     </header>
 
     <main id="content">
-      <div class="wrap hero">
-        <div class="hero-copy">
+      <header class="wrap hero">
+        <div>
           <p class="availability"><span aria-hidden="true"></span> Public alpha for Mac</p>
-          <h1>From your Even R1 ring<br />to <em>ChatGPT.</em></h1>
-          <p class="lede">Your Mac collects the sleep and activity readings from your Even R1. Ask ChatGPT about them without attaching a file.</p>
+          <h1>Ask ChatGPT about<br class="hero-break" /> your <em>Even R1 ring.</em></h1>
+        </div>
+        <div>
+          <p class="lede">Collect your ring’s sleep and activity readings on your Mac. Ask about them in ChatGPT without attaching a file.</p>
           <div class="hero-actions">
             <a class="primary" href="./downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg">
               Download for Mac <span class="download" aria-hidden="true">↓</span>
@@ -37,21 +39,7 @@
           </div>
           <p class="access-note">Apple silicon · macOS 14 or later</p>
         </div>
-        <figure class="hero-art">
-          <a class="ring-preview" href="https://vimeo.com/1228459666" aria-label="Play Even Realities’ 36-second R1 charging demonstration">
-            <img src="https://i.vimeocdn.com/video/2202907697-29aff06d6b512134086130f43db459695ba2235596abe41d515905e0425327ce-d_640?region=us"
-              width="640" height="1129" fetchpriority="high" referrerpolicy="no-referrer"
-              alt="The physical Even R1 ring beside its round charging puck, with the sensors visible inside the band." />
-            <span class="ring-play"><span aria-hidden="true">▶</span> Watch the ring demo · 0:36</span>
-          </a>
-          <template id="ring-player">
-            <iframe src="https://player.vimeo.com/video/1228459666?app_id=122963&amp;autoplay=1&amp;dnt=1"
-              title="Even Realities Support demonstrates the R1 ring and charger" allow="autoplay; fullscreen; picture-in-picture"
-              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </template>
-          <figcaption><a href="https://support.evenrealities.com/hc/en-us/articles/17622384370831-How-to-Record-a-Video-for-R1-Charging-Troubleshooting">Footage by Even Realities Support</a><a href="https://www.evenrealities.com/products/r1">Official R1 photos <span aria-hidden="true">↗</span></a></figcaption>
-        </figure>
-      </div>
+      </header>
 
       <section class="flow-section" id="how-it-works" aria-labelledby="flow-title">
         <div class="wrap">
@@ -116,7 +104,7 @@
         <dl class="requirements-list">
           <div>
             <dt>Hardware</dt>
-            <dd>An Even R1 ring, an iPhone and a Mac with Apple silicon. The pilot setup also paired Even G2 glasses to the iPhone.</dd>
+            <dd>An Even R1 ring, an iPhone and a Mac with Apple silicon. The pilot setup also paired Even G2 glasses to the iPhone. <a class="inline-link" href="https://www.evenrealities.com/products/r1">See the official R1 photos.</a></dd>
           </div>
           <div>
             <dt>Even account</dt>

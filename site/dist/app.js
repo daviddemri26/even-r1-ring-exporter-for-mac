@@ -1,13 +1,4 @@
 (() => {
-  const preview = document.querySelector(".ring-preview");
-  preview.addEventListener("click", (event) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    const frame = document.getElementById("ring-player").content.firstElementChild.cloneNode(true);
-    preview.replaceWith(frame);
-    frame.focus();
-  });
-
   const choices = document.querySelector(".choices");
   const questions = [...document.querySelectorAll("[data-question]")];
   const copyLine = document.querySelector(".copy-line");

@@ -4,12 +4,6 @@
   font-display: swap;
   font-weight: 400 700;
 }
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("./assets/instrument-serif.woff2") format("woff2");
-  font-display: swap;
-  font-weight: 400;
-}
 :root {
   --ink: #202c26;
   --body: #415048;
@@ -18,7 +12,6 @@
   --paper: #fafbf7;
   --border: #d4dcd1;
   --dark: #1b342a;
-  --serif: "Instrument Serif", Georgia, serif;
   --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   scroll-behavior: smooth;
 }
@@ -158,13 +151,13 @@ section[id] {
 }
 .hero {
   display: grid;
-  grid-template-columns: 1fr 0.98fr;
+  grid-template-columns: minmax(0, 1.28fr) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 5.5rem);
   align-items: center;
-  padding-block: clamp(2.9rem, 5.5vw, 5.8rem);
+  padding-block: clamp(3rem, 7vw, 6.5rem);
 }
-.hero-copy {
-  padding-block: 1rem;
+@media (max-width: 1100px) {
+  .hero-break { display: none; }
 }
 .availability {
   display: inline-flex;
@@ -183,20 +176,17 @@ section[id] {
   border-radius: 50%;
   box-shadow: 0 0 0 3px #e5eddf;
 }
-h1,
-h2,
-.example-prompt {
-  font-family: var(--serif);
-  font-weight: 400;
+h1, h2 {
+  font-weight: 650;
+  text-wrap: balance;
 }
 h1 {
-  font-size: clamp(3.45rem, 6.35vw, 6.1rem);
-  line-height: 0.98;
-  letter-spacing: -0.039em;
+  font-size: clamp(2.5rem, 5.4vw, 5rem);
+  line-height: 1.04;
+  letter-spacing: -0.052em;
 }
 h1 em {
   color: #436651;
-  font-weight: 400;
   font-style: normal;
 }
 .lede {
@@ -204,14 +194,13 @@ h1 em {
   max-width: 32rem;
   color: var(--body);
   font-size: clamp(1.03rem, 1.5vw, 1.23rem);
-  margin-top: 1.45rem;
 }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.2rem 1.6rem;
-  margin-top: 2.15rem;
+  margin-top: 1.55rem;
 }
 .primary {
   display: inline-flex;
@@ -248,52 +237,7 @@ h1 em {
   color: var(--body);
   line-height: 1.45;
 }
-.hero-art {
-  min-width: 0;
-}
-.ring-preview, .hero-art iframe {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  border: 0;
-  border-radius: 1.1rem;
-  background: #e2e4de;
-}
-.ring-preview {
-  position: relative;
-}
-.hero-art img, .hero-art iframe {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1.25;
-}
-.hero-art img {
-  display: block;
-  object-fit: cover;
-  object-position: 50% 66%;
-}
-.ring-play {
-  position: absolute;
-  bottom: .85rem;
-  left: .85rem;
-  padding: .55rem .9rem;
-  border-radius: 2rem;
-  background: #182c24ed;
-  color: white;
-  font: 550 .82rem/1.35 var(--sans);
-}
-.ring-play span { margin-right: .4rem; }
-.ring-preview:hover .ring-play { background: var(--green); }
-.hero-art figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: .35rem .8rem;
-  margin-top: .55rem;
-  font-size: .77rem;
-  color: var(--body);
-}
-.hero-art figcaption a, .browse-guides {
+.inline-link, .browse-guides {
   text-decoration: underline;
   text-underline-offset: .18em;
 }
@@ -308,10 +252,9 @@ h1 em {
   color: #f1f4eb;
 }
 h2 {
-  font-size: clamp(2.65rem, 4.2vw, 4.3rem);
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-  text-wrap: balance;
+  font-size: clamp(1.95rem, 3.6vw, 3.45rem);
+  letter-spacing: -0.044em;
+  line-height: 1.1;
 }
 .flow {
   display: grid;
@@ -475,9 +418,11 @@ h2 {
   margin: 0;
 }
 .example-prompt {
-  font-size: clamp(2.02rem, 3.2vw, 3rem);
-  line-height: 1.13;
-  letter-spacing: -0.016em;
+  font-size: clamp(1.55rem, 2.35vw, 2.2rem);
+  font-weight: 550;
+  line-height: 1.22;
+  letter-spacing: -0.028em;
+  text-wrap: pretty;
 }
 .example-detail {
   margin-top: 1.15rem;
@@ -594,9 +539,6 @@ h2 {
   .wrap {
     width: calc(100% - 3rem);
   }
-  .hero-art img, .hero-art iframe {
-    aspect-ratio: 1;
-  }
   .hero-actions {
     gap: 0.85rem;
     margin-top: 1.4rem;
@@ -644,19 +586,10 @@ h2 {
   }
   .hero {
     padding-block: 2.2rem;
-    gap: 1.6rem;
-  }
-  .hero-copy {
-    padding: 0;
-  }
-  .hero-art img, .hero-art iframe {
-    aspect-ratio: 1.72;
+    gap: 1.15rem;
   }
   .availability {
     margin-bottom: 1.15rem;
-  }
-  .lede {
-    margin-top: 1rem;
   }
   .hero-actions {
     gap: 1.2rem;
@@ -708,9 +641,6 @@ h2 {
 
 }
 @media (max-width: 400px) {
-  .hero-art img, .hero-art iframe {
-    aspect-ratio: 1.52;
-  }
   .requirements-list > div {
     grid-template-columns: 1fr;
     gap: 0.3rem;
@@ -736,7 +666,6 @@ h2 {
   }
   .site-header,
   .hero-actions,
-  .hero-art,
   .choices,
   .copy-line,
   .footer .repo,

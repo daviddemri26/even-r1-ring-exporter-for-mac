@@ -163,7 +163,7 @@ function template(base, title, description, main) {
     '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     '  <meta name="theme-color" content="#f9faf6">\n  <meta name="description" content="' + escape(description) + '">\n' +
     '  <title>' + escape(title) + ' · ' + brand + '</title>\n' +
-    '  <link rel="stylesheet" href="' + base + 'style.css">\n  <link rel="stylesheet" href="' + base + 'guides.css">\n' +
+    '  <link rel="stylesheet" href="' + base + 'style.css?v=2">\n  <link rel="stylesheet" href="' + base + 'guides.css?v=2">\n' +
     '</head>\n<body class="docs-page">\n  <a class="skip" href="#content">Skip to content</a>\n' +
     '  <header class="site-header"><div class="wrap nav">' + brandLink(base) +
     '<nav aria-label="Main navigation"><a href="' + base + '#how-it-works">How it works</a><a href="' + base +
