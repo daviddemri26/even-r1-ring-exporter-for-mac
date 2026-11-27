@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Event
 from unittest.mock import patch
@@ -28,8 +28,10 @@ class ScheduleTest(unittest.TestCase):
 
     def test_calendar_windows_and_wake(self):
         checks = [t.strftime("%H:%M") for _, t in r1.schedule_times(self.morning)]
-        self.assertEqual(len(checks), 21)
-        self.assertEqual(checks[:7], ["08:15", "08:25", "08:35", "08:45", "08:55", "09:05", "09:15"])
+        self.assertEqual(len(checks), 35)
+        self.assertEqual(checks[::7], ["05:15", "08:15", "12:15", "18:15", "23:15"])
+        self.assertEqual(checks[:7], ["05:15", "05:25", "05:35", "05:45", "05:55", "06:05", "06:15"])
+        self.assertEqual(checks[-7:], ["23:15", "23:25", "23:35", "23:45", "23:55", "00:05", "00:15"])
         self.assertEqual(r1.current_slot(self.morning.replace(hour=9, second=59)), self.morning)
         self.assertIsNone(r1.current_slot(self.morning.replace(hour=9, minute=16)))
         with patch.object(r1, "quiet_reason") as idle, patch.object(r1.collection, "run") as runner:
@@ -37,7 +39,26 @@ class ScheduleTest(unittest.TestCase):
             idle.assert_not_called()
             runner.assert_not_called()
         self.assertIn("12:15", r1.next_attempt(self.morning, self.morning.isoformat(timespec="minutes")))
-        self.assertIn("08:15", r1.next_attempt(self.morning.replace(hour=23)))
+        self.assertIn("23:15", r1.next_attempt(self.morning.replace(hour=23, minute=0)))
+
+    def test_late_window_keeps_its_start_date_after_midnight(self):
+        late = datetime(2001, 12, 31, 23, 15)
+        midnight = datetime(2002, 1, 1)
+        self.assertEqual(r1.current_slot(midnight), late)
+        self.assertEqual(r1.current_slot(midnight.replace(minute=15, second=59)), late)
+        self.assertIsNone(r1.current_slot(midnight.replace(minute=16)))
+        self.assertIn("2002-01-01 00:05", r1.next_attempt(midnight))
+        self.assertIn("2002-01-01 00:15", r1.next_attempt(midnight.replace(minute=5)))
+        self.assertIn("2002-01-01 05:15", r1.next_attempt(midnight, late.isoformat(timespec="minutes")))
+        with patch.object(r1, "quiet_reason", side_effect=["Mac in use", None]), \
+                patch.object(r1.collection, "run", return_value=(0, "verified")) as runner:
+            r1.scheduled_run(self.base, late)
+            r1.scheduled_run(self.base, midnight + timedelta(minutes=5))
+            r1.scheduled_run(self.base, midnight + timedelta(minutes=15))
+            runner.assert_called_once_with(self.base, "launchd")
+        with closing(r1.schedule_db(self.base)) as db:
+            rows = db.execute("SELECT slot, status FROM schedule_checks").fetchall()
+            self.assertEqual([tuple(row) for row in rows], [("2001-12-31T23:15", "completed")])
 
     def test_deferral_never_changes_export_and_repeated_checks_reserve_one_window(self):
         with patch.object(r1, "quiet_reason", return_value="Mac in use"), patch.object(r1.collection, "run") as runner:

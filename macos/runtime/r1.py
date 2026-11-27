@@ -22,24 +22,28 @@ LABEL = "local.r1bridge.collection"
 DOMAIN = "gui/%d" % os.getuid()
 SERVICE = DOMAIN + "/" + LABEL
 PLIST = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
-HOURS = (8, 12, 18)
+HOURS = (5, 8, 12, 18, 23)
 IDLE_SECONDS = 120
 CHECK_MINUTES = tuple(range(0, 61, 10))
 
 
-def schedule_times(day):
+def window_starts(day):
     for hour in HOURS:
-        slot = day.replace(hour=hour, minute=15, second=0, microsecond=0)
+        yield day.replace(hour=hour, minute=15, second=0, microsecond=0)
+
+
+def schedule_times(day):
+    for slot in window_starts(day):
         for minutes in CHECK_MINUTES:
             yield slot, slot + timedelta(minutes=minutes)
 
 
 def current_slot(current):
     # Local wall-clock dates also identify slots across a restart or a clock change.
-    for hour in HOURS:
-        slot = current.replace(hour=hour, minute=15, second=0, microsecond=0)
-        if slot <= current < slot + timedelta(minutes=CHECK_MINUTES[-1] + 1):
-            return slot
+    for day in (current - timedelta(days=1), current):
+        for slot in window_starts(day):
+            if slot <= current < slot + timedelta(minutes=CHECK_MINUTES[-1] + 1):
+                return slot
     return None
 
 
@@ -205,7 +209,8 @@ def schedule():
     if not loaded():
         if ctl("enable", SERVICE) or ctl("bootstrap", DOMAIN, str(PLIST)) or not loaded():
             raise collection.CollectError("The collection LaunchAgent could not load in the graphical session.")
-    print("Collection windows start at 08:15, 12:15 and 18:15 local time. Activity is checked every ten minutes for an hour.")
+    starts = ", ".join(f"{hour:02d}:15" for hour in HOURS)
+    print(f"Collection windows start at {starts} local time. Activity is checked every ten minutes for an hour.")
 
 
 def stop():
@@ -248,7 +253,7 @@ def test_schedule():
 
 def next_attempt(current=None, consumed=None):
     current = current or datetime.now()
-    for days in (0, 1):
+    for days in (-1, 0, 1):
         for slot, check in schedule_times(current + timedelta(days=days)):
             if slot.isoformat(timespec="minutes") != consumed and check > current:
                 return check.astimezone().strftime("%Y-%m-%d %H:%M %Z")

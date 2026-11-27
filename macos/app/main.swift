@@ -237,7 +237,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         test = button("Test an Export", #selector(tryExport))
         schedule = button("Schedule Collection", #selector(startSchedule))
         collectPage.addArrangedSubview(row([setup, test, schedule]))
-        wrapped(label("Turn on the schedule once. Checks start at 8:15 AM, 12:15 PM and 6:15 PM. Your Mac exports when it is unlocked and idle for two minutes.", size: 13, secondary: true), in: collectPage)
+        wrapped(label("Checks start at 5:15 AM, 8:15 AM, 12:15 PM, 6:15 PM and 11:15 PM local time. Your Mac exports when it is unlocked and idle for two minutes.", size: 13, secondary: true), in: collectPage)
         collectionToggle = button("Show Collection Options", #selector(toggleCollectionOptions))
         collectPage.addArrangedSubview(row([collectionToggle, button("Installation Guide ↗", #selector(openInstallGuide))]))
         stop = button("Stop Schedule", #selector(stopSchedule))

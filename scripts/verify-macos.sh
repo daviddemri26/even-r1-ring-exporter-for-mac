@@ -2,7 +2,7 @@
 # Verify the read-only disk image with synthetic data and a temporary user folder.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
-image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.6-arm64.dmg"}"
+image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.7-arm64.dmg"}"
 image_dir=$(cd "$(dirname "$image")" && pwd)
 image="$image_dir/$(basename "$image")"
 scratch=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-verify.XXXXXXXX")
