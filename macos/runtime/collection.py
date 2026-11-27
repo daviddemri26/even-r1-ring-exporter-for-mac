@@ -9,6 +9,7 @@ import re
 import sqlite3
 import subprocess
 import zipfile
+import zlib
 from contextlib import closing
 from datetime import date, datetime, timedelta
 from pathlib import Path, PurePosixPath
@@ -92,15 +93,20 @@ def read_sleep(path):
             with archive.open(members[0]) as stream, io.TextIOWrapper(
                     stream, encoding="utf-8-sig", newline="") as contents:
                 reader = csv.DictReader(contents, strict=True)
-                if not {"start_ts", "end_ts"}.issubset(reader.fieldnames or []):
+                columns = reader.fieldnames or []
+                if not {"start_ts", "end_ts"}.issubset(columns):
                     raise CollectError("Missing start_ts or end_ts in sleep.csv.")
+                if len(columns) != len(set(columns)):
+                    raise CollectError("Duplicate column name in sleep.csv.")
                 for row in reader:
+                    if None in row:
+                        raise CollectError("Unexpected extra field in sleep.csv.")
                     start, end = timestamp(row["start_ts"]), timestamp(row["end_ts"])
                     if not timedelta() < end - start <= timedelta(days=1):
                         raise CollectError("Invalid sleep interval in sleep.csv.")
                     days.add(end.date().isoformat())
             return days
-    except (ValueError, UnicodeError, csv.Error, zipfile.BadZipFile, RuntimeError, EOFError) as exc:
+    except (ValueError, csv.Error, zipfile.BadZipFile, zlib.error, RuntimeError, EOFError) as exc:
         raise CollectError("Cannot read the ZIP, CSV or timezone-qualified timestamp.") from exc
 
 

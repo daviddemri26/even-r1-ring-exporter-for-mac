@@ -9,6 +9,7 @@ import sys
 import tempfile
 import time
 import zipfile
+import zlib
 from pathlib import Path
 
 CACHE = Path.home() / "Library/Containers/com.even.sg/Data/Library/Caches"
@@ -67,7 +68,7 @@ def finished_copy(relative, signature):
                 return False
         temp.replace(INCOMING / (temp.name.removeprefix(".") + ".zip"))
         return True
-    except (FileNotFoundError, EOFError, zipfile.BadZipFile):
+    except (FileNotFoundError, EOFError, zipfile.BadZipFile, zlib.error):
         return False
     finally:
         temp.unlink(missing_ok=True)

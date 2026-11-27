@@ -6,7 +6,6 @@ import io
 import json
 import os
 import re
-import sqlite3
 import stat
 import sys
 import zipfile
@@ -17,7 +16,7 @@ from pathlib import Path, PurePosixPath
 import collection
 import card_report
 from card_report import date_range
-from archive_match import DataError, verified_stream
+from archive_match import DataError, READ_ERRORS, verified_stream
 
 
 VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26")
@@ -104,11 +103,12 @@ def read_sessions(stream, detailed):
         with archive.open(members[0]) as raw, io.TextIOWrapper(
                 raw, encoding="utf-8-sig", newline="") as csv_file:
             reader = csv.DictReader(csv_file, strict=True)
+            columns = reader.fieldnames or []
             required = {"start_ts", "end_ts", *DURATION_COLUMNS}
-            if not required.issubset(reader.fieldnames or []):
+            if not required.issubset(columns) or len(columns) != len(set(columns)):
                 raise DataError()
             for n, row in enumerate(reader):
-                if n >= 100_000:
+                if n >= 100_000 or None in row:
                     raise DataError()
                 start = collection.timestamp(row["start_ts"])
                 end = collection.timestamp(row["end_ts"])
@@ -158,24 +158,24 @@ def summary(base, first, last, detailed=False):
         return daily_totals(read_sessions(stream, detailed), first, last, fields)
 
 
-def rpc(request, base):
-    def error(code, message):
-        return {"jsonrpc": "2.0", "id": ident, "error": {"code": code, "message": message}}
+def rpc_error(code, message, ident=None):
+    return {"jsonrpc": "2.0", "id": ident, "error": {"code": code, "message": message}}
 
-    ident = None
+
+def rpc(request, base):
     if not isinstance(request, dict) or request.get("jsonrpc") != "2.0":
-        return error(-32600, "Invalid JSON-RPC request.")
+        return rpc_error(-32600, "Invalid JSON-RPC request.")
     method = request.get("method")
     if not isinstance(method, str):
-        return error(-32600, "Invalid method.")
+        return rpc_error(-32600, "Invalid method.")
     if "id" not in request:
         return None  # JSON-RPC notifications have no response.
     if type(request["id"]) not in (int, str):
-        return error(-32600, "Invalid request ID.")
+        return rpc_error(-32600, "Invalid request ID.")
     ident = request["id"]
     params = request.get("params", {})
     if not isinstance(params, dict):
-        return error(-32602, "Invalid parameters.")
+        return rpc_error(-32602, "Invalid parameters.", ident)
     if method == "initialize":
         version = params.get("protocolVersion")
         result = {"protocolVersion": version if version in VERSIONS else VERSIONS[0],
@@ -198,22 +198,22 @@ def rpc(request, base):
                     requested = card_report.categories({"categories": dates.pop("categories", None)})
                     first, last = date_range(dates)
                 except ValueError:
-                    return error(-32602, "Choose one to six categories and an inclusive range of 1 to 31 dates.")
+                    return rpc_error(-32602, "Choose one to six categories and an inclusive range of 1 to 31 dates.", ident)
                 data = card_report.history(base, requested, first, last)
             elif name == card_report.CARD_TOOL["name"]:
                 try:
                     requested = card_report.categories(arguments)
                 except ValueError:
-                    return error(-32602, "Choose one to six distinct categories.")
+                    return rpc_error(-32602, "Choose one to six distinct categories.", ident)
                 data = card_report.last_cards(base, requested)
             elif name in (TOOL["name"], PHASE_TOOL["name"]):
                 try:
                     first, last = date_range(arguments)
                 except ValueError:
-                    return error(-32602, "Provide two ISO dates covering 1 to 31 days, inclusive.")
+                    return rpc_error(-32602, "Provide two ISO dates covering 1 to 31 days, inclusive.", ident)
                 data = summary(base, first, last, detailed=name == PHASE_TOOL["name"])
             else:
-                return error(-32602, "Unknown tool.")
+                return rpc_error(-32602, "Unknown tool.", ident)
             result = {"content": [{"type": "text", "text": json.dumps(data, ensure_ascii=False)}]}
         except card_report.SnapshotError:
             result = {"isError": True, "content": [{"type": "text", "text":
@@ -221,12 +221,11 @@ def rpc(request, base):
         except card_report.HistoryError:
             result = {"isError": True, "content": [{"type": "text", "text":
                       "Local card history is unavailable."}]}
-        except (DataError, OSError, ValueError, sqlite3.Error, RuntimeError,
-                csv.Error, zipfile.BadZipFile, EOFError):
+        except READ_ERRORS:
             result = {"isError": True, "content": [{"type": "text", "text":
                       "No readable, verified archive is available for this request."}]}
     else:
-        return error(-32601, "Unknown method.")
+        return rpc_error(-32601, "Unknown method.", ident)
     return {"jsonrpc": "2.0", "id": ident, "result": result}
 
 
@@ -296,8 +295,7 @@ class LocalHandler(BaseHTTPRequestHandler):
         try:
             request = json.loads(self.rfile.read(length).decode("utf-8"))
         except (ValueError, RecursionError):
-            self.reply(400, {"jsonrpc": "2.0", "id": None,
-                             "error": {"code": -32700, "message": "Invalid JSON."}})
+            self.reply(400, rpc_error(-32700, "Invalid JSON."))
             return
         response = rpc(request, self.server.base)
         self.reply(202 if response is None else 200, response)
@@ -315,6 +313,24 @@ def private_token(path):
         return b"Bearer " + raw
 
 
+def serve_stdio(stream, base):
+    # One line is one message. Keep later messages usable after malformed input.
+    while line := stream.readline(MAX_REQUEST_BYTES + 1):
+        if len(line) > MAX_REQUEST_BYTES:
+            while line and not line.endswith(b"\n"):
+                line = stream.readline(MAX_REQUEST_BYTES + 1)
+            response = rpc_error(-32600, "Request too large.")
+        else:
+            try:
+                request = json.loads(line.decode("utf-8"))
+            except (ValueError, RecursionError):
+                response = rpc_error(-32700, "Invalid JSON.")
+            else:
+                response = rpc(request, base)
+        if response is not None:
+            print(json.dumps(response, ensure_ascii=True), flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8741)
@@ -325,16 +341,7 @@ def main():
     args = parser.parse_args()
     try:
         if args.stdio:
-            # The authorized client starts this process. Reserve stdout for protocol messages.
-            while True:
-                line = sys.stdin.buffer.readline(MAX_REQUEST_BYTES + 1)
-                if not line:
-                    return
-                if len(line) > MAX_REQUEST_BYTES:
-                    raise ValueError("Request too large.")
-                response = rpc(json.loads(line.decode("utf-8")), collection.BASE)
-                if response is not None:
-                    print(json.dumps(response, ensure_ascii=True), flush=True)
+            return serve_stdio(sys.stdin.buffer, collection.BASE)
         auth = private_token(args.token)
         with ThreadingHTTPServer(("127.0.0.1", args.port), LocalHandler) as server:
             server.base = collection.BASE

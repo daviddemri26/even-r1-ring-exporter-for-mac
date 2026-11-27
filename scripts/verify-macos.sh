@@ -10,11 +10,20 @@ mount_dir="$scratch/mount"
 mkdir "$mount_dir"
 mounted=0
 cleanup() {
-    if [ "$mounted" -eq 1 ]; then /usr/bin/hdiutil detach -quiet "$mount_dir" || return 1; fi
+    if [ "$mounted" -eq 1 ]; then
+        /usr/bin/hdiutil detach -quiet "$mount_dir" || return 1
+    fi
     rm -rf "$scratch"
 }
 trap cleanup EXIT
-(cd "$image_dir"; /usr/bin/shasum -a 256 -c "$(basename "$image").sha256")
+# Check the selected image even when the sidecar was copied from another release.
+read -r expected_digest _ < "$image.sha256"
+actual_digest=$(/usr/bin/shasum -a 256 < "$image")
+if [[ ! "$expected_digest" =~ ^[[:xdigit:]]{64}$ ]] ||
+    [[ "$(echo "$expected_digest" | /usr/bin/tr A-F a-f)" != "${actual_digest%% *}" ]]; then
+    echo "SHA-256 mismatch for $(basename "$image")." >&2
+    exit 1
+fi
 /usr/bin/hdiutil verify -quiet "$image"
 /usr/bin/hdiutil attach -quiet -readonly -nobrowse -mountpoint "$mount_dir" "$image"
 mounted=1
@@ -52,6 +61,9 @@ for points in 16 32 128 256 512; do
     done
 done
 for script in "$root/macos/runtime/"*.py; do cmp "$script" "$runtime/${script##*/}"; done
+workflow='Export.workflow/Contents'
+cmp "$root/macos/runtime/$workflow/document.wflow" "$runtime/$workflow/document.wflow"
+cmp "$root/macos/runtime/$workflow/Resources/import_export.py" "$native/import_export.py"
 cmp "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$mount_dir/Connect Even R1 Ring to ChatGPT.command"
 /usr/bin/codesign --verify --strict --deep "$app"
 /usr/bin/codesign --verify --strict "$native/Even R1 Ring Collector for Mac.app"

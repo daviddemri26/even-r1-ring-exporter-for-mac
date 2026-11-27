@@ -17,12 +17,29 @@ private struct Bridge {
     var archives: URL { installed.appendingPathComponent("Archives", isDirectory: true) }
     var collector: URL { installed.appendingPathComponent("Export.workflow/Contents/Resources/Even R1 Ring Collector for Mac.app", isDirectory: true) }
     var securePrompt: URL { installed.appendingPathComponent("tunnel/Store Key.command") }
+    private var installedStamp: URL { installed.appendingPathComponent(".app-payload.sha256") }
+    private var bundledStamp: URL { resources.appendingPathComponent("runtime.sha256") }
     var ready: Bool {
-        guard fm.fileExists(atPath: collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path),
-              fm.fileExists(atPath: installed.appendingPathComponent("tunnel.py").path),
-              let stamp = try? Data(contentsOf: resources.appendingPathComponent("runtime.sha256")),
-              let active = try? Data(contentsOf: installed.appendingPathComponent(".app-payload.sha256")) else { return false }
-        return stamp == active
+        guard let stamp = try? Data(contentsOf: bundledStamp),
+              let active = try? Data(contentsOf: installedStamp),
+              stamp == active, fm.isReadableFile(atPath: runtime.appendingPathComponent("r1.py").path) else { return false }
+
+        // Check packaged files only. Archives, settings and other user files live alongside them.
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .isExecutableKey]
+        var reachedEnd = true
+        guard let files = fm.enumerator(at: runtime, includingPropertiesForKeys: Array(keys),
+                                        options: [.skipsHiddenFiles, .producesRelativePathURLs], errorHandler: { _, _ in
+            reachedEnd = false
+            return false
+        }) else { return false }
+        for case let source as URL in files {
+            guard let info = try? source.resourceValues(forKeys: keys) else { return false }
+            guard info.isRegularFile == true else { continue }
+            let target = installed.appendingPathComponent(source.relativePath)
+            guard fm.contentsEqual(atPath: source.path, andPath: target.path),
+                  info.isExecutable != true || fm.isExecutableFile(atPath: target.path) else { return false }
+        }
+        return reachedEnd
     }
 
     func command(_ executable: String, _ arguments: [String]) -> CommandResult {
@@ -50,12 +67,14 @@ private struct Bridge {
               command("/usr/bin/python3", ["-c", "import sys; sys.exit(sys.version_info < (3,9))"]).succeeded else {
             return CommandResult(code: 1, message: "Run xcode-select --install in Terminal to install the Apple Command Line Tools. Reopen Even R1 Ring Exporter for Mac when installation finishes.")
         }
-        let result = python("r1.py", ["prepare"], from: runtime)
-        guard result.succeeded else { return result }
         do {
-            let stamp = try Data(contentsOf: resources.appendingPathComponent("runtime.sha256"))
-            try stamp.write(to: installed.appendingPathComponent(".app-payload.sha256"), options: .atomic)
-        } catch { return CommandResult(code: 1, message: "Could not save the installed version. \(error.localizedDescription)") }
+            let stamp = try Data(contentsOf: bundledStamp)
+            // A failed migration must remain retryable even if all program files were replaced.
+            if fm.fileExists(atPath: installedStamp.path) { try fm.removeItem(at: installedStamp) }
+            let result = python("r1.py", ["prepare"], from: runtime)
+            guard result.succeeded else { return result }
+            try stamp.write(to: installedStamp, options: .atomic)
+        } catch { return CommandResult(code: 1, message: "Could not update the installed version. \(error.localizedDescription)") }
         return CommandResult(code: 0, message: "This Mac is ready. Open Even, check that a ring reading is visible, then test an export.")
     }
 
@@ -100,6 +119,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     private let feedback = label("", size: 13, secondary: true)
     private var buttons: [NSButton] = []
     private var busy = false
+    private var prepared = false
     private var section: NSSegmentedControl!
     private var setup: NSButton!
     private var test: NSButton!
@@ -146,7 +166,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     func checkLayout() -> Bool {
         configureWindow()
         guard let content = window.contentView else { return false }
-        let prepared = bridge.ready
+        prepared = bridge.ready
         for tab in 0...1 {
             section.selectedSegment = tab
             collectPage.isHidden = tab != 0
@@ -268,7 +288,6 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         buttons.forEach { $0.isEnabled = !busy }
         section.isEnabled = !busy
         guard !busy else { return }
-        let prepared = bridge.ready
         setup.isHidden = prepared
         [test, schedule, reveal, openArchives].forEach { $0?.isEnabled = prepared }
         stop.isEnabled = prepared && fm.fileExists(atPath: bridge.home.appendingPathComponent("Library/LaunchAgents/local.r1bridge.collection.plist").path)
@@ -279,22 +298,27 @@ private final class WindowController: NSObject, NSApplicationDelegate {
 
     private func update(_ message: String = "") {
         feedback.stringValue = message
-        controls()
-        guard bridge.ready else {
-            status.stringValue = "Set up this Mac"
-            detail.stringValue = "Select Set Up This Mac on the Mac Collection tab to install the collector in your user account."
-            return
-        }
         let tunnel = isTunnelPage
         busy = true
         controls()
         let bridge = self.bridge
         DispatchQueue.global(qos: .utility).async {
-            let result = tunnel ? bridge.tunnel(["status"]) : bridge.collect("status")
+            let result: CommandResult?
+            if bridge.ready {
+                result = tunnel ? bridge.tunnel(["status"]) : bridge.collect("status")
+            } else {
+                result = nil
+            }
             DispatchQueue.main.async {
+                self.prepared = result != nil
                 self.busy = false
-                self.status.stringValue = tunnel ? "Tunnel status" : "Collection status"
-                self.detail.stringValue = result.message.isEmpty ? "Status unavailable." : result.message
+                if let result = result {
+                    self.status.stringValue = tunnel ? "Tunnel status" : "Collection status"
+                    self.detail.stringValue = result.message.isEmpty ? "Status unavailable." : result.message
+                } else {
+                    self.status.stringValue = "Set up this Mac"
+                    self.detail.stringValue = "Select Set Up This Mac on the Mac Collection tab to install the collector in your user account."
+                }
                 self.controls()
             }
         }
@@ -363,22 +387,48 @@ private final class WindowController: NSObject, NSApplicationDelegate {
 guard let resources = Bundle.main.resourceURL else { exit(1) }
 if CommandLine.arguments.contains("--verify-install") {
     let scratch = fm.temporaryDirectory.appendingPathComponent("even-r1-ring-exporter-test-" + UUID().uuidString)
+    func require(_ condition: Bool, _ failure: String) throws {
+        if !condition {
+            throw NSError(domain: "EvenR1InstallTest", code: 1, userInfo: [NSLocalizedDescriptionKey: failure])
+        }
+    }
     do {
         try fm.createDirectory(at: scratch, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? fm.removeItem(at: scratch) }
         let testBridge = Bridge(resources: resources, home: scratch)
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
-        guard WindowController(testBridge).checkLayout() else { fputs("First launch view verification failed.\n", stderr); exit(1) }
+        try require(WindowController(testBridge).checkLayout(), "First launch view verification failed.")
         let result = testBridge.prepare()
-        guard result.succeeded, testBridge.ready, fm.fileExists(atPath: testBridge.archives.path) else { fputs("Installation test failed. \(result.message)\n", stderr); exit(1) }
+        try require(result.succeeded && testBridge.ready && fm.fileExists(atPath: testBridge.archives.path),
+                    "Installation test failed. \(result.message)")
         let report = testBridge.collect("status")
-        guard report.succeeded, fm.isExecutableFile(atPath: testBridge.collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path) else { exit(1) }
-        guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect Even R1 Ring to ChatGPT.command").path) else { exit(1) }
-        let check = WindowController(testBridge)
-        guard check.checkLayout() else { fputs("App view verification failed.\n", stderr); exit(1) }
-        print("Verified first launch, installation, status and both tabs with options expanded and collapsed in a temporary user folder.")
-    } catch { fputs("Package verification failed.\n", stderr); exit(1) }
+        try require(report.succeeded, "Collection status failed. \(report.message)")
+        try require(fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect Even R1 Ring to ChatGPT.command").path),
+                    "The connection assistant is missing or cannot run.")
+        try require(WindowController(testBridge).checkLayout(), "Installed app view verification failed.")
+
+        let collectorExecutable = testBridge.collector.appendingPathComponent("Contents/MacOS/EvenR1Export")
+        try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: collectorExecutable.path)
+        try require(!testBridge.ready, "A collector without execute permission was reported as ready.")
+        try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: collectorExecutable.path)
+        try require(testBridge.ready, "The executable permission was not restored.")
+        try fm.removeItem(at: testBridge.installed.appendingPathComponent("r1.py"))
+        try require(!testBridge.ready, "A missing runtime module was reported as ready.")
+        let existingArchive = testBridge.archives.appendingPathComponent("synthetic-archive.txt")
+        let archiveBytes = Data("Synthetic archive fixture".utf8)
+        try archiveBytes.write(to: existingArchive)
+        let invalidDatabase = testBridge.installed.appendingPathComponent("collection.sqlite3")
+        try Data("Synthetic invalid database".utf8).write(to: invalidDatabase)
+        let failedRepair = testBridge.prepare()
+        try require(!failedRepair.succeeded && !testBridge.ready, "A failed migration was reported as ready.")
+        try fm.removeItem(at: invalidDatabase)
+        let repaired = testBridge.prepare()
+        try require(repaired.succeeded && testBridge.ready && testBridge.collect("status").succeeded,
+                    "Runtime repair failed. \(repaired.message)")
+        try require(try Data(contentsOf: existingArchive) == archiveBytes, "Runtime repair changed the existing archive.")
+        print("Verified first launch, installation, both tabs, status and repair of a damaged runtime in a temporary user folder.")
+    } catch { fputs("Package verification failed. \(error.localizedDescription)\n", stderr); exit(1) }
 } else {
     let app = NSApplication.shared
     let bridge = Bridge(resources: resources, home: FileManager.default.homeDirectoryForCurrentUser)
