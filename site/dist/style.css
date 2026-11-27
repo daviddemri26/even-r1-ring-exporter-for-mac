@@ -106,28 +106,13 @@ section[id] {
 }
 .mark {
   flex: none;
-  position: relative;
-  width: 1.75rem;
-  height: 1.65rem;
-  display: inline-block;
-  color: var(--green);
-}
-.mark::before,
-.mark::after {
-  content: "";
-  position: absolute;
-  width: 0.85rem;
-  height: 1.26rem;
-  transform: rotate(36deg);
-  border: 2.4px solid currentColor;
-  border-radius: 99px;
-  top: 0.07rem;
-}
-.mark::before {
-  left: 0.08rem;
-}
-.mark::after {
-  left: 0.69rem;
+  display: block;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  border-radius: 7px;
+  background: #182120;
+  image-rendering: pixelated;
 }
 .nav nav {
   display: flex;

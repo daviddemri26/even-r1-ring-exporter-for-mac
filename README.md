@@ -1,4 +1,4 @@
-# Even R1 Ring Exporter for Mac
+# <img src="site/dist/assets/favicon-32.png" width="32" height="32" alt=""> Even R1 Ring Exporter for Mac
 
 Connect your Even R1 ring data to ChatGPT. Set it up once on your Mac, then ask about your ring’s sensor readings in chat.
 

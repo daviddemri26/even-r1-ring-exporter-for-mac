@@ -43,6 +43,12 @@ markdown.renderer.rules.fence = (tokens, index, options, env, renderer) => {
 </div>\n`;
 };
 
+function iconLinks(base) {
+  return `<link rel="icon" type="image/png" sizes="16x16" href="${base}assets/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="${base}assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="${base}assets/apple-touch-icon.png">`;
+}
+
 function setupPage(source) {
   const base = "../../";
   const resolved = source.replace(/\{\{(\w+)\}\}/g, (_, name) => {
@@ -85,13 +91,14 @@ function setupPage(source) {
   <meta name="theme-color" content="#fafbf7">
   <meta name="description" content="Set up the Even R1 ring exporter on your Mac and ask ChatGPT about your readings.">
   <title>${title} · ${brand}</title>
-  <link rel="stylesheet" href="${base}style.css?v=4">
+  ${iconLinks(base)}
+  <link rel="stylesheet" href="${base}style.css?v=5">
   <link rel="stylesheet" href="${base}guides.css?v=4">
   <script defer src="${base}guide-prompts.js?v=4"></script>
 </head>
 <body class="setup-page">
   <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><div class="wrap nav"><a class="brand" href="${base}" aria-label="${brand} home"><span class="mark" aria-hidden="true"></span><span>${brand}</span></a><nav aria-label="Main navigation"><a href="./" aria-current="page">Setup guide</a></nav></div></header>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="${base}" aria-label="${brand} home"><img class="mark" src="${base}assets/even-r1-ring-icon.png" width="32" height="32" alt=""><span>${brand}</span></a><nav aria-label="Main navigation"><a href="./" aria-current="page">Setup guide</a></nav></div></header>
   <main id="content" class="setup-content">
 ${markdown.renderer.render(tokens, markdown.options, {})}  </main>
 </body>
@@ -107,7 +114,8 @@ function redirectPage(target, label, base) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="refresh" content="0; url=${link}">
   <link rel="canonical" href="${link}">
-  <link rel="stylesheet" href="${base}style.css?v=4">
+  ${iconLinks(base)}
+  <link rel="stylesheet" href="${base}style.css?v=5">
   <link rel="stylesheet" href="${base}guides.css?v=4">
   <title>${escape(label)} · ${brand}</title>
 </head><body><main class="setup-content"><p><a href="${link}">${escape(label)}</a></p></main></body></html>

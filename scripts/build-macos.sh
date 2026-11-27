@@ -9,7 +9,7 @@ output=$(cd "$output" && pwd)
 build=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-build.XXXXXXXX")
 trap 'rm -rf "$build"' EXIT
 name='Even R1 Ring Exporter for Mac'
-dmg_name='Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg'
+dmg_name='Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.6-arm64.dmg'
 app="$build/image/$name.app"
 resources="$app/Contents/Resources"
 source_runtime="$root/macos/runtime"
@@ -35,8 +35,10 @@ cd "$root"
 "$swiftc_path" "${flags[@]}" "macos/runtime/$flow/Resources/even_cards.swift" -o "$native/even_cards"
 "$swiftc_path" "${flags[@]}" "macos/runtime/$flow/Resources/EvenR1Export.swift" -o "$native/$helper/Contents/MacOS/EvenR1Export"
 "$swiftc_path" "${flags[@]}" "macos/app/main.swift" -o "$app/Contents/MacOS/$name"
-/usr/bin/xcrun --sdk macosx swift macos/app/icon.swift "$build/AppIcon.iconset"
+/usr/bin/xcrun --sdk macosx swift macos/app/icon.swift site/dist/assets/even-r1-ring-icon.png "$build/AppIcon.iconset"
 /usr/bin/iconutil -c icns "$build/AppIcon.iconset" -o "$resources/AppIcon.icns"
+mkdir -p "$native/$helper/Contents/Resources"
+cp "$resources/AppIcon.icns" "$native/$helper/Contents/Resources/AppIcon.icns"
 /usr/bin/codesign --force --sign - --timestamp=none "$native/even_cards"
 /usr/bin/codesign --force --sign - --timestamp=none "$native/$helper"
 (cd "$runtime"; LC_ALL=C /usr/bin/find . -type f | LC_ALL=C /usr/bin/sort | while IFS= read -r file; do /usr/bin/shasum -a 256 "$file"; done) | /usr/bin/shasum -a 256 | /usr/bin/cut -d ' ' -f 1 > "$resources/runtime.sha256"

@@ -2,14 +2,16 @@
 # Verify the read-only disk image with synthetic data and a temporary user folder.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
-image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg"}"
+image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.6-arm64.dmg"}"
 image_dir=$(cd "$(dirname "$image")" && pwd)
 image="$image_dir/$(basename "$image")"
-mount_dir=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-mount.XXXXXXXX")
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-verify.XXXXXXXX")
+mount_dir="$scratch/mount"
+mkdir "$mount_dir"
 mounted=0
 cleanup() {
-    if [ "$mounted" -eq 1 ]; then /usr/bin/hdiutil detach -quiet "$mount_dir"; fi
-    rmdir "$mount_dir"
+    if [ "$mounted" -eq 1 ]; then /usr/bin/hdiutil detach -quiet "$mount_dir" || return 1; fi
+    rm -rf "$scratch"
 }
 trap cleanup EXIT
 (cd "$image_dir"; /usr/bin/shasum -a 256 -c "$(basename "$image").sha256")
@@ -28,6 +30,27 @@ test "$(/usr/bin/plutil -extract CFBundleExecutable raw -o - "$app_info")" = "$p
 test "$(/usr/bin/plutil -extract CFBundleDisplayName raw -o - "$collector_info")" = "$collector"
 test "$(/usr/bin/plutil -extract CFBundleIdentifier raw -o - "$app_info")" = "local.r1bridge.app"
 test "$(/usr/bin/plutil -extract CFBundleIdentifier raw -o - "$collector_info")" = "local.r1bridge.exporter"
+for info in "$app_info" "$collector_info"; do
+    test "$(/usr/bin/plutil -extract CFBundleIconFile raw -o - "$info")" = "AppIcon"
+done
+cmp "$app/Contents/Resources/AppIcon.icns" "$native/$collector.app/Contents/Resources/AppIcon.icns"
+/usr/bin/iconutil -c iconset "$app/Contents/Resources/AppIcon.icns" -o "$scratch/packaged.iconset"
+mkdir "$scratch/expected.iconset"
+/usr/bin/xcrun --sdk macosx swift "$root/macos/app/icon.swift" "$root/site/dist/assets/even-r1-ring-icon.png" "$scratch/expected.iconset"
+for points in 16 32 128 256 512; do
+    for scale in 1 2; do
+        suffix=""
+        if [ "$scale" -eq 2 ]; then suffix="@2x"; fi
+        name="icon_${points}x${points}${suffix}.png"
+        # Decode the artwork in both images. Legacy ICNS slots encode translucent tile corners differently.
+        mark_size=$((points * scale * 24 / 32))
+        for kind in packaged expected; do
+            /usr/bin/sips -s format bmp --cropToHeightWidth "$mark_size" "$mark_size" \
+                "$scratch/$kind.iconset/$name" --out "$scratch/$kind.bmp" >/dev/null
+        done
+        cmp "$scratch/expected.bmp" "$scratch/packaged.bmp"
+    done
+done
 for script in "$root/macos/runtime/"*.py; do cmp "$script" "$runtime/${script##*/}"; done
 cmp "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$mount_dir/Connect Even R1 Ring to ChatGPT.command"
 /usr/bin/codesign --verify --strict --deep "$app"
