@@ -3,97 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f9faf6">
-  <meta name="description" content="Let Codex install the two Mac apps and check your first ring export.">
-  <title>Install Even R1 Ring Exporter for Mac · Even R1 Ring Exporter for Mac</title>
-  <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=3">
-  <script defer src="../../guide-prompts.js"></script>
+  <meta name="theme-color" content="#fafbf7">
+  <meta name="description" content="Set up the Even R1 ring exporter on your Mac and ask ChatGPT about your readings.">
+  <title>Set up your R1 ring with ChatGPT · Even R1 Ring Exporter for Mac</title>
+  <link rel="stylesheet" href="../../style.css?v=4">
+  <link rel="stylesheet" href="../../guides.css?v=4">
+  <script defer src="../../guide-prompts.js?v=4"></script>
 </head>
-<body class="docs-page">
+<body class="setup-page">
   <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
-  <main id="content" class="wrap docs-shell">
-<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Install the Mac app</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Install Even R1 Ring Exporter for Mac</h1></header>
-<div class="docs-layout">
-<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#set-up-automatic-collection-with-codex">Set up automatic collection with Codex</a></li><li class="docs-toc-level-2"><a href="#check-the-mac-and-sync-the-ring">Check the Mac and sync the ring</a></li><li class="docs-toc-level-2"><a href="#install-the-mac-app">Install the Mac app</a></li><li class="docs-toc-level-2"><a href="#verify-your-first-export">Verify your first export</a></li><li class="docs-toc-level-2"><a href="#turn-on-automatic-collection">Turn on automatic collection</a></li></ol></details></nav>
-<article class="docs-article" aria-labelledby="page-title">
-<p>Wear your ring and let Even sync. After this one-time setup, your Mac exports new readings automatically when it’s awake, unlocked and idle. You can close the exporter and ask ChatGPT about the latest saved readings once connected.</p>
-<p>You’ll use <strong>two apps on the Mac</strong>. Get <strong>Even Realities</strong> (the iPhone app) from the <strong>Mac App Store on your Mac</strong>. Get <strong>Even R1 Ring Exporter for Mac</strong> (the <code>.dmg</code>) from this site. The prompt below can take care of both.</p>
-<h2 id="set-up-automatic-collection-with-codex">Set up automatic collection with Codex</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy full installation prompt — Set up automatic collection with Codex" aria-controls="prompt-set-up-automatic-collection-with-codex"><span class="copy-mark" aria-hidden="true"></span>Copy full installation prompt</button>
-    <span class="copy-status" role="status"></span>
-    <ol class="codex-start">
-      <li>Open <a href="https://chatgpt.com/download">ChatGPT for Mac</a> and choose <strong>Codex</strong>. Start a local chat in a folder of your choice.</li>
-      <li>Choose <strong>GPT-6.2 Sol</strong> if available, or keep the recommended model. Paste the prompt with <kbd>⌘V</kbd> and press <kbd>Return</kbd>.</li>
-      <li>Use the default permissions. Allow the download and installation when prompted. Handle Apple sign-in and macOS permission dialogs yourself.</li>
-    </ol>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-set-up-automatic-collection-with-codex">Set up Even R1 Ring Exporter for Mac for hands-free daily collection. Verify one initial export, then enable the automatic schedule on this Mac. Do the work you can, then give me one short instruction at a time for anything I need to do on my iPhone or in a macOS consent dialog. Resume after each answer. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/ as the project guide.
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="./" aria-current="page">Setup guide</a></nav></div></header>
+  <main id="content" class="setup-content">
+<h1 id="page-title"><span id="set-up-automatic-collection-with-codex" aria-hidden="true"></span><span id="set-up-everything-with-codex" aria-hidden="true"></span>Set up your R1 ring with ChatGPT</h1>
+<p>On your Mac, open <a href="https://chatgpt.com/download">ChatGPT for Mac</a>, choose <strong>Codex</strong> and start a <strong>local chat</strong> in an empty folder. Keep the recommended model and default permissions. Copy the prompt below, paste it into Codex with <strong>⌘V</strong> and press <strong>Return</strong>.</p>
+<div class="setup-prompt" data-prompt>
+  <button type="button" class="primary copy-prompt" hidden aria-controls="setup-prompt"><span class="copy-mark" aria-hidden="true"></span>Copy setup prompt</button>
+  <span class="copy-status" role="status"></span>
+  <noscript>Open the prompt below and copy its text into Codex.</noscript>
+  <details><summary>Read or select the prompt</summary><pre tabindex="0" id="setup-prompt">Set up Even R1 Ring Exporter for Mac and connect it to my personal ChatGPT web account. Do the work on this Mac. Resume any working setup and preserve my archives. When I need to sign in, use my iPhone or approve a permission, give me one short instruction and continue after I finish.
 
-1. Check for Apple silicon, macOS 14 or later, /usr/bin/python3 version 3.9 or later, and the Even Realities app installed ON THIS MAC. If Even is missing, open the Mac App Store at https://apps.apple.com/us/app/even-realities/id6747017725. In search, select iPhone &amp; iPad Apps if offered. Install Even Realities by Even Realities Ltd., labeled Designed for iPhone. Open it and let me sign in with my iPhone's Even account. If the App Store won't offer it on my Mac or in my region, explain and stop. Check whether the exporter and collector are already installed. Resume any partial setup. Preserve existing archives, settings and schedules. Ask before replacing a newer or unfamiliar app.
-2. Help me sync the ring in Even on my iPhone. I handle sign-in and decide whether to enable Even's Cloud processing &amp; backup. Confirm that Health on the Mac shows a reading from the same account. I can confirm this without giving you the value.
-3. If installation is needed, get the Apple silicon DMG from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg and compare its SHA-256 with the matching filename in https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/SHA256SUMS before opening it. Stop on a mismatch. Install the .app in Applications, open that copy and run Mac Collection → Set Up This Mac. Leave macOS security protections enabled.
-4. Show me where to allow Even R1 Ring Collector for Mac under Accessibility. If macOS requests access to other apps' data for this collector, explain that it reads Even's exported ZIP. Wait for me to approve. With my Mac unlocked, run Test an Export and Refresh. Verify a new manual attempt marked succeeded with “Export verified.” If it fails, fix the reported cause and retry. An unchanged archive or an export without sleep sessions can pass.
-5. After the export passes, use Mac Collection → Schedule Collection if scheduling is off. Refresh and verify the app displays “Next scheduled check”. Report the initial export result and the next local check time separately. Only describe a scheduled export as completed if the app actually recorded it. If either check fails, diagnose it or tell me the precise blocker. Keep archives and readings on this Mac. If I want to ask about my saved readings in ChatGPT web, continue using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/ and verify one reading there without attaching a file. The G2 glasses guide is optional.</pre></details>
-  </div>
-<ul>
-<li>Keep your iPhone nearby and your Mac unlocked for setup. You can do the whole installation in one Codex chat.</li>
-<li>Setup is complete when <strong>Mac Collection → Refresh</strong> shows both <strong>Export verified</strong> for the test and a time under <strong>Next scheduled check</strong>. Future runs collect whatever your ring has synced to Even.</li>
-</ul>
-<h2 id="check-the-mac-and-sync-the-ring">Check the Mac and sync the ring</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Check the Mac and sync the ring" aria-controls="prompt-check-the-mac-and-sync-the-ring"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-check-the-mac-and-sync-the-ring">Check whether my Mac is ready for Even R1 Ring Exporter using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. Inspect the chip, macOS version, /usr/bin/python3 version and whether Even Realities is installed. If Apple's Python is missing, help me open the Command Line Tools installer and recheck after I finish. On this Mac, open the Mac App Store listing https://apps.apple.com/us/app/even-realities/id6747017725. If searching, select iPhone &amp; iPad Apps if offered. Install or open Even Realities by Even Realities Ltd. (Designed for iPhone) and let me sign in with my iPhone's Even account. If unavailable for my Mac or region, explain and stop. Guide me through pairing or syncing my ring on my iPhone, confirming health tracking, and reviewing Even's Cloud processing &amp; backup choice. I will handle sign-in and consent. Ask me whether I see a reading in Health on both devices under the same account. A yes or no is enough. Tell me whether I'm ready to install or which prerequisite is missing.</pre></details>
-  </div>
-<ul>
-<li>Use an Even R1 ring, your iPhone and an Apple silicon Mac (M1 or later) with macOS 14 or later. The pilot also used paired G2 glasses.</li>
-<li><strong>On the Mac</strong>, open the <strong>Mac App Store</strong>, search for <strong>Even Realities</strong> and select <strong>iPhone &amp; iPad Apps</strong> if offered. Choose <strong>Even Realities</strong> by <strong>Even Realities Ltd.</strong>, marked <strong>Designed for iPhone</strong>. Click <strong>Get</strong> or the download icon, then <strong>Open</strong>. Sign in with the same Even account as on your iPhone. <a href="https://apps.apple.com/us/app/even-realities/id6747017725">Open the App Store listing on your Mac</a></li>
-<li>In Even on iPhone, sync the ring. Under <strong>Health → Settings</strong>, check <strong>Health tracking</strong> and review <strong>Cloud processing &amp; backup</strong>. Turn on backup if you agree to sync with Even. Sign in to the same account on the Mac and check that a reading appears in <strong>Health</strong>. <a href="https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup">Even’s backup guide</a></li>
-<li>The exporter uses Apple’s Python 3.9 or later. To check manually, run <code>/usr/bin/python3 --version</code> in Terminal. If it’s missing, run <code>xcode-select --install</code> and finish Apple’s installer.</li>
-</ul>
-<h2 id="install-the-mac-app">Install the Mac app</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Install the Mac app" aria-controls="prompt-install-the-mac-app"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-install-the-mac-app">Install Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. First check that Even's iPhone app is on this Mac. If missing, open the Mac App Store at https://apps.apple.com/us/app/even-realities/id6747017725. If searching, select iPhone &amp; iPad Apps if offered. Install or open Even Realities by Even Realities Ltd. (Designed for iPhone) and let me sign in with the same Even account as on my iPhone. Stop if the store says it's unavailable. Then check for an existing exporter. Use the installed copy if already current. Otherwise download or reuse https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg. Calculate its SHA-256 and require an exact match for that filename in https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/SHA256SUMS before mounting it. Stop if verification fails. Copy the app to Applications and open that copy. Run Mac Collection → Set Up This Mac if needed. Keep existing archives and settings. Ask before replacing a newer or unfamiliar copy. If macOS blocks opening this ad hoc signed alpha, explain Apple's per-app review and let me decide. Leave the optional ChatGPT command for later. Confirm the collector is ready for its permission step.</pre></details>
-  </div>
-<p><strong>Which file do I need?</strong></p>
-<ul>
-<li><strong>.dmg — Mac exporter.</strong> Open the verified disk image. Inside, drag <strong>Even R1 Ring Exporter for Mac.app</strong> to the <strong>Applications</strong> shortcut. This app collects your ring data. <a href="../../downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg">Download the disk image</a> · <a href="../../downloads/SHA256SUMS">Release checksums</a></li>
-<li><strong>.ehpk — optional G2 glasses guide.</strong> This is a separate download with five setup tips for the glasses. The Mac exporter works without this file. <a href="../../guides/glasses/">About the glasses guide</a></li>
-<li><strong>Inside the DMG</strong>, <strong>Connect Even R1 Ring to ChatGPT.command</strong>, starts the optional web connection. You can eject the disk image now. The same assistant is available later in the installed app. <a href="../../guides/chatgpt/">Connect ChatGPT</a></li>
-<li>Open the app from <strong>Applications</strong>, then choose <strong>Mac Collection → Set Up This Mac</strong>. Apple hasn’t notarized this alpha. If macOS blocks it, review Apple’s instructions before choosing whether to open it. <a href="https://support.apple.com/en-us/102445">Apple’s opening guide</a></li>
-</ul>
-<h2 id="verify-your-first-export">Verify your first export</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Verify your first export" aria-controls="prompt-verify-your-first-export"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-verify-your-first-export">Verify a fresh local export in Even R1 Ring Exporter for Mac. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. Check that Even Realities is installed and signed in to my iPhone's Even account on this Mac. If missing, open https://apps.apple.com/us/app/even-realities/id6747017725 in the Mac App Store. Use iPhone &amp; iPad Apps if searching and offered. Install Even Realities by Even Realities Ltd. (Designed for iPhone), open it and let me sign in. If unavailable, explain and stop. Open the exporter's Mac Collection tab. If it needs setup, run Set Up This Mac first. Use Show Collector and Accessibility Settings to guide me to the installed Even R1 Ring Collector for Mac. I will grant the macOS permissions myself. With Even signed in and the Mac unlocked, run Test an Export. If macOS asks this collector to access other apps' data, explain why, wait for my choice and retry after approval. Refresh and match the time, manual mode, succeeded status and “Export verified” message to this test. If a test is already running, let it finish. Report the time and result or diagnose the actual error using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/troubleshooting/. Keep the ZIP and readings on my Mac.</pre></details>
-  </div>
-<ul>
-<li>Select <strong>Show Collector</strong>, then <strong>Accessibility Settings</strong>. Enable <strong>Even R1 Ring Collector for Mac.app</strong> so it can press Even’s export button. If it’s missing, add the app revealed by <strong>Show Collector</strong>.</li>
-<li>Select <strong>Test an Export</strong>. If macOS asks to let the collector access other apps’ data, this allows it to read the ZIP Even creates. After approving, run the test again.</li>
-<li>Select <strong>Refresh</strong>. “Export verified. No new wake dates.” also means the test passed. If a Save dialog for <code>Even_health_data_…zip</code> lingers after success, choose <strong>Cancel</strong>. The collector has already archived the export. <a href="../../guides/troubleshooting/">Troubleshoot an export or a missing night</a></li>
-</ul>
-<h2 id="turn-on-automatic-collection">Turn on automatic collection</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Turn on automatic collection" aria-controls="prompt-turn-on-automatic-collection"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-turn-on-automatic-collection">Enable automatic local collection for Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/. Confirm the Mac has Even Realities signed in with my iPhone's Even account. If missing, open https://apps.apple.com/us/app/even-realities/id6747017725 in the Mac App Store. Select iPhone &amp; iPad Apps if offered, install Even Realities by Even Realities Ltd. (Designed for iPhone), open it and let me sign in. Stop if unavailable. Check for a verified manual export. If none exists, help me complete that test. Open Mac Collection and select Schedule Collection only if scheduling is off. Refresh and read back the next scheduled check and its local time. Explain the unlocked and idle conditions and where to stop the schedule. Report future checks as scheduled until the app records an actual run. Keep the existing archives and ChatGPT connection settings intact.</pre></details>
-  </div>
-<ul>
-<li>Select <strong>Schedule Collection</strong>, then <strong>Refresh</strong> to see the next check. Choose <strong>Stop Schedule</strong> whenever you want to turn it off.</li>
-<li>Collection windows start at <strong>8:15 a.m., 12:15 p.m. and 6:15 p.m.</strong> local time. Leave the Mac awake, signed in and unlocked. It checks every ten minutes for up to an hour and exports when you’ve been idle for two minutes. If the whole window is missed, it tries at the next one.</li>
-<li>Ready to ask about your readings without attaching a file? The next guide connects the Mac to your own ChatGPT account. <a href="../../guides/chatgpt/">Connect ChatGPT</a></li>
-</ul>
-</article>
+1. Confirm Apple silicon, macOS 14 or later and Apple’s /usr/bin/python3 version 3.9 or later. If Python is missing, open Apple’s Command Line Tools installer. On the Mac, open https://apps.apple.com/us/app/even-realities/id6747017725 in the Mac App Store. If searching, select iPhone &amp; iPad Apps if offered. Install or open Even Realities by Even Realities Ltd. (Designed for iPhone). Let me sign in with the same Even account as on my physical iPhone. Help me sync my ring on iPhone, review Health tracking and Cloud processing &amp; backup, and confirm that a reading appears in Even on the Mac. If the store does not offer the app for this Mac, explain and stop.
+
+2. Download the Mac disk image from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg. Verify its SHA-256 against the matching filename in https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/SHA256SUMS before opening it. Stop on a mismatch. Install the .app in Applications and open that copy. Keep macOS security protections enabled. In Mac Collection choose Set Up This Mac. Use Show Collection Options to find Accessibility Settings and Show Collector. Let me allow Even R1 Ring Collector for Mac under Accessibility. If macOS asks to let the collector read other apps’ data, explain that it reads Even’s export and wait for my decision. With the Mac unlocked, run Test an Export, then Refresh. Verify this attempt says “Export verified”. Enable Schedule Collection and confirm the time shown under “Next scheduled check”.
+
+3. Check ChatGPT Connection for an existing working tunnel. If one is needed, confirm my personal ChatGPT workspace supports custom MCP servers and my OpenAI Platform organization supports secure tunnels. At https://platform.openai.com/settings/organization/tunnels create a dedicated tunnel linked to that workspace. Create a dedicated restricted project API key with Tunnels Read and Use. In ChatGPT Connection choose Connect Even R1 Ring to ChatGPT… and enter the tunnel ID. Let me enter the complete key privately at the assistant’s hidden Terminal prompt so it is stored in my Mac’s Keychain. Never ask for the key in chat or print it. Confirm the tunnel connects to OpenAI.
+
+4. In my personal workspace at https://chatgpt.com/plugins, add a custom MCP server named Even R1 Ring Data for ChatGPT. Choose Tunnel, select my tunnel and use No authentication for the local server behind it. Keep the connector private. Choose Connect, then Try in chat. Ask “What are my latest ring readings?” without a file or any values in the question. Verify that the connector supplied the answer and compare one available result and its freshness with the local export or card. Keep raw archives on this Mac. Tell me whether the export, schedule and web query each worked. If anything is unavailable, identify the exact blocker.</pre></details>
 </div>
-<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a>
-<a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a></div></section>
+<h2 id="install"><span id="check-the-mac-and-sync-the-ring" aria-hidden="true"></span><span id="install-the-mac-app" aria-hidden="true"></span><span id="verify-your-first-export" aria-hidden="true"></span><span id="turn-on-automatic-collection" aria-hidden="true"></span><span id="schedule-future-exports-optional" aria-hidden="true"></span>Install</h2>
+<p>You need your Even R1 ring, your iPhone and an Apple silicon Mac running macOS 14 or later. Codex helps install two apps on your Mac.</p>
+<ul>
+<li><strong>Even Realities</strong> syncs your ring readings. In the <a href="https://apps.apple.com/us/app/even-realities/id6747017725">Mac App Store</a>, get the <strong>Designed for iPhone</strong> version. Sign in with the same Even account you use on your iPhone.</li>
+<li><strong>Even R1 Ring Exporter for Mac</strong> collects those readings automatically. The <a href="../../downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg">Mac download (.dmg)</a> contains this app.</li>
+</ul>
+<h2 id="connect">Connect</h2>
+<p>In the exporter, open <strong>ChatGPT Connection → Connect Even R1 Ring to ChatGPT…</strong>. Follow Codex through sign-in and permissions. It checks the first export, turns on automatic collection and tests a reply in your ChatGPT account.</p>
+<h2 id="ask">Ask</h2>
+<p>In ChatGPT, choose <strong>Even R1 Ring Data for ChatGPT</strong> and ask “What are my latest ring readings?” Keep your Mac awake and online when you ask.</p>
+<p>Your Mac checks for new readings automatically throughout the day when it’s unlocked and idle. You don’t need to export or upload files.</p>
+<p>Need help? Give Codex the error message. For manual setup or troubleshooting, see the <a href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/README.md#technical-documentation">technical documentation on GitHub</a>.</p>
   </main>
-  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
 </body>
 </html>

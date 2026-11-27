@@ -4,21 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#f9faf6" />
-    <meta name="description" content="Bring your Even R1 sleep and activity exports to your Mac. Ask ChatGPT about your own readings through a private connection." />
-    <title>Even R1 Ring Exporter for Mac · Sleep and activity in ChatGPT</title>
+    <meta name="description" content="Connect your Even R1 ring data to ChatGPT using your Mac." />
+    <title>Even R1 Ring Exporter for Mac · Ring data in ChatGPT</title>
     <link rel="preload" href="./assets/dm-sans.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="./style.css?v=3" />
-    <script defer src="./app.js?v=2"></script>
+    <link rel="stylesheet" href="./style.css?v=4" />
   </head>
-  <body>
+  <body class="home">
     <a class="skip" href="#content">Skip to content</a>
     <header class="site-header">
       <div class="wrap nav">
         <a class="brand" href="#content" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a>
         <nav aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a>
-          <a href="#requirements">Requirements</a>
-          <a href="./guides/">Guides</a>
+          <a href="./guides/install/">Setup guide</a>
         </nav>
       </div>
     </header>
@@ -26,16 +23,13 @@
     <main id="content">
       <header class="wrap hero">
         <div>
-          <p class="availability"><span aria-hidden="true"></span> Public alpha for Mac</p>
-          <h1>Ask ChatGPT about your <em>Even R1 ring.</em></h1>
-          <p class="lede">Set it up once. Your Mac automatically collects your ring’s sleep and activity readings. Ask ChatGPT about them whenever you want, without exporting or uploading files yourself.</p>
-          <div class="hero-actions">
-            <a class="primary" href="./guides/install/">
-              Install with Codex <span aria-hidden="true">→</span>
-            </a>
-            <a class="text-link" href="./downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg">Download Mac exporter (.dmg) <span aria-hidden="true">↓</span></a>
+          <h1>Your Even R1 ring data in <em>ChatGPT.</em></h1>
+          <p class="lede" id="how-it-works">Set it up once on your Mac. Your readings are collected automatically, and you can ask ChatGPT about them without uploading a file.</p>
+          <div class="hero-actions" id="guides">
+            <a class="primary" href="./guides/install/">Set up on Mac <span aria-hidden="true">→</span></a>
+            <a class="text-link" href="./downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg">Download the Mac app <span aria-hidden="true">↓</span></a>
           </div>
-          <p class="access-note">Apple silicon · macOS 14 or later</p>
+          <p class="access-note" id="requirements">Even R1 ring · iPhone · Apple silicon Mac with macOS 14 or later</p>
         </div>
         <a href="./assets/even-r1-ring-harbor-hand-full.jpg" aria-label="View the full-size image of the Even R1 ring at the harbor">
           <img
@@ -51,114 +45,10 @@
         </a>
       </header>
 
-      <section class="flow-section" id="how-it-works" aria-labelledby="flow-title">
-        <div class="wrap">
-          <h2 id="flow-title">How it works</h2>
-          <ol class="flow">
-            <li>
-              <span class="step-graphic ring" aria-hidden="true"></span>
-              <h3>Wear your Even R1 ring</h3>
-              <p>Wear the R1 and sync it with Even on your iPhone. Your G2 glasses and ring keep their usual pairing.</p>
-            </li>
-            <li>
-              <span class="step-graphic mac" aria-hidden="true"></span>
-              <h3>Let your Mac collect automatically</h3>
-              <p>Turn on scheduling once during setup. The collector opens Even and saves the export when your Mac is awake, unlocked and idle. You can quit the exporter window.</p>
-            </li>
-            <li>
-              <span class="step-graphic chat" aria-hidden="true"></span>
-              <h3>Ask ChatGPT</h3>
-              <p>Set up <strong>Even R1 Ring Data for ChatGPT</strong> to give your own ChatGPT account read-only access to the measurements. Keep the Mac awake and online when you ask a question.</p>
-            </li>
-          </ol>
-        </div>
-      </section>
-
-      <section class="wrap query-section" aria-labelledby="query-title">
-        <div class="query-intro">
-          <h2 id="query-title">What can I ask <br />ChatGPT?</h2>
-          <p>Ask about recorded nights, your latest readings or changes the Mac has observed since collection began.</p>
-        </div>
-        <div class="examples">
-          <fieldset class="choices" hidden>
-            <legend class="sr-only">Choose a sample question</legend>
-            <label><input type="radio" name="example" value="sleep" checked /><span>Sleep</span></label>
-            <label><input type="radio" name="example" value="activity" /><span>Activity</span></label>
-            <label><input type="radio" name="example" value="readings" /><span>Other readings</span></label>
-          </fieldset>
-          <div id="questions">
-            <article data-question="sleep">
-              <p class="example-prompt">“How much did I sleep each night over the last seven days?”</p>
-              <p class="example-detail">Nights are grouped by the date you woke up. A missing date means Even supplied no sleep session for that date.</p>
-            </article>
-            <article data-question="activity">
-              <p class="example-prompt">“What are my latest step count and active calories?”</p>
-              <p class="example-detail">The answer includes the values and their age as shown by Even. A reading taken partway through the day may be a partial total.</p>
-            </article>
-            <article data-question="readings">
-              <p class="example-prompt">“What was my last heart rate reading, and how old is it?”</p>
-              <p class="example-detail">You can ask about heart rate, heart rate variability, blood oxygen saturation and changes in skin temperature whenever Even displays them.</p>
-            </article>
-          </div>
-          <div class="copy-line" hidden>
-            <button type="button" class="copy">Copy question</button><span class="copy-status" role="status"></span>
-          </div>
-        </div>
-      </section>
-
-      <section class="wrap requirements" id="requirements" aria-labelledby="req-title">
-        <div class="section-head">
-          <h2 id="req-title">What you’ll need</h2>
-          <p>You can try a local export before connecting ChatGPT.</p>
-        </div>
-        <dl class="requirements-list">
-          <div>
-            <dt>Hardware</dt>
-            <dd>An Even R1 ring, an iPhone and a Mac with Apple silicon. The pilot setup also paired Even G2 glasses to the iPhone. <a class="inline-link" href="https://www.evenrealities.com/products/r1">See the official R1 photos.</a></dd>
-          </div>
-          <div>
-            <dt>Even on your Mac</dt>
-            <dd>Open the <strong>Mac App Store on your Mac</strong>. Search for <strong>Even Realities</strong> under <strong>iPhone &amp; iPad Apps</strong>. Install the app marked “Designed for iPhone” by Even Realities Ltd. <a class="inline-link" href="https://apps.apple.com/us/app/even-realities/id6747017725">Open the Even Realities listing.</a></dd>
-          </div>
-          <div>
-            <dt>Ring sync</dt>
-            <dd>Use the same Even account on your iPhone and Mac. Enable “Cloud processing &amp; backup” in Even to sync across devices. Check that a reading from the iPhone appears in Even on the Mac.</dd>
-          </div>
-          <div>
-            <dt>Mac exporter</dt>
-            <dd>Install <strong>Even R1 Ring Exporter for Mac</strong> from this site. Codex can download it, help you grant permissions, test the first export and enable scheduled collection. <a class="inline-link" href="./guides/install/">Open the installation guide.</a></dd>
-          </div>
-          <div>
-            <dt>ChatGPT access</dt>
-            <dd>For web access, use a ChatGPT account that can add a custom MCP server, an OpenAI Platform organization with tunnel access and a dedicated API key.</dd>
-          </div>
-          <div>
-            <dt>Data sharing</dt>
-            <dd>Your ZIP archives stay on the Mac. When you ask the connector a question, OpenAI receives the readings it returns. Each person uses their own tunnel and key.</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section class="guides-section" id="guides" aria-labelledby="guide-title">
-        <div class="wrap guide-layout">
-          <div class="guide-intro">
-            <h2 id="guide-title">Guides</h2>
-            <p>Start with one prompt to install the exporter and turn on automatic collection. Then connect ChatGPT if you want to ask about your readings.</p>
-            <a class="text-link browse-guides" href="./guides/">Browse all guides <span aria-hidden="true">→</span></a>
-          </div>
-          <div class="guide-links">
-            <a href="./guides/install/"><span><strong>Install with Codex</strong><small>Copy one prompt to set up both Mac apps and automatic exports.</small></span><b aria-hidden="true">→</b></a>
-            <a href="./guides/chatgpt/"><span><strong>Even R1 Ring Data for ChatGPT</strong><small>Set up your private tunnel and check the first answer in ChatGPT.</small></span><b aria-hidden="true">→</b></a>
-            <a href="./guides/troubleshooting/"><span><strong>Find a missing reading</strong><small>Check the iPhone, the Mac export and the ChatGPT connection in order.</small></span><b aria-hidden="true">→</b></a>
-            <a href="./guides/glasses/"><span><strong>Even R1 Ring Guide for G2 Glasses</strong><small>Browse five offline setup tips on your glasses.</small></span><b aria-hidden="true">→</b></a>
-          </div>
-        </div>
-      </section>
     </main>
     <footer class="wrap footer">
-      <a class="brand" href="#content"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a>
-      <p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p>
-      <a class="repo" href="./guides/">All guides <span aria-hidden="true">→</span></a>
+      <p>Independent project · Public alpha</p>
+      <a class="repo" href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac#technical-documentation">Technical documentation</a>
     </footer>
   </body>
 </html>

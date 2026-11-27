@@ -1,70 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f9faf6">
-  <meta name="description" content="Create a private tunnel and connect your own ChatGPT workspace to the Mac.">
+  <meta http-equiv="refresh" content="0; url=../install/#connect">
+  <link rel="canonical" href="../install/#connect">
+  <link rel="stylesheet" href="../../style.css?v=4">
+  <link rel="stylesheet" href="../../guides.css?v=4">
   <title>Connect your Mac to ChatGPT · Even R1 Ring Exporter for Mac</title>
-  <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=3">
-  <script defer src="../../guide-prompts.js"></script>
-</head>
-<body class="docs-page">
-  <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
-  <main id="content" class="wrap docs-shell">
-<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Connect ChatGPT</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Connect your Mac to ChatGPT</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
-<div class="docs-layout">
-<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#set-up-my-private-connection">Set up my private connection</a></li><li class="docs-toc-level-2"><a href="#check-that-chatgpt-can-read-an-export">Check that ChatGPT can read an export</a></li><li class="docs-toc-level-2"><a href="#repair-a-connection-that-stopped-working">Repair a connection that stopped working</a></li></ol></details></nav>
-<article class="docs-article" aria-labelledby="page-title">
-<p>The Mac app can collect readings on its own. Add this optional, read-only connection if you want to ask about those readings in your personal ChatGPT web account. Your Mac must be awake and online when you ask. <a href="../../guides/install/">Install and test the Mac app</a></p>
-<h2 id="set-up-my-private-connection">Set up my private connection</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Set up my private connection" aria-controls="prompt-set-up-my-private-connection"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-set-up-my-private-connection">Help me connect Even R1 Ring Exporter for Mac to my personal ChatGPT web account. Work on this Mac and follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. First check that the exporter has completed a local export and check the existing tunnel status. If the local export is missing, follow https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/ first. It requires the official Even Realities iPhone app on this Mac, signed in with the same Even account as my physical iPhone. Reuse any working configuration. If setup is missing, check that my personal workspace supports custom MCP servers and that my OpenAI Platform organization supports secure tunnels. Help me create a dedicated tunnel, associate it with my workspace, and create a restricted project key with Tunnels Read and Use. Use the app’s connection assistant, which verifies the tunnel client. Let me sign in and enter the key myself at the hidden Terminal prompt. Never request the key in chat or read it back. Finish the private connector setup in my own workspace. Verify the tunnel has connected to OpenAI, then test the connector with a dated reading in my personal ChatGPT web chat, without an attachment. Tell me which steps succeeded and identify any step that still needs my action.</pre></details>
-  </div>
-<ol>
-<li><strong>Choose the account.</strong> Sign in to your personal ChatGPT workspace and its OpenAI Platform organization. You need access to custom MCP servers and secure tunnels. <a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels">OpenAI tunnel guide</a></li>
-<li><strong>Create the tunnel.</strong> Associate it with your organization and personal ChatGPT workspace. Creating a tunnel requires <strong>Tunnels Read + Manage</strong>. Copy its <code>tunnel_</code> identifier. <a href="https://platform.openai.com/settings/organization/tunnels">OpenAI Platform tunnels</a></li>
-<li><strong>Create the Mac’s key.</strong> Choose a dedicated project key with <strong>Restricted → Tunnels Read and Use</strong>. <a href="https://platform.openai.com/settings/organization/api-keys">OpenAI Platform API keys</a></li>
-<li><strong>Connect the Mac.</strong> In the exporter, select <strong>ChatGPT Connection → Connect Even R1 Ring to ChatGPT…</strong>. The same assistant is available as <strong>Connect Even R1 Ring to ChatGPT.command</strong> inside the disk image. Enter the tunnel ID. Paste the complete key at the hidden Terminal prompt and press Return. The assistant stores it in your Mac’s Keychain.</li>
-<li><strong>Add the connector.</strong> In the personal ChatGPT plugin directory, select <strong>+ → Add custom MCP server</strong>. Name it <strong>Even R1 Ring Data for ChatGPT</strong>, choose <strong>Tunnel</strong>, and select your tunnel. Choose <strong>No authentication</strong> for the local server behind this private tunnel. Keep the connector in your own workspace. Select <strong>Connect</strong>, then <strong>Try in chat</strong>. <a href="https://chatgpt.com/plugins">Open ChatGPT plugins</a></li>
-</ol>
-<h2 id="check-that-chatgpt-can-read-an-export">Check that ChatGPT can read an export</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Check that ChatGPT can read an export" aria-controls="prompt-check-that-chatgpt-can-read-an-export"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-check-that-chatgpt-can-read-an-export">Verify Even R1 Ring Data for ChatGPT end to end. On this Mac, check the latest export status and the latest local wake date. Check that the tunnel has connected to OpenAI. With my Mac awake and online, open my private connector in my personal ChatGPT web workspace and use Try in chat. Ask for sleep duration on the latest recorded wake date, without attaching a file or including the answer in the question. Compare the tool response with the local result and tell me whether they agree. If no night exists yet, test a recorded health card instead. If you can only check one side, identify which side you verified.</pre></details>
-  </div>
-<ul>
-<li>On the Mac, open <strong>Mac Collection → Refresh</strong>. Note the latest recorded wake date.</li>
-<li>In your personal ChatGPT web chat, ask “How much sleep did my Even R1 record on [wake date]?” Compare the answer with <strong>Health</strong> in Even on your iPhone.</li>
-<li>The connector supports sleep duration, sleep stages, the six latest health cards and changes the Mac has observed. <a href="../../guides/ask/">Questions to try</a></li>
-</ul>
-<h2 id="repair-a-connection-that-stopped-working">Repair a connection that stopped working</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Repair a connection that stopped working" aria-controls="prompt-repair-a-connection-that-stopped-working"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-repair-a-connection-that-stopped-working">Diagnose my existing private Even R1 connection using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/. Check the Mac collection status and the tunnel status separately. Use the reported error to choose the next step. For HTTP 401, help me use Update Key and let me enter the complete key privately. For HTTP 403, check the organization, project, Tunnels Read and Use permissions, and personal workspace association with me. If the tunnel is healthy but the plugin shows older tool names, refresh or reconnect that plugin. Reuse the existing tunnel and preserve my archives. Retest from my personal ChatGPT web account without a file and report the result. Keep keys and raw logs out of chat.</pre></details>
-  </div>
-<ul>
-<li>Select <strong>ChatGPT Connection → Refresh</strong> and check for confirmation of a connection to OpenAI. The app controls scheduled exports and the tunnel separately.</li>
-<li><strong>HTTP 401</strong> means the key was declined. Choose <strong>Update Key…</strong> and enter the complete key at the hidden prompt.</li>
-<li><strong>HTTP 403</strong> calls for a check of the organization, project, key permissions and workspace association. <a href="https://developers.openai.com/api/docs/guides/secure-mcp-tunnels/#troubleshooting">OpenAI troubleshooting</a></li>
-<li>To check both statuses in Terminal after setup, run these read-only commands.</li>
-</ul>
-<pre><code class="language-sh">runtime=&quot;$HOME/Library/Application Support/R1 Bridge&quot;
-/usr/bin/python3 -B &quot;$runtime/r1.py&quot; status
-/usr/bin/python3 -B &quot;$runtime/tunnel.py&quot; status
-</code></pre>
-</article>
-</div>
-<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/ask/"><h3>Ask about your readings</h3><p>Ask about seven nights of sleep or the six health cards, without attaching a file.</p><span aria-hidden="true">→</span></a>
-<a class="docs-card" href="../../guides/privacy/"><h3>Understand your privacy</h3><p>See what stays on your Mac, what ChatGPT receives and how to stop collection.</p><span aria-hidden="true">→</span></a></div></section>
-  </main>
-  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
-</body>
-</html>
+</head><body><main class="setup-content"><p><a href="../install/#connect">Connect your Mac to ChatGPT</a></p></main></body></html>

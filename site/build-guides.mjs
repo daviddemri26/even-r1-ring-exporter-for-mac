@@ -4,229 +4,132 @@ import { fileURLToPath } from "node:url";
 import MarkdownIt from "markdown-it";
 
 const site = path.dirname(fileURLToPath(import.meta.url));
-const root = path.dirname(site);
 const output = path.join(site, "dist", "guides");
 const release = JSON.parse(await readFile(path.join(site, "release-assets.json"), "utf8"));
+const [owner, repository] = release.repository.split("/");
+const siteUrl = `https://${owner.toLowerCase()}.github.io/${repository}/`;
+const repoDocs = `https://github.com/${release.repository}/blob/main/`;
+const diskImages = release.assets.filter(asset => asset.file.endsWith(".dmg"));
+if (diskImages.length !== 1) throw new Error("Expected one Mac disk image in release-assets.json.");
+const urls = {
+  SITE_URL: siteUrl,
+  DMG_URL: siteUrl + "downloads/" + encodeURIComponent(diskImages[0].file),
+  CHECKSUMS_URL: siteUrl + "downloads/SHA256SUMS",
+};
 const brand = "Even R1 Ring Exporter for Mac";
-
-const guides = [
-  {
-    slug: "install", source: "docs/installation.md", title: "Install the Mac app",
-    summary: "Let Codex install the two Mac apps and check your first ring export.",
-    related: ["chatgpt", "troubleshooting"],
-  },
-  {
-    slug: "chatgpt", source: "docs/chatgpt.md", title: "Connect ChatGPT",
-    summary: "Create a private tunnel and connect your own ChatGPT workspace to the Mac.",
-    related: ["ask", "privacy"],
-  },
-  {
-    slug: "ask", source: "docs/ask-about-readings.md", title: "Ask about your readings",
-    summary: "Ask about seven nights of sleep or the six health cards, without attaching a file.",
-    related: ["troubleshooting", "chatgpt"],
-  },
-  {
-    slug: "troubleshooting", source: "docs/troubleshooting.md", title: "Troubleshoot missing readings",
-    summary: "Follow a missing night from the iPhone to the Mac and ChatGPT.",
-    related: ["install", "ask"],
-  },
-  {
-    slug: "privacy", source: "docs/privacy.md", title: "Understand your privacy",
-    summary: "See what stays on your Mac, what ChatGPT receives and how to stop collection.",
-    related: ["chatgpt", "install"],
-  },
-  {
-    slug: "glasses", source: "evenhub/README.md", title: "Use the G2 glasses guide",
-    summary: "Download the optional offline guide and move through its five cards.",
-    related: ["install", "build"],
-  },
-  {
-    slug: "test", source: "docs/alpha-testing.md", title: "Test the public alpha",
-    summary: "Check an export on a second Mac and compare it with Even on your phone.",
-    related: ["install", "troubleshooting"],
-  },
-  {
-    slug: "build", source: "docs/build-from-source.md", title: "Build from source",
-    summary: "Download the release source, build the Mac app or G2 guide and preview the website.",
-    related: ["test", "glasses"],
-  },
-];
-
 const markdown = new MarkdownIt({ html: false });
 const escape = markdown.utils.escapeHtml;
-const renderCode = markdown.renderer.rules.fence;
+const renderFence = markdown.renderer.rules.fence;
+const previousAnchors = {
+  "page-title": ["set-up-automatic-collection-with-codex", "set-up-everything-with-codex"],
+  install: ["check-the-mac-and-sync-the-ring", "install-the-mac-app", "verify-your-first-export", "turn-on-automatic-collection", "schedule-future-exports-optional"],
+};
+markdown.renderer.rules.heading_open = (tokens, index, options, env, renderer) => {
+  const anchors = previousAnchors[tokens[index].attrGet("id")] ?? [];
+  return renderer.renderToken(tokens, index, options) +
+    anchors.map(id => `<span id="${id}" aria-hidden="true"></span>`).join("");
+};
+
 markdown.renderer.rules.fence = (tokens, index, options, env, renderer) => {
   const token = tokens[index];
-  if (token.info.trim() !== "codex-prompt") return renderCode(tokens, index, options, env, renderer);
-  if (!token.meta?.section) throw new Error("Place each Codex prompt immediately after its section heading.");
-  const { id, label, fullInstall } = token.meta.section;
-  const buttonText = fullInstall ? "Copy full installation prompt" : "Copy Codex prompt";
-  const help = fullInstall ? `
-    <ol class="codex-start">
-      <li>Open <a href="https://chatgpt.com/download">ChatGPT for Mac</a> and choose <strong>Codex</strong>. Start a local chat in a folder of your choice.</li>
-      <li>Choose <strong>GPT-6.2 Sol</strong> if available, or keep the recommended model. Paste the prompt with <kbd>⌘V</kbd> and press <kbd>Return</kbd>.</li>
-      <li>Use the default permissions. Allow the download and installation when prompted. Handle Apple sign-in and macOS permission dialogs yourself.</li>
-    </ol>` : "";
-  return `<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="${buttonText} — ${escape(label)}" aria-controls="prompt-${id}"><span class="copy-mark" aria-hidden="true"></span>${buttonText}</button>
-    <span class="copy-status" role="status"></span>${help}
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-${id}">${escape(token.content.trim())}</pre></details>
-  </div>\n`;
+  if (token.info.trim() !== "codex-prompt") return renderFence(tokens, index, options, env, renderer);
+  const prompt = token.content.trim();
+  if (!prompt) throw new Error("The setup prompt is empty.");
+  return `<div class="setup-prompt" data-prompt>
+  <button type="button" class="primary copy-prompt" hidden aria-controls="setup-prompt"><span class="copy-mark" aria-hidden="true"></span>Copy setup prompt</button>
+  <span class="copy-status" role="status"></span>
+  <noscript>Open the prompt below and copy its text into Codex.</noscript>
+  <details><summary>Read or select the prompt</summary><pre tabindex="0" id="setup-prompt">${escape(prompt)}</pre></details>
+</div>\n`;
 };
-const guideBySource = new Map(guides.map(guide => [guide.source, guide]));
-const guideBySlug = new Map(guides.map(guide => [guide.slug, guide]));
-const releaseFiles = new Set([...release.assets.map(asset => asset.file), "SHA256SUMS", "source.zip"]);
-const projectUrl = "https://github.com/" + release.repository;
-const providerHosts = new Set([
-  "apps.apple.com", "support.apple.com", "chatgpt.com", "developers.openai.com",
-  "platform.openai.com", "hub.evenrealities.com", "support.evenrealities.com",
-]);
 
-function sourceLink(source, hash, base) {
-  const guide = guideBySource.get(source);
-  if (guide) return base + "guides/" + guide.slug + "/" + hash;
-  if (source === "README.md" || source === "") return base + hash;
-  throw new Error("No website route for repository path " + source);
-}
-
-function releaseLink(name, base) {
-  if (!releaseFiles.has(name)) throw new Error("Unknown release file " + name);
-  return base + "downloads/" + encodeURIComponent(name);
-}
-
-function websiteLink(href, guide, base) {
-  if (href.startsWith("#")) return href;
-  const url = new URL(href, "https://source.invalid/" + guide.source);
-  if (url.origin === "https://source.invalid") {
-    return sourceLink(decodeURIComponent(url.pathname.slice(1)), url.hash, base);
-  }
-
-  if (url.origin + url.pathname === projectUrl) return base + url.hash;
-  if ((url.origin + url.pathname).startsWith(projectUrl + "/")) {
-    const target = decodeURIComponent((url.origin + url.pathname).slice(projectUrl.length + 1));
-    const binaryPrefix = "releases/download/" + release.tag + "/";
-    if (target.startsWith(binaryPrefix)) return releaseLink(target.slice(binaryPrefix.length), base);
-    if (target === "archive/refs/tags/" + release.tag + ".zip") return releaseLink("source.zip", base);
-    if (target === "releases/tag/" + release.tag || target === "releases") return base + "guides/install/#install-the-mac-app";
-    for (const ref of ["main", release.tag]) {
-      const blob = "blob/" + ref + "/";
-      if (target.startsWith(blob)) return sourceLink(target.slice(blob.length), url.hash, base);
-    }
-    if (target === "") return base + url.hash;
-  }
-  if (url.protocol === "https:" && providerHosts.has(url.hostname)) return url.href;
-  throw new Error(guide.source + " has an unmapped link: " + href);
-}
-
-function inlineText(token) {
-  return token.children.filter(child => ["text", "code_inline"].includes(child.type))
-    .map(child => child.content).join("");
-}
-
-function headingId(label) {
-  return label.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
-    .replace(/[’']/g, "").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
-}
-
-function readGuide(guide, source, base) {
-  const env = {};
-  const tokens = markdown.parse(source, env);
-  if (tokens[0]?.type !== "heading_open" || tokens[0].tag !== "h1") {
-    throw new Error(guide.source + " must start with a top-level title.");
-  }
-  const title = inlineText(tokens[1]);
-  const content = tokens.slice(3);
-  const sections = [];
-  const ids = new Set(["content", "page-title", "toc-title", "related-title"]);
-  for (const [index, token] of content.entries()) {
-    for (const child of token.children ?? []) {
-      if (child.type === "link_open") child.attrSet("href", websiteLink(child.attrGet("href"), guide, base));
-    }
-    if (token.type !== "heading_open") continue;
-    if (token.tag === "h1") throw new Error(guide.source + " contains a second top-level title.");
-    const label = inlineText(content[index + 1]);
-    const prefix = headingId(label);
-    let id = prefix;
-    for (let n = 2; ids.has(id); n++) id = prefix + "-" + n;
-    ids.add(id);
-    token.attrSet("id", id);
-    if (token.tag === "h2") {
-      const prompt = content[index + 3];
-      if (prompt?.type !== "fence" || prompt.info.trim() !== "codex-prompt" || !prompt.content.trim()) {
-        throw new Error(guide.source + ": add a Codex prompt immediately after " + label);
-      }
-      prompt.meta = { section: { id, label, fullInstall: guide.slug === "install" && sections.length === 0 } };
-    }
-    sections.push({ label, id, level: Number(token.tag.slice(1)) });
-  }
-  return { title, sections, html: markdown.renderer.render(content, markdown.options, env) };
-}
-
-function brandLink(base) {
-  return '<a class="brand" href="' + base + '" aria-label="' + brand + ' home"><span class="mark" aria-hidden="true"></span><span>' + brand + '</span></a>';
-}
-
-function card(guide, base) {
-  return '<a class="docs-card" href="' + base + "guides/" + guide.slug + '/"><h3>' + escape(guide.title) +
-    '</h3><p>' + escape(guide.summary) + '</p><span aria-hidden="true">→</span></a>';
-}
-
-function breadcrumb(base, title) {
-  const guidesCrumb = title ? '<li><a href="' + base + 'guides/">Guides</a></li><li aria-current="page">' + escape(title) + '</li>' : '<li aria-current="page">Guides</li>';
-  return '<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="' + base + '">Home</a></li>' + guidesCrumb + '</ol></nav>';
-}
-
-function tableOfContents(sections) {
-  let items = "";
-  for (const { label, id, level } of sections) {
-    items += '<li class="docs-toc-level-' + level + '"><a href="#' + id + '">' + escape(label) + '</a></li>';
-  }
-  return '<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol>' + items + '</ol></details></nav>';
-}
-
-function template(base, title, description, main) {
-  return '<!doctype html>\n<html lang="en">\n<head>\n' +
-    '  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    '  <meta name="theme-color" content="#f9faf6">\n  <meta name="description" content="' + escape(description) + '">\n' +
-    '  <title>' + escape(title) + ' · ' + brand + '</title>\n' +
-    '  <link rel="stylesheet" href="' + base + 'style.css?v=2">\n  <link rel="stylesheet" href="' + base + 'guides.css?v=3">\n' +
-    '  <script defer src="' + base + 'guide-prompts.js"></script>\n' +
-    '</head>\n<body class="docs-page">\n  <a class="skip" href="#content">Skip to content</a>\n' +
-    '  <header class="site-header"><div class="wrap nav">' + brandLink(base) +
-    '<nav aria-label="Main navigation"><a href="' + base + '#how-it-works">How it works</a><a href="' + base +
-    '#requirements">Requirements</a><a href="' + base + 'guides/" aria-current="' +
-    (base === "../" ? "page" : "location") + '">Guides</a></nav></div></header>\n' +
-    '  <main id="content" class="wrap docs-shell">\n' + main + '\n  </main>\n' +
-    '  <footer class="wrap footer">' + brandLink(base) +
-    '<p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p>' +
-    '<a class="repo" href="' + base + 'guides/">All guides <span aria-hidden="true">→</span></a></footer>\n</body>\n</html>\n';
-}
-
-function indexPage() {
-  const base = "../";
-  const summary = "Start with the Mac installation. Once your first export works, you can connect ChatGPT and ask about your ring.";
-  const main = breadcrumb(base) + '\n<header class="docs-hero"><h1 id="page-title">Guides</h1><p>' + summary + '</p></header>\n' +
-    '<a class="primary guide-start" href="./install/">Install with Codex <span aria-hidden="true">→</span></a>' +
-    '<section class="docs-index" aria-labelledby="browse-title"><h2 id="browse-title">After installation</h2><div class="docs-grid">' +
-    guides.filter(guide => guide.slug !== "install").map(guide => card(guide, base)).join("\n") + '</div></section>';
-  return template(base, "Guides", summary, main);
-}
-
-function guidePage(guide, source) {
+function setupPage(source) {
   const base = "../../";
-  const { title, sections, html } = readGuide(guide, source, base);
-  const instructions = guide.slug === "install" ? "" : '<p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p>';
-  const main = breadcrumb(base, guide.title) + '\n<header class="docs-hero"><h1 id="page-title">' + escape(title) + '</h1>' + instructions + '</header>\n' +
-    '<div class="docs-layout">\n' + tableOfContents(sections) + '\n<article class="docs-article" aria-labelledby="page-title">\n' + html +
-    '</article>\n</div>\n<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid">' +
-    guide.related.map(slug => card(guideBySlug.get(slug), base)).join("\n") + '</div></section>';
-  return template(base, title, guide.summary, main);
+  const resolved = source.replace(/\{\{(\w+)\}\}/g, (_, name) => {
+    if (!Object.hasOwn(urls, name)) throw new Error("Unknown setup placeholder " + name);
+    return urls[name];
+  });
+  const tokens = markdown.parse(resolved, {});
+  if (tokens[0]?.tag !== "h1" || tokens.filter(t => t.type === "heading_open" && t.tag === "h1").length !== 1) {
+    throw new Error("Start setup.md with its single page title.");
+  }
+  if (tokens.filter(t => t.type === "fence" && t.info.trim() === "codex-prompt").length !== 1) {
+    throw new Error("Include one complete Codex setup prompt.");
+  }
+  for (const [index, token] of tokens.entries()) {
+    if (token.type === "heading_open") {
+      const heading = tokens[index + 1];
+      const last = heading.children.at(-1);
+      const anchor = last?.type === "text" && last.content.match(/\s+\{#([a-z][a-z0-9-]*)\}$/);
+      if (anchor) {
+        token.attrSet("id", anchor[1]);
+        last.content = last.content.slice(0, -anchor[0].length);
+      } else if (token.tag === "h1") {
+        token.attrSet("id", "page-title");
+      } else {
+        token.attrSet("id", heading.content.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
+      }
+    }
+    for (const child of token.children ?? []) {
+      if (child.type !== "link_open") continue;
+      const href = child.attrGet("href");
+      if (href.startsWith(siteUrl)) child.attrSet("href", base + href.slice(siteUrl.length));
+    }
+  }
+  const title = escape(tokens[1].content);
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafbf7">
+  <meta name="description" content="Set up the Even R1 ring exporter on your Mac and ask ChatGPT about your readings.">
+  <title>${title} · ${brand}</title>
+  <link rel="stylesheet" href="${base}style.css?v=4">
+  <link rel="stylesheet" href="${base}guides.css?v=4">
+  <script defer src="${base}guide-prompts.js?v=4"></script>
+</head>
+<body class="setup-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav"><a class="brand" href="${base}" aria-label="${brand} home"><span class="mark" aria-hidden="true"></span><span>${brand}</span></a><nav aria-label="Main navigation"><a href="./" aria-current="page">Setup guide</a></nav></div></header>
+  <main id="content" class="setup-content">
+${markdown.renderer.render(tokens, markdown.options, {})}  </main>
+</body>
+</html>
+`;
 }
 
-const pages = new Map([["index.html", indexPage()]]);
-for (const guide of guides) {
-  const source = await readFile(path.join(root, guide.source), "utf8");
-  pages.set(guide.slug + "/index.html", guidePage(guide, source));
+function redirectPage(target, label, base) {
+  const link = escape(target);
+  return `<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url=${link}">
+  <link rel="canonical" href="${link}">
+  <link rel="stylesheet" href="${base}style.css?v=4">
+  <link rel="stylesheet" href="${base}guides.css?v=4">
+  <title>${escape(label)} · ${brand}</title>
+</head><body><main class="setup-content"><p><a href="${link}">${escape(label)}</a></p></main></body></html>
+`;
+}
+
+const source = await readFile(path.join(site, "setup.md"), "utf8");
+const pages = new Map([
+  ["install/index.html", setupPage(source)],
+  ["index.html", redirectPage("install/", "Open the setup guide", "../")],
+  ["chatgpt/index.html", redirectPage("../install/#connect", "Connect your Mac to ChatGPT", "../../")],
+  ["ask/index.html", redirectPage("../install/#ask", "Ask about your readings", "../../")],
+]);
+const technicalNotes = [
+  ["build", "docs/build-from-source.md", "Build from source"],
+  ["test", "docs/alpha-testing.md", "Test the alpha"],
+  ["privacy", "docs/privacy.md", "Data and privacy"],
+  ["troubleshooting", "docs/troubleshooting.md", "Troubleshoot an export"],
+  ["glasses", "evenhub/README.md", "Read the G2 companion notes"],
+];
+for (const [slug, file, title] of technicalNotes) {
+  pages.set(slug + "/index.html", redirectPage(repoDocs + file, title, "../../"));
 }
 
 const check = process.argv.includes("--check");
@@ -239,4 +142,4 @@ for (const [file, page] of pages) {
     await writeFile(destination, page);
   }
 }
-console.log((check ? "Verified " : "Built ") + pages.size + " guide pages.");
+console.log((check ? "Verified" : "Built") + " the setup page and " + (pages.size - 1) + " redirects.");

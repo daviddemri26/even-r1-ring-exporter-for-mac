@@ -1,12 +1,12 @@
 {
   "repository": "daviddemri26/even-r1-ring-exporter-for-mac",
-  "tag": "v0.1.0-alpha.4",
-  "commit": "38261da48c6753d2921db97f85363ee30268688b",
+  "tag": "v0.1.0-alpha.5",
+  "commit": "759a92a74f673027172455c1ffdcc059c070cce5",
   "assets": [
     {
-      "file": "Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg",
+      "file": "Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg",
       "localDirectory": "dist",
-      "sha256": "6265e902ce515321abaa6b915ef9b5a5cdaa67941319db96298132e83dbe4c00"
+      "sha256": "4b819a14ab1c4e284d891260a86f42b1bd8d98da4110f69e220965a4c2cec201"
     },
     {
       "file": "Even-R1-Ring-Guide-for-G2-Glasses.ehpk",

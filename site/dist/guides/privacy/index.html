@@ -1,69 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f9faf6">
-  <meta name="description" content="See what stays on your Mac, what ChatGPT receives and how to stop collection.">
-  <title>Where your ring readings go · Even R1 Ring Exporter for Mac</title>
-  <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=3">
-  <script defer src="../../guide-prompts.js"></script>
-</head>
-<body class="docs-page">
-  <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
-  <main id="content" class="wrap docs-shell">
-<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Understand your privacy</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Where your ring readings go</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
-<div class="docs-layout">
-<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#check-who-can-see-your-readings">Check who can see your readings</a></li><li class="docs-toc-level-2"><a href="#pause-collection-or-chatgpt-access">Pause collection or ChatGPT access</a></li><li class="docs-toc-level-2"><a href="#remove-the-app-or-revoke-access">Remove the app or revoke access</a></li></ol></details></nav>
-<article class="docs-article" aria-labelledby="page-title">
-<p>Your Mac can collect readings on its own. Connecting your personal ChatGPT account is optional.</p>
-<h2 id="check-who-can-see-your-readings">Check who can see your readings</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Check who can see your readings" aria-controls="prompt-check-who-can-see-your-readings"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-check-who-can-see-your-readings">Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/privacy/ as the reference. Check whether the public Mac app and its collection and tunnel services are installed or running on this Mac. Inspect service status only. Leave settings alone and keep archives, readings, keys and tunnel identifiers out of the chat. Tell me which settings I can verify myself in Even and ChatGPT.</pre></details>
-  </div>
-<ul>
-<li><strong>Even</strong> uses its cloud backup to sync readings from the iPhone to the Mac in the tested setup. You control that setting in Even. <a href="https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup">Even’s health data backup guide</a></li>
-<li><strong>Your Mac</strong> uses Even’s export controls and stores health ZIPs, collection status and observed cards in <code>~/Library/Application Support/R1 Bridge/</code>. A backup that includes this folder also contains your exports.</li>
-<li><strong>Your ChatGPT account</strong> receives results when you use the private connector. Anyone you authorize to use it can query its four read-only tools. Keep it in your own workspace. Results become part of that conversation. The dedicated API key is stored in your Mac’s Keychain.</li>
-<li><strong>The website and G2 glasses guide</strong> provide instructions. The glasses display five bundled cards. Neither needs your readings.</li>
-</ul>
-<h2 id="pause-collection-or-chatgpt-access">Pause collection or ChatGPT access</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Pause collection or ChatGPT access" aria-controls="prompt-pause-collection-or-chatgpt-access"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-pause-collection-or-chatgpt-access">Help me pause Even R1 Ring Exporter for Mac. Ask which part I want to stop: scheduled collection, the private ChatGPT tunnel, or both. Use the installed public app or its documented stop command for only what I selected. Keep the archives, API key and other services intact. Verify each selected service is stopped and tell me how to restart it from the app. Report only service status.</pre></details>
-  </div>
-<ul>
-<li>In <strong>Mac Collection</strong>, choose <strong>Stop Schedule</strong> to pause automatic exports.</li>
-<li>In <strong>ChatGPT Connection</strong>, choose <strong>Stop Tunnel</strong> to pause remote queries. Your saved archives stay on the Mac.</li>
-<li>From Terminal, run the command for the service you want to stop.</li>
-</ul>
-<pre><code class="language-sh">/usr/bin/python3 -B &quot;$HOME/Library/Application Support/R1 Bridge/r1.py&quot; stop
-</code></pre>
-<pre><code class="language-sh">/usr/bin/python3 -B &quot;$HOME/Library/Application Support/R1 Bridge/tunnel.py&quot; stop
-</code></pre>
-<h2 id="remove-the-app-or-revoke-access">Remove the app or revoke access</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Remove the app or revoke access" aria-controls="prompt-remove-the-app-or-revoke-access"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-remove-the-app-or-revoke-access">Help me remove Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/privacy/. First explain which actions affect the app, collection, its ChatGPT connector and my saved exports. Ask what I want to keep. Stop only the relevant services. Get my confirmation before removing an app, credential, tunnel or archive. Guide me through any account or macOS actions I must take myself. Never display keys or health data. Summarize what was removed and what remains.</pre></details>
-  </div>
-<ol>
-<li>Stop the schedule and tunnel you used. Quit <strong>Even R1 Ring Exporter for Mac</strong> and move it to the Trash.</li>
-<li>In <strong>System Settings → Privacy &amp; Security → Accessibility</strong>, remove <strong>Even R1 Ring Collector for Mac</strong>.</li>
-<li>To revoke remote access, disconnect <strong>Even R1 Ring Data for ChatGPT</strong> in ChatGPT. Revoke the dedicated key and remove the tunnel association in your OpenAI Platform account. Its Keychain item is named <strong>R1 Bridge - OpenAI Tunnel</strong>.</li>
-<li>Keep any exports you want before deleting the <code>R1 Bridge</code> folder. Mac backups, Even cloud data and ChatGPT conversations have their own deletion controls.</li>
-</ol>
-</article>
-</div>
-<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a>
-<a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Let Codex install the two Mac apps and check your first ring export.</p><span aria-hidden="true">→</span></a></div></section>
-  </main>
-  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
-</body>
-</html>
+  <meta http-equiv="refresh" content="0; url=https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/docs/privacy.md">
+  <link rel="canonical" href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/docs/privacy.md">
+  <link rel="stylesheet" href="../../style.css?v=4">
+  <link rel="stylesheet" href="../../guides.css?v=4">
+  <title>Data and privacy · Even R1 Ring Exporter for Mac</title>
+</head><body><main class="setup-content"><p><a href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/docs/privacy.md">Data and privacy</a></p></main></body></html>

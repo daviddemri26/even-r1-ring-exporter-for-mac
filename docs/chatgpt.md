@@ -31,7 +31,7 @@ Diagnose my existing private Even R1 connection using https://daviddemri26.githu
 ```
 
 - Select **ChatGPT Connection → Refresh** and check for confirmation of a connection to OpenAI. The app controls scheduled exports and the tunnel separately.
-- **HTTP 401** means the key was declined. Choose **Update Key…** and enter the complete key at the hidden prompt.
+- **HTTP 401** means the key was declined. Under **Show Connection Options**, choose **Update Key…** and enter the complete key at the hidden prompt.
 - **HTTP 403** calls for a check of the organization, project, key permissions and workspace association. [OpenAI troubleshooting](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels/#troubleshooting)
 - To check both statuses in Terminal after setup, run these read-only commands.
 

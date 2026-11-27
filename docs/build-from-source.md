@@ -5,10 +5,10 @@ This guide is for contributors who want to build a release or preview the websit
 ## Build and verify the Mac disk image
 
 ```codex-prompt
-Build the public Even R1 Ring Exporter for Mac alpha 4 disk image. Download the tagged source from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/source.zip and extract it into a new folder. Check for Apple silicon, macOS 14 or later, Apple Command Line Tools and /usr/bin/python3 version 3.9 or later. If an Apple installer needs my input, give me the next click. Run the repository’s runtime unit tests, build the DMG and run its verification script. Use synthetic data only. Leave the installed exporter and its services alone. Report the DMG and checksum locations and which checks passed.
+Build the public Even R1 Ring Exporter for Mac alpha 5 disk image. Download the tagged source from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/source.zip and extract it into a new folder. Check for Apple silicon, macOS 14 or later, Apple Command Line Tools and /usr/bin/python3 version 3.9 or later. If an Apple installer needs my input, give me the next click. Run the repository’s runtime unit tests, build the DMG and run its verification script. Use synthetic data only. Leave the installed exporter and its services alone. Report the DMG and checksum locations and which checks passed.
 ```
 
-- Codex can download the [alpha 4 source ZIP](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/archive/refs/tags/v0.1.0-alpha.4.zip). It contains the project files for building the app.
+- Codex can download the [alpha 5 source ZIP](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/archive/refs/tags/v0.1.0-alpha.5.zip). It contains the project files for building the app.
 - To build manually, extract it and open Terminal in the folder containing `macos/` and `scripts/`. If Apple’s Command Line Tools are missing, run `xcode-select --install`.
 - Run the tests, build and verification from that folder.
 
@@ -18,12 +18,12 @@ Build the public Even R1 Ring Exporter for Mac alpha 4 disk image. Download the 
   ./scripts/verify-macos.sh
 ```
 
-Find `Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg` and its `.sha256` file in `dist/`. The build uses ad hoc signing. Verification checks the checksum, mounts the disk image read-only, checks signatures and architecture, and tests setup in a temporary user folder.
+Find `Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg` and its `.sha256` file in `dist/`. The build uses ad hoc signing. Verification checks the checksum, mounts the disk image read-only, checks signatures and architecture, and tests setup in a temporary user folder.
 
 ## Build the optional G2 glasses package
 
 ```codex-prompt
-Build the public Even R1 Ring Guide for G2 Glasses from the alpha 4 source. Use an existing clean copy of that release or extract https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/source.zip into a new folder. Check for Node.js 22 and npm. From evenhub/, run npm ci, npm test and npm run pack in order. Verify that the .ehpk file was produced and report its path and test result. Keep this build local and leave my Even devices and accounts alone.
+Build the public Even R1 Ring Guide for G2 Glasses from the alpha 5 source. Use an existing clean copy of that release or extract https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/source.zip into a new folder. Check for Node.js 22 and npm. From evenhub/, run npm ci, npm test and npm run pack in order. Verify that the .ehpk file was produced and report its path and test result. Keep this build local and leave my Even devices and accounts alone.
 ```
 
 - For the ready-made companion, go to the [glasses guide](../evenhub/README.md).
@@ -38,7 +38,7 @@ The output is `evenhub/Even-R1-Ring-Guide-for-G2-Glasses.ehpk`. The package cont
 ## Preview the website on your Mac
 
 ```codex-prompt
-Preview the Even R1 Ring Exporter for Mac website locally. Use the existing site source in the current project folder if present. Otherwise download https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/source.zip into a new folder for a preview of that release. With Node.js 22 and npm, install the locked site dependencies, regenerate the guides and serve only site/dist on a free loopback port. Verify the home page and an installation guide load. Give me the local URL and how to stop the preview. Leave the published site unchanged.
+Preview the Even R1 Ring Exporter for Mac website locally. Use the current project folder if it contains the website. Otherwise clone https://github.com/daviddemri26/even-r1-ring-exporter-for-mac.git into a new folder. With Node.js 22 and npm, install the locked site dependencies, generate the setup page and serve only site/dist on a free loopback port. Verify the homepage and setup guide load. Give me the local URL and how to stop the preview.
 ```
 
 To run it manually, use the following commands from the project folder.

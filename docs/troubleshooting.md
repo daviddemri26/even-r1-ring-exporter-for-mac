@@ -37,7 +37,7 @@ Check scheduled collection in Even R1 Ring Exporter for Mac. Read the collection
 Help me clear the specific Even R1 export problem on this Mac. Check the last attempt in Mac Collection. For ACCESSIBILITY, reveal the current collector with Show Collector and guide me through enabling that exact helper in Accessibility Settings. For APP_DATA_PERMISSION, let me approve the collector’s request to read Even’s cached export. If a Save dialog is open, dismiss only an identifiable Even_health_data_…zip export dialog. Leave unrelated prompts for me. Test one export, refresh the status and report the result, including a successful export with no new night. Preserve my archives.
 ```
 
-- **ACCESSIBILITY** — Choose **Show Collector**, then **Accessibility Settings**. Enable **Even R1 Ring Collector for Mac**. If an old entry persists after an update, replace it with the helper revealed by **Show Collector**. [Mac setup guide](installation.md)
+- **ACCESSIBILITY** — Open **Show Collection Options** for **Show Collector** and **Accessibility Settings**. Enable **Even R1 Ring Collector for Mac**. If an old entry persists after an update, replace it with the helper revealed by **Show Collector**. [Mac setup guide](installation.md)
 - **APP_DATA_PERMISSION** — Allow the collector to read Even’s cached ZIP when macOS asks. Repeat **Test an Export**.
 - **Save window** — For `Even_health_data_…zip`, select **Cancel**. The collector reads the cached copy. Check **Mac Collection → Refresh** for the outcome.
 
@@ -47,6 +47,6 @@ Help me clear the specific Even R1 export problem on this Mac. Check the last at
 Diagnose a reading that exists in my Even R1 Mac export but is missing from my personal ChatGPT web chat. With my Mac awake and online, check the local export date and private tunnel status. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/ for the error reported. Check that the personal workspace has the correct connector and refresh or reconnect it if its tool names are outdated. Use Try in chat to query the same date without an attachment. Report the web result separately from local checks. If I need support, prepare a short summary using only versions, interface language and the error code. Keep readings, ZIPs, keys and tunnel IDs private.
 ```
 
-- Open **ChatGPT Connection → Refresh**. **HTTP 401** means the key was rejected. Choose **Update Key…** and enter it at the hidden prompt. For **HTTP 403**, check the organization, project, tunnel permissions and workspace association. [Fix the private connection](chatgpt.md)
+- Open **ChatGPT Connection → Refresh**. **HTTP 401** means the key was rejected. Under **Show Connection Options**, choose **Update Key…** and enter it at the hidden prompt. For **HTTP 403**, check the organization, project, tunnel permissions and workspace association. [Fix the private connection](chatgpt.md)
 - In your personal ChatGPT workspace, open **Even R1 Ring Data for ChatGPT → Try in chat**. Ask for the same wake date. Older plugins may need a refresh or reconnection after an upgrade. [Try a dated question](ask-about-readings.md)
 - For support, share your macOS, Even and exporter versions, interface language and the error code. Keep your API key, tunnel ID, ZIP and personal readings private. [Data and privacy](privacy.md)

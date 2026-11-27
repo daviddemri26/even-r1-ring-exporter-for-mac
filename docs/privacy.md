@@ -19,8 +19,8 @@ Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https
 Help me pause Even R1 Ring Exporter for Mac. Ask which part I want to stop: scheduled collection, the private ChatGPT tunnel, or both. Use the installed public app or its documented stop command for only what I selected. Keep the archives, API key and other services intact. Verify each selected service is stopped and tell me how to restart it from the app. Report only service status.
 ```
 
-- In **Mac Collection**, choose **Stop Schedule** to pause automatic exports.
-- In **ChatGPT Connection**, choose **Stop Tunnel** to pause remote queries. Your saved archives stay on the Mac.
+- In **Mac Collection**, open **Show Collection Options** and choose **Stop Schedule** to pause automatic exports.
+- In **ChatGPT Connection**, open **Show Connection Options** and choose **Stop Tunnel** to pause remote queries. Your saved archives stay on the Mac.
 - From Terminal, run the command for the service you want to stop.
 
 ```sh

@@ -50,6 +50,3 @@ for (const box of document.querySelectorAll("[data-prompt]")) {
     status.textContent = "Press ⌘C or choose Copy to copy the selected prompt.";
   });
 }
-
-const contents = document.querySelector(".docs-toc details");
-if (contents && window.matchMedia("(min-width: 781px)").matches) contents.open = true;

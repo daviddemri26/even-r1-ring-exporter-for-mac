@@ -8,7 +8,7 @@ This optional companion puts five English instruction cards on Even G2 glasses. 
 Get the optional Even R1 Ring Guide for G2 Glasses from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/glasses/. Download its .ehpk file into my chosen project folder, or locate an existing copy there. Compare its SHA-256 with the same release’s published SHA256SUMS. Tell me the file name, location and result. Explain what the five instruction cards do and how to navigate them. Leave my Mac exporter, health data and Even Hub account alone.
 ```
 
-- The [G2 guide package](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/releases/download/v0.1.0-alpha.4/Even-R1-Ring-Guide-for-G2-Glasses.ehpk) is version **0.1.2**. The `.ehpk` file is for Even G2 glasses. The separate `.dmg` installs the Mac exporter.
+- The [G2 guide package](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/releases/download/v0.1.0-alpha.5/Even-R1-Ring-Guide-for-G2-Glasses.ehpk) is version **0.1.2**. The `.ehpk` file is for Even G2 glasses. The separate `.dmg` installs the Mac exporter.
 - The cards explain how to find a recorded night in Even, sync it to the Mac and ask about it in ChatGPT. They work offline after loading and request no health or network permissions.
 - Tap or scroll down to advance. Scroll up to go back. Double-tap to open the system exit menu. On the phone, use **Previous** and **Next**.
 - The alpha still needs physical G2 testing before a catalog submission. The next sections are for people who want to try the prototype.
@@ -49,4 +49,4 @@ node node_modules/@evenrealities/evenhub-cli/main.js qr --url http://YOUR_MAC_IP
 
 4. In the Even app, open **Even Hub → Profile → Prototype Mode** and scan the code. Check readability and gestures on the glasses. Stop the server with **Control-C** in the first Terminal. [Even’s developer tutorials](https://hub.evenrealities.com/docs/learn/videos)
 
-The proposed catalog name is **Even R1 Guide for G2**, within Even Hub’s 20-character limit. The independent guide is in English. Physical verification and listing images are still pending. [Even Hub quick start](https://hub.evenrealities.com/docs/get-started/quickstart/first-app) · [Device APIs](https://hub.evenrealities.com/docs/build/device-apis) · [Submission process](https://hub.evenrealities.com/docs/ship/app-submission)
+The [one-screen G2 prototype](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/tree/codex/g2-discovery-guide/evenhub) is a separate development build. Even Hub eligibility and hardware testing are still pending. [Submission process](https://hub.evenrealities.com/docs/ship/app-submission)

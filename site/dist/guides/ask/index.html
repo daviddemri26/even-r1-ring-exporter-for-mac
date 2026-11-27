@@ -1,63 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="en"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f9faf6">
-  <meta name="description" content="Ask about seven nights of sleep or the six health cards, without attaching a file.">
-  <title>Ask ChatGPT about your ring readings · Even R1 Ring Exporter for Mac</title>
-  <link rel="stylesheet" href="../../style.css?v=2">
-  <link rel="stylesheet" href="../../guides.css?v=3">
-  <script defer src="../../guide-prompts.js"></script>
-</head>
-<body class="docs-page">
-  <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><div class="wrap nav"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><nav aria-label="Main navigation"><a href="../../#how-it-works">How it works</a><a href="../../#requirements">Requirements</a><a href="../../guides/" aria-current="location">Guides</a></nav></div></header>
-  <main id="content" class="wrap docs-shell">
-<nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Ask about your readings</li></ol></nav>
-<header class="docs-hero"><h1 id="page-title">Ask ChatGPT about your ring readings</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
-<div class="docs-layout">
-<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#how-much-did-i-sleep-each-night">How much did I sleep each night?</a></li><li class="docs-toc-level-2"><a href="#how-much-time-did-i-spend-in-each-sleep-stage">How much time did I spend in each sleep stage?</a></li><li class="docs-toc-level-2"><a href="#what-are-my-latest-readings-and-what-changed">What are my latest readings and what changed?</a></li></ol></details></nav>
-<article class="docs-article" aria-labelledby="page-title">
-<p>Keep your Mac awake and online. Open <strong>Even R1 Ring Data for ChatGPT → Try in chat</strong> in your personal ChatGPT web workspace. You can paste the prompts below into Codex on your Mac for help, or type the short questions directly in that web chat. <a href="../../guides/chatgpt/">Connect your Mac to ChatGPT</a></p>
-<h2 id="how-much-did-i-sleep-each-night">How much did I sleep each night?</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — How much did I sleep each night?" aria-controls="prompt-how-much-did-i-sleep-each-night"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-how-much-did-i-sleep-each-night">Use the private Even R1 Ring Data for ChatGPT connector in my personal ChatGPT web account. Ask it to call sleep_durations for the seven local wake dates ending today, without a file attachment. List all seven dates and each duration in hours and minutes. Label a missing session or an ambiguous duration explicitly. Average only usable dates and give their count. If I give you a previous wake date, check whether the export contains a later one through today, using separate requests of up to 31 dates if needed. Confirm that the result came from the web connector. If it is unavailable, identify the connection problem instead of guessing a duration.</pre></details>
-  </div>
-<ul>
-<li>In ChatGPT, ask “How much did I sleep on each of the last seven wake dates? Has a new night appeared since [date]?”</li>
-<li>Match the date you woke up with <strong>Health</strong> in Even on your iPhone. Naps count toward the date they ended.</li>
-<li>A missing date means Even supplied no session. A <code>null</code> duration means the data was ambiguous. Both are excluded from the average. <a href="../../guides/troubleshooting/">Check a missing night</a></li>
-</ul>
-<h2 id="how-much-time-did-i-spend-in-each-sleep-stage">How much time did I spend in each sleep stage?</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — How much time did I spend in each sleep stage?" aria-controls="prompt-how-much-time-did-i-spend-in-each-sleep-stage"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-how-much-time-did-i-spend-in-each-sleep-stage">In my personal ChatGPT web account, use the private Even R1 Ring Data for ChatGPT connector without an attachment. Ask which wake date I want if I did not supply one. Call sleep_stages for that local date and report the recorded minutes awake, in light sleep, in deep sleep and in REM. Identify any missing session or ambiguous result. Do not estimate missing values. Help me compare the answer with the same wake date in Even on my iPhone.</pre></details>
-  </div>
-<ul>
-<li>In ChatGPT, ask “For [wake date], how many minutes were awake, light, deep and REM?”</li>
-<li>Awake minutes cover the recorded sessions. You can ask about up to 31 local wake dates in one request.</li>
-</ul>
-<h2 id="what-are-my-latest-readings-and-what-changed">What are my latest readings and what changed?</h2>
-<div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — What are my latest readings and what changed?" aria-controls="prompt-what-are-my-latest-readings-and-what-changed"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
-    <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-what-are-my-latest-readings-and-what-changed">Use Even R1 Ring Data for ChatGPT in my personal ChatGPT web account without attaching a file. Call latest_readings for steps, active calories, heart rate, heart rate variability, blood oxygen saturation and skin temperature variation. Give each card’s value, unit, displayed age and the time my Mac observed it when available. If I ask what changed, call reading_history for my requested dates and report the changes the Mac actually observed. Distinguish a Mac observation from a sensor measurement time. Keep successive step and calorie totals separate, and mark unavailable readings or dates clearly.</pre></details>
-  </div>
-<ul>
-<li>In ChatGPT, ask “Show my six latest readings, with units and freshness.” Then try “Which readings changed between [start date] and [end date]?”</li>
-<li>Steps and active calories may be running daily totals. Adding consecutive cards can count the same activity twice.</li>
-<li>Heart rate uses beats per minute, heart rate variability uses milliseconds, and blood oxygen saturation uses percent. Skin temperature variation is a change in the unit Even displays.</li>
-<li>A card showing “3 days ago” was already that old when the Mac saw it. History starts when the Mac first observes a card and records changes to its value or unit.</li>
-</ul>
-</article>
-</div>
-<section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/troubleshooting/"><h3>Troubleshoot missing readings</h3><p>Follow a missing night from the iPhone to the Mac and ChatGPT.</p><span aria-hidden="true">→</span></a>
-<a class="docs-card" href="../../guides/chatgpt/"><h3>Connect ChatGPT</h3><p>Create a private tunnel and connect your own ChatGPT workspace to the Mac.</p><span aria-hidden="true">→</span></a></div></section>
-  </main>
-  <footer class="wrap footer"><a class="brand" href="../../" aria-label="Even R1 Ring Exporter for Mac home"><span class="mark" aria-hidden="true"></span><span>Even R1 Ring Exporter for Mac</span></a><p>An independent project. Even Realities, Apple and OpenAI are unaffiliated.</p><a class="repo" href="../../guides/">All guides <span aria-hidden="true">→</span></a></footer>
-</body>
-</html>
+  <meta http-equiv="refresh" content="0; url=../install/#ask">
+  <link rel="canonical" href="../install/#ask">
+  <link rel="stylesheet" href="../../style.css?v=4">
+  <link rel="stylesheet" href="../../guides.css?v=4">
+  <title>Ask about your readings · Even R1 Ring Exporter for Mac</title>
+</head><body><main class="setup-content"><p><a href="../install/#ask">Ask about your readings</a></p></main></body></html>
