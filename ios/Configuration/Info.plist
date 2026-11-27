@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+    <key>CFBundleDisplayName</key><string>Sleep Sync Companion</string>
+    <key>CFBundleName</key><string>$(PRODUCT_NAME)</string>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
+    <key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>LSRequiresIPhoneOS</key><true/>
+    <key>LSApplicationCategoryType</key><string>public.app-category.healthcare-fitness</string>
+    <key>NSCameraUsageDescription</key><string>Scan the one-time pairing code shown on your Mac.</string>
+    <key>NSLocalNetworkUsageDescription</key><string>Connect to your paired Mac to import your ring’s sleep stages.</string>
+    <key>NSBonjourServices</key><array><string>_sleepsync._tcp</string></array>
+    <key>NSHealthUpdateUsageDescription</key><string>Save your ring’s verified sleep stages from your paired Mac to Apple Health.</string>
+    <key>UIBackgroundModes</key><array><string>fetch</string></array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key><array><string>io.github.daviddemri26.sleepsync.refresh</string></array>
+    <key>UILaunchScreen</key><dict/>
+    <key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string></array>
+    <key>UIApplicationSceneManifest</key><dict><key>UIApplicationSupportsMultipleScenes</key><false/></dict>
+    <key>ITSAppUsesNonExemptEncryption</key><false/>
+</dict></plist>

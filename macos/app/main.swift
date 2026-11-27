@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import CoreImage
 
 private let fm = FileManager.default
 
@@ -236,7 +237,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         setup = button("Set Up This Mac", #selector(prepareMac))
         test = button("Test an Export", #selector(tryExport))
         schedule = button("Schedule Collection", #selector(startSchedule))
-        collectPage.addArrangedSubview(row([setup, test, schedule]))
+        collectPage.addArrangedSubview(row([setup, test, schedule, button("Pair iPhone", #selector(pairPhone))]))
         wrapped(label("Checks start at 5:15 AM, 8:15 AM, 12:15 PM, 6:15 PM and 11:15 PM local time. Your Mac exports when it is unlocked and idle for two minutes.", size: 13, secondary: true), in: collectPage)
         collectionToggle = button("Show Collection Options", #selector(toggleCollectionOptions))
         collectPage.addArrangedSubview(row([collectionToggle, button("Installation Guide ↗", #selector(openInstallGuide))]))
@@ -351,6 +352,9 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     }
     @objc private func refreshStatus() { update() }
     @objc private func prepareMac() { perform("Preparing this Mac…") { $0.prepare() } }
+    @objc private func pairPhone() {
+        PhoneWindow.present(in: window, home: bridge.home) { [weak self] in self?.feedback.stringValue = $0 }
+    }
     @objc private func tryExport() { perform("Exporting…") { $0.collect("export") } }
     @objc private func startSchedule() { perform("Scheduling collection…") { $0.collect("schedule") } }
     @objc private func stopSchedule() { perform("Stopping the schedule…") { $0.collect("stop") } }
@@ -385,7 +389,14 @@ private final class WindowController: NSObject, NSApplicationDelegate {
 }
 
 guard let resources = Bundle.main.resourceURL else { exit(1) }
-if CommandLine.arguments.contains("--verify-install") {
+if CommandLine.arguments.contains("--serve-iphone") {
+    do {
+        let base = try PhoneWindow.directory(home: fm.homeDirectoryForCurrentUser)
+        let server = PhoneServer(store: .keychain(base: base), resources: resources)
+        server.start()
+        withExtendedLifetime(server) { dispatchMain() }
+    } catch { exit(1) }
+} else if CommandLine.arguments.contains("--verify-install") {
     let scratch = fm.temporaryDirectory.appendingPathComponent("even-r1-ring-exporter-test-" + UUID().uuidString)
     func require(_ condition: Bool, _ failure: String) throws {
         if !condition {
@@ -395,6 +406,15 @@ if CommandLine.arguments.contains("--verify-install") {
     do {
         try fm.createDirectory(at: scratch, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? fm.removeItem(at: scratch) }
+        try verifyPhonePairing(base: scratch)
+        let example = PairingQR(v: 1, service: "Synthetic-Mac", secret: Data(repeating: 1, count: 32),
+                                code: Data(repeating: 2, count: 32))
+        let rendered = try PhoneWindow.qrImage(for: example)
+        let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])
+        let feature = detector?.features(in: CIImage(cgImage: rendered)).first as? CIQRCodeFeature
+        let decoded = try JSONDecoder().decode(PairingQR.self, from: Data((feature?.messageString ?? "").utf8))
+        try require(decoded.v == 1 && decoded.service == example.service && decoded.secret == example.secret && decoded.code == example.code,
+                    "The scanner could not recover the pairing code from the rendered QR image.")
         let testBridge = Bridge(resources: resources, home: scratch)
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
@@ -427,7 +447,7 @@ if CommandLine.arguments.contains("--verify-install") {
         try require(repaired.succeeded && testBridge.ready && testBridge.collect("status").succeeded,
                     "Runtime repair failed. \(repaired.message)")
         try require(try Data(contentsOf: existingArchive) == archiveBytes, "Runtime repair changed the existing archive.")
-        print("Verified first launch, installation, both tabs, status and repair of a damaged runtime in a temporary user folder.")
+        print("Verified one-time pairing, key rotation, access revocation, first launch, installation, both tabs, status and repair of a damaged runtime in a temporary user folder.")
     } catch { fputs("Package verification failed. \(error.localizedDescription)\n", stderr); exit(1) }
 } else {
     let app = NSApplication.shared

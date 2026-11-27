@@ -10,10 +10,12 @@
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
-  <key>CFBundleVersion</key><string>7</string>
+  <key>CFBundleVersion</key><string>8</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>NSHumanReadableCopyright</key><string>Even R1 Ring Exporter for Mac · 0.1.0-alpha.7</string>
+  <key>NSHumanReadableCopyright</key><string>Even R1 Ring Exporter for Mac · 0.1.0-alpha.8</string>
   <key>NSHighResolutionCapable</key><true/>
+  <key>NSBonjourServices</key><array><string>_sleepsync._tcp</string></array>
+  <key>NSLocalNetworkUsageDescription</key><string>Connect to your paired iPhone to send verified sleep stages to Apple Health.</string>
   <key>NSPrincipalClass</key><string>NSApplication</string>
 </dict>
 </plist>

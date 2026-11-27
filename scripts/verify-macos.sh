@@ -2,7 +2,7 @@
 # Verify the read-only disk image with synthetic data and a temporary user folder.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
-image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.7-arm64.dmg"}"
+image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.8-arm64.dmg"}"
 image_dir=$(cd "$(dirname "$image")" && pwd)
 image="$image_dir/$(basename "$image")"
 scratch=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-verify.XXXXXXXX")
@@ -34,6 +34,11 @@ runtime="$app/Contents/Resources/runtime"
 native="$runtime/Export.workflow/Contents/Resources"
 app_info="$app/Contents/Info.plist"
 collector_info="$native/$collector.app/Contents/Info.plist"
+agent_info="$app/Contents/Library/LaunchAgents/local.r1bridge.iphone.plist"
+cmp "$root/macos/companion/local.r1bridge.iphone.plist" "$agent_info"
+/usr/bin/plutil -lint "$agent_info"
+test "$(/usr/bin/plutil -extract CFBundleVersion raw -o - "$app_info")" = 8
+test "$(/usr/bin/plutil -extract NSBonjourServices.0 raw -o - "$app_info")" = "_sleepsync._tcp"
 test "$(/usr/bin/plutil -extract CFBundleDisplayName raw -o - "$app_info")" = "$product"
 test "$(/usr/bin/plutil -extract CFBundleExecutable raw -o - "$app_info")" = "$product"
 test "$(/usr/bin/plutil -extract CFBundleDisplayName raw -o - "$collector_info")" = "$collector"

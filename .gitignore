@@ -43,3 +43,7 @@ Rece?tion/
 health.url
 client.pid
 /site/dist/downloads/
+/ios/**/xcuserdata/
+/ios/DerivedData/
+*.xcarchive
+*.ipa

@@ -128,7 +128,7 @@ def atomic_file(target, content):
 
 
 RUNTIME_FILES = ("collection.py", "card_report.py", "archive_match.py",
-                 "mcp_server.py", "sleep_report.py", "tunnel.py", "legacy_upgrade.py",
+                 "mcp_server.py", "sleep_report.py", "sleep_feed.py", "tunnel.py", "legacy_upgrade.py",
                  "legacy_services.py", "r1.py")
 
 
