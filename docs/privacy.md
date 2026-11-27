@@ -2,11 +2,13 @@
 
 Your Mac can collect readings on its own. Connecting your personal ChatGPT account is optional.
 
-## R1 Ring Guide for G2 privacy policy
+<a name="r1-ring-guide-for-g2-privacy-policy"></a>
 
-**R1 Ring Guide for G2 (0.2.0)** displays setup instructions on your glasses. It requests no device permissions and does not read, store or send ring measurements. The guide has no account, analytics or backend.
+## G2 app privacy policy
 
-Choosing **Set up on Mac** on your phone opens the project’s setup website, hosted by GitHub Pages. The link contains only the public page address. If you install the separate Mac exporter and connect your own ChatGPT account, those tools handle readings as described below.
+The G2 app (version 0.2.0) shows where to open the Mac setup page. It requests no device permissions and does not read, store or send ring measurements. It has no account, analytics or backend.
+
+The setup page is hosted on GitHub Pages. Typing **is.gd/r1mac** on your Mac takes you there through the is.gd redirect service. The address is the same for everyone and contains no personal information. If you install the separate Mac exporter and connect your own ChatGPT account, those tools handle readings as described below.
 
 For privacy questions, contact the maintainer through [project issues](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/issues). Issues are public. Keep personal details and ring readings private.
 
