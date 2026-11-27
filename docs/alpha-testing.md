@@ -34,7 +34,7 @@ Help me test the optional Even R1 Ring Data for ChatGPT connection using https:/
 
 ## Check iPhone sleep sync
 
-With a pairing-enabled Mac build and Sleep Sync Companion on your iPhone, follow the [iPhone setup guide](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/). Record the outcome of each check without publishing sleep dates, values or screenshots.
+Use the public alpha 8 disk image for your Mac. With Sleep Sync Companion installed on your iPhone, follow the [iPhone setup guide](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/). Record the outcome of each check without publishing sleep dates, values or screenshots.
 
 - After allowing Sleep writes, check for **Up to date**. In Apple Health, open a stage entry for a known session and verify that its source is **Sleep Sync Companion**.
 - Tap **Sync Now** again and confirm that the same entry appears only once for that source.

@@ -4,8 +4,8 @@ The iPhone target runs on iOS 17 and later. The Mac exporter requires Apple sili
 
 ## Try it on your own devices
 
-1. Get the [current source from the main branch](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/tree/main). The tagged alpha 7 download is for Mac collection and the private ChatGPT connector. iPhone pairing starts with alpha 8.
-2. From the checkout, run `./scripts/build-macos.sh` and then `./scripts/verify-macos.sh`. Open the generated DMG in `dist/` and install **Even R1 Ring Exporter for Mac** in Applications.
+1. [Download the signed and notarized alpha 8 Mac disk image](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.8-arm64.dmg). Open it and drag **Even R1 Ring Exporter for Mac** into Applications.
+2. For the iPhone app, download and extract the [matching source ZIP](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/archive/refs/tags/v0.1.0-alpha.8.zip). If Sleep Sync Companion is already installed on your iPhone, go directly to the [pairing guide](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/#setup).
 3. Open `ios/SleepSync.xcodeproj` in Xcode and select the **SleepSync** target. Under **Signing & Capabilities**, select your development team with HealthKit support. When building with your own team, use a unique bundle identifier registered to that team and keep the HealthKit capability enabled.
 4. Choose your trusted iPhone as the run destination and click **Run**. Once the app is installed, follow the [iPhone pairing and Apple Health guide](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/). Routine sync uses the local network.
 

@@ -2,7 +2,7 @@
 
 Connect your Even R1 ring data to ChatGPT. Set it up once on your Mac, then ask about your ring’s sensor readings in chat.
 
-**[Set up on your Mac](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/)** · [Project website](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/)
+**[Download alpha 8 for Apple silicon (.dmg)](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/downloads/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.8-arm64.dmg)** · [Set up on your Mac](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/) · [Project website](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/)
 
 ## Sleep Sync Companion for iPhone
 
@@ -10,7 +10,7 @@ Sleep Sync Companion brings verified Even R1 sleep stages and naps into Apple He
 
 To use these sessions in ChatGPT Health, connect Apple Health on your iPhone and give ChatGPT permission to read **Sleep**. After the connection syncs, ask “Which sleep sessions came from Sleep Sync Companion?”
 
-Pairing requires the alpha 8 Mac build and a signed iPhone build. The public alpha 7 download supports the Mac collector and its ChatGPT connector. [iPhone setup, support and privacy](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/) · [Build and test the iPhone app](docs/companion/build.md) · [App Store materials and reviewer walkthrough](docs/companion/app-store.md)
+The signed, notarized alpha 8 Mac download includes **Pair iPhone**. Sleep Sync Companion is a separate iPhone app available to build and sign in Xcode. [iPhone setup, support and privacy](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/) · [Build and test the iPhone app](docs/companion/build.md) · [App Store materials and reviewer walkthrough](docs/companion/app-store.md)
 
 ## Technical documentation
 
