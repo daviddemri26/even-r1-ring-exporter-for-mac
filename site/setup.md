@@ -29,6 +29,6 @@ In the exporter, open **ChatGPT Connection → Connect Even R1 Ring to ChatGPT�
 
 In ChatGPT, choose **Even R1 Ring Data for ChatGPT** and ask “What are my latest ring readings?” Keep your Mac awake and online when you ask.
 
-Your Mac checks for new readings automatically throughout the day when it’s unlocked and idle. You don’t need to export or upload files.
+Your Mac checks for new readings automatically at 5:15 a.m., 8:15 a.m., 12:15 p.m., 6:15 p.m. and 11:15 p.m. local time. It retries every ten minutes for up to an hour while it waits for the Mac to be awake, unlocked and idle. To see the next check in your local time, open **Mac Collection** and select **Refresh**.
 
 Need help? Give Codex the error message. For manual setup or troubleshooting, see the [technical documentation on GitHub](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/README.md#technical-documentation).

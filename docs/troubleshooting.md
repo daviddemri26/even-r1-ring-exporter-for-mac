@@ -27,7 +27,7 @@ Help me trace one Even R1 wake date from iPhone to Mac. Ask me for the wake date
 Check scheduled collection in Even R1 Ring Exporter for Mac. Read the collection status on this Mac, including the last attempt, whether scheduling is enabled, and the next collection window if available. Explain any idle, unlock, or timing condition that fits the evidence. If collection is due and the session is unlocked, run one Test an Export, refresh the result and report whether it succeeded and whether any new sleep date appeared. Keep my existing schedule and tunnel settings unless I ask to change them.
 ```
 
-- Open **Mac Collection** and check **Schedule Collection**. The three one-hour windows begin at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time.
+- Open **Mac Collection** and choose **Refresh** to see the next scheduled check in local time. [Collection times by version](installation.md#turn-on-automatic-collection)
 - The Mac checks every ten minutes. Leave it awake and unlocked with two minutes of keyboard and mouse inactivity.
 - If the whole window was busy, the collector waits for the next one. Choose **Test an Export** to collect now.
 

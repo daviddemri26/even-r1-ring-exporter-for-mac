@@ -18,7 +18,7 @@ Help me test the public Even R1 Ring Exporter for Mac alpha on my own Mac. Follo
 Help me test scheduled exports in Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/test/. Check whether scheduling is already on. Enable it for this test if needed. Explain how to observe a check while I am working, then while the Mac is idle and unlocked. I will wear the ring for two consecutive nights and compare each wake date privately in Even. Use local status to distinguish new, unchanged, deferred and failed checks. Report pass, missing, different or pending without reading out health values. Mark future checks pending.
 ```
 
-- The schedule checks at **8:15 a.m., 12:15 p.m. and 6:15 p.m.** local time. Note whether an active session defers the export and whether the ZIP dialog closes after the idle export.
+- In **Mac Collection**, select **Refresh** and note the next scheduled check. Test whether an active session defers the export and whether the ZIP dialog closes after the idle export.
 - Wear the ring overnight and sync it to Even on your iPhone after waking. Repeat the next night. Confirm each night appears on the Mac after it appears on the phone.
 - A repeat export of the first night does not verify the second night.
 
