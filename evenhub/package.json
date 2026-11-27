@@ -1,12 +1,12 @@
 {
-  "name": "even-r1-ring-guide-for-g2-glasses",
+  "name": "r1-ring-data-to-chatgpt-for-g2",
   "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test src/guide.test.js",
     "build": "node build.mjs",
-    "pack": "npm run build && node ./node_modules/@evenrealities/evenhub-cli/main.js pack --sdk-ver 0.0.16 app.json dist -o Even-R1-Ring-Guide-for-G2-Glasses-$npm_package_version.ehpk"
+    "pack": "npm run build && node ./node_modules/@evenrealities/evenhub-cli/main.js pack --sdk-ver 0.0.16 app.json dist -o R1-Ring-Data-to-ChatGPT-for-G2-$npm_package_version.ehpk"
   },
   "dependencies": {
     "@evenrealities/even_hub_sdk": "0.0.16"

@@ -1,7 +1,7 @@
 {
   "package_id": "io.github.daviddemri26.r1bridgeguide",
   "edition": "202601",
-  "name": "R1 Ring Guide for G2",
+  "name": "R1 Ring Data→ChatGPT",
   "version": "0.2.0",
   "min_sdk_version": "0.0.16",
   "entrypoint": "index.html",

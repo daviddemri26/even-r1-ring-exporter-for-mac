@@ -1,12 +1,12 @@
 import { CreateStartUpPageContainer, TextContainerProperty, OsEventTypeList } from '@evenrealities/even_hub_sdk';
 
 const displayText = [
-  'R1 Ring Guide for G2',
+  'R1 Ring Data→ChatGPT',
   '',
-  'Connect your R1 ring data to ChatGPT.',
-  'Set it up once on your Mac. Then ask about your ring’s sensor readings right in the chat.',
+  'On your Mac, open is.gd/r1mac',
+  'Click “Copy setup prompt”.',
+  'Paste it into Codex and press Return.',
   '',
-  'Open the guide on your phone to get started.',
   'Double-tap for the exit menu.'
 ].join('\n');
 
