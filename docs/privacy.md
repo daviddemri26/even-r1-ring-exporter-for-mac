@@ -2,6 +2,14 @@
 
 Your Mac can collect readings on its own. Connecting your personal ChatGPT account is optional.
 
+## R1 Ring Guide for G2 privacy policy
+
+**R1 Ring Guide for G2 (0.2.0)** displays setup instructions on your glasses. It requests no device permissions and does not read, store or send ring measurements. The guide has no account, analytics or backend.
+
+Choosing **Set up on Mac** on your phone opens the project’s setup website, hosted by GitHub Pages. The link contains only the public page address. If you install the separate Mac exporter and connect your own ChatGPT account, those tools handle readings as described below.
+
+For privacy questions, contact the maintainer through [project issues](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/issues). Issues are public. Keep personal details and ring readings private.
+
 ## Check who can see your readings
 
 ```codex-prompt
@@ -11,7 +19,7 @@ Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https
 - **Even** uses its cloud backup to sync readings from the iPhone to the Mac in the tested setup. You control that setting in Even. [Even’s health data backup guide](https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup)
 - **Your Mac** uses Even’s export controls and stores health ZIPs, collection status and observed cards in `~/Library/Application Support/R1 Bridge/`. A backup that includes this folder also contains your exports.
 - **Your ChatGPT account** receives results when you use the private connector. Anyone you authorize to use it can query its four read-only tools. Keep it in your own workspace. Results become part of that conversation. The dedicated API key is stored in your Mac’s Keychain.
-- **The website and G2 glasses guide** provide instructions. The glasses display five bundled cards. Neither needs your readings.
+- **The website and G2 glasses guide** provide setup instructions. Both the earlier five-card guide (0.1.2) and the single-screen guide (0.2.0) work without access to your readings.
 
 ## Pause collection or ChatGPT access
 
