@@ -18,7 +18,7 @@ Build the public Even R1 Ring Exporter for Mac alpha 7 disk image. Download the 
   ./scripts/verify-macos.sh
 ```
 
-Find `Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.7-arm64.dmg` and its `.sha256` file in `dist/`. The build uses ad hoc signing. Verification checks the checksum, mounts the disk image read-only, checks signatures and architecture, and tests setup in a temporary user folder.
+The build writes the DMG and its `.sha256` file to `dist/`. The public alpha 7 source produces an alpha 7 disk image. This checkout produces alpha 8 with iPhone pairing. Local builds use ad hoc signing by default. For a Developer ID build and the iPhone release, see the [companion build guide](companion/build.md). Verification checks the checksum, mounts the disk image read-only, checks signatures and architecture, and tests setup in a temporary user folder.
 
 The Mac app, its collector and the website use the [original Even Hub ring icon](../site/dist/assets/even-r1-ring-icon.png). The Mac build generates the Finder icon from that PNG. To regenerate a web size, run the same renderer, for example `xcrun swift macos/app/icon.swift site/dist/assets/even-r1-ring-icon.png site/dist/assets/favicon-32.png 32`.
 

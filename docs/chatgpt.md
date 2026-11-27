@@ -2,6 +2,8 @@
 
 The Mac app can collect readings on its own. Add this optional, read-only connection if you want to ask about those readings in your personal ChatGPT web account. Your Mac must be awake and online when you ask. [Install and test the Mac app](installation.md)
 
+If you already import sleep with **Sleep Sync Companion**, you can also ask **ChatGPT Health** about those nights through Apple Health. This uses ChatGPT’s permission to read **Sleep** on your iPhone. The private connector described below queries the Mac’s sleep archive and its six health cards. [Ask about sleep in ChatGPT Health](ask-about-readings.md#which-ring-nights-can-chatgpt-health-see)
+
 ## Set up my private connection
 
 ```codex-prompt

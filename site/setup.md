@@ -1,5 +1,7 @@
 # Set up your R1 ring with ChatGPT
 
+To see your ring’s sleep stages in Apple Health, go to [Sync sleep to your iPhone](#apple-health). To ask ChatGPT about sleep and all six ring readings directly from your Mac, follow the setup below.
+
 On your Mac, open [ChatGPT for Mac](https://chatgpt.com/download), choose **Codex** and start a **local chat** in an empty folder. Keep the recommended model and default permissions. Copy the prompt below, paste it into Codex with **⌘V** and press **Return**.
 
 ```codex-prompt
@@ -32,3 +34,15 @@ In ChatGPT, choose **Even R1 Ring Data for ChatGPT** and ask “What are my late
 Your Mac checks for new readings automatically at 5:15 a.m., 8:15 a.m., 12:15 p.m., 6:15 p.m. and 11:15 p.m. local time. It retries every ten minutes for up to an hour while it waits for the Mac to be awake, unlocked and idle. To see the next check in your local time, open **Mac Collection** and select **Refresh**.
 
 Need help? Give Codex the error message. For manual setup or troubleshooting, see the [technical documentation on GitHub](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/README.md#technical-documentation).
+
+## Sync sleep to your iPhone {#apple-health}
+
+You need **Sleep Sync Companion** on an iPhone running iOS 17 or later and an exporter with **Pair iPhone** (Mac alpha 8 or later). The public alpha 7 Mac download supports the private connector. The iPhone app is currently available as a source build. [Companion availability and support]({{SITE_URL}}companion/)
+
+1. With a verified sleep export on your Mac, connect both devices to the same Wi-Fi. In the exporter, choose **Mac Collection → Pair iPhone**.
+2. On the iPhone, tap **Scan Mac Code** and scan the code. Allow Camera and Local Network access, then allow the companion to write **Sleep** in Apple Health. The first sync imports the verified nights and naps already on the Mac.
+3. When the companion shows **Up to date**, open **Sleep → Data Sources & Access** in Apple Health and look for **Sleep Sync Companion**.
+
+Future nights sync when you open the companion on the same network as your awake Mac. iOS also schedules background refresh. For a morning or Wi-Fi trigger, add the **Sync Sleep** action to a personal automation in Shortcuts.
+
+If you use **ChatGPT Health**, connect Apple Health on your iPhone and give ChatGPT permission to read **Sleep**. Once it syncs, ask “Which wake dates have sleep from Sleep Sync Companion in my Apple Health data?” This route works independently of the Mac’s private ChatGPT connector. [Connect Apple Health to ChatGPT](https://help.openai.com/en/articles/20001036-health-in-chatgpt)

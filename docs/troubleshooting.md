@@ -1,6 +1,6 @@
 # Find a missing reading or fix an export
 
-Start where you last saw the reading. For sleep, follow the date you woke up from Even on the iPhone to the Mac, then to your personal ChatGPT web chat.
+Start where you last saw the reading. For sleep, follow the date you woke up from Even on the iPhone to the Mac export. From there, check the iPhone companion if you use Apple Health, or the private connector if you query the Mac directly.
 
 ## The night is missing from Even on my iPhone
 
@@ -30,6 +30,17 @@ Check scheduled collection in Even R1 Ring Exporter for Mac. Read the collection
 - Open **Mac Collection** and choose **Refresh** to see the next scheduled check in local time. [Collection times by version](installation.md#turn-on-automatic-collection)
 - The Mac checks every ten minutes. Leave it awake and unlocked with two minutes of keyboard and mouse inactivity.
 - If the whole window was busy, the collector waits for the next one. Choose **Test an Export** to collect now.
+
+## A Mac export is missing from Apple Health
+
+- **Pair iPhone** is available in **Mac Collection** starting with alpha 8. If macOS requests background approval, enable the exporter in **Login Items & Extensions** and choose **Pair iPhone** again. Scan its single-use code within five minutes. [Companion setup and availability](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/)
+- **Waiting for Mac** means the phone will retry when it can reach the exporter. Wake the Mac, connect both devices to the same local network, and tap **Sync Now**. If the companion shows **Allow local access**, enable **Local Network** for it in iPhone Settings.
+- **Allow Sleep access** means the companion needs permission to write **Sleep**. In Apple Health, open your profile, select **Sleep Sync Companion** under **Apps and Services**, and check its write access. Then open the companion again.
+- **No nights yet** means the phone checked the Mac and found no verified sleep sessions. Check the wake date in the Mac export. For **Up to date**, look in Apple Health under **Sleep → Data Sources & Access** for **Sleep Sync Companion**. [Apple’s guide to Health data sources](https://support.apple.com/en-us/108779)
+
+## A night is in Apple Health but missing from ChatGPT Health
+
+In iPhone **Settings → Apps → Health → Data Access & Devices → ChatGPT**, check that ChatGPT can read **Sleep**. In the ChatGPT iPhone app, open **Health → ••• → Apple Health** to check sync status. Once it finishes, ask for the wake date and the **Sleep Sync Companion** source. If you use a custom GPT, verify that it can retrieve a source and date you can already see in ChatGPT Health. [OpenAI’s sync troubleshooting](https://help.openai.com/en/articles/20001036-health-in-chatgpt)
 
 ## I see a permission error or a ZIP Save window
 

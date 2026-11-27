@@ -23,6 +23,12 @@ Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https
 - **Your ChatGPT account** receives results when you use the private connector. Anyone you authorize to use it can query its four read-only tools. Keep it in your own workspace. Results become part of that conversation. The dedicated API key is stored in your Mac’s Keychain.
 - **The website and G2 glasses guide** provide setup instructions. Both the earlier five-card guide (0.1.2) and the single-screen guide (0.2.0) work without access to your readings.
 
+## Sharing sleep through Apple Health
+
+**Sleep Sync Companion** uses the camera to pair once. Your devices then transfer verified sleep stages directly over an encrypted local connection. The Mac keeps its original export files. The iPhone app requests permission to write **Sleep** and appears as its own source in Apple Health. [Companion privacy and controls](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/#privacy)
+
+Connecting **Apple Health** to **ChatGPT Health** is a separate choice. On your iPhone, you choose whether ChatGPT can read **Sleep**. That permission applies to the sleep category, which can include other apps and devices. In ChatGPT, **Health → Accounts** lets you manage or disconnect Apple Health. [Managing Health in ChatGPT](https://help.openai.com/en/articles/20001036-health-in-chatgpt)
+
 ## Pause collection or ChatGPT access
 
 ```codex-prompt
@@ -31,6 +37,7 @@ Help me pause Even R1 Ring Exporter for Mac. Ask which part I want to stop: sche
 
 - In **Mac Collection**, open **Show Collection Options** and choose **Stop Schedule** to pause automatic exports.
 - In **ChatGPT Connection**, open **Show Connection Options** and choose **Stop Tunnel** to pause remote queries. Your saved archives stay on the Mac.
+- To stop the paired phone from receiving sleep updates, choose **Mac Collection → Pair iPhone → Disconnect iPhone**. To manage entries already saved, use Apple Health’s data controls. [Manage Apple Health data](https://support.apple.com/en-us/108779)
 - From Terminal, run the command for the service you want to stop.
 
 ```sh
@@ -47,7 +54,7 @@ Help me pause Even R1 Ring Exporter for Mac. Ask which part I want to stop: sche
 Help me remove Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/privacy/. First explain which actions affect the app, collection, its ChatGPT connector and my saved exports. Ask what I want to keep. Stop only the relevant services. Get my confirmation before removing an app, credential, tunnel or archive. Guide me through any account or macOS actions I must take myself. Never display keys or health data. Summarize what was removed and what remains.
 ```
 
-1. Stop the schedule and tunnel you used. Quit **Even R1 Ring Exporter for Mac** and move it to the Trash.
+1. Disconnect any paired iPhone, then stop the schedule and tunnel you used. Quit **Even R1 Ring Exporter for Mac** and move it to the Trash.
 2. In **System Settings → Privacy & Security → Accessibility**, remove **Even R1 Ring Collector for Mac**.
 3. To revoke remote access, disconnect **Even R1 Ring Data for ChatGPT** in ChatGPT. Revoke the dedicated key and remove the tunnel association in your OpenAI Platform account. Its Keychain item is named **R1 Bridge - OpenAI Tunnel**.
 4. Keep any exports you want before deleting the `R1 Bridge` folder. Mac backups, Even cloud data and ChatGPT conversations have their own deletion controls.

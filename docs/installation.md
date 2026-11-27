@@ -64,3 +64,9 @@ Enable automatic local collection for Even R1 Ring Exporter for Mac using https:
 - Collection windows start at **5:15 a.m., 8:15 a.m., 12:15 p.m., 6:15 p.m. and 11:15 p.m.** local time. The late window ends at **12:15 a.m.** the following day.
 - Leave the Mac awake, signed in and unlocked. It checks every ten minutes for up to an hour and exports when you’ve been idle for two minutes. If the whole window is missed, it tries at the next one.
 - Ready to ask about your readings without attaching a file? The next guide connects the Mac to your own ChatGPT account. [Connect ChatGPT](chatgpt.md)
+
+## Optional iPhone sleep sync
+
+To import sleep into Apple Health, use **Sleep Sync Companion** on an iPhone running iOS 17 or later and a Mac exporter with **Mac Collection → Pair iPhone**. Pairing starts in alpha 8. The public alpha 7 installer linked above provides Mac collection and the private ChatGPT connector. The iPhone companion can be built from source. [Companion build guide](companion/build.md)
+
+Follow the one-time pairing steps on the [setup page](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/#apple-health). After pairing, the Mac keeps verified sleep sessions available until the iPhone reconnects. In the companion, **Last sync** shows when the phone last finished checking the Mac. **Latest night** shows the wake date of the most recent verified sleep session. [iPhone setup and support](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/)

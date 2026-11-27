@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafbf7">
+  <meta name="description" content="Pair your iPhone with your Mac, import Even R1 nights and naps into Apple Health, and check the source in ChatGPT Health.">
+  <title>Sleep Sync Companion · Setup, support and privacy</title>
+  <link rel="icon" type="image/png" href="./app-icon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../guides.css">
+</head>
+<body class="setup-page">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a href="#content" class="brand"><img src="./app-icon.png" alt="" width="36" height="36"><span>Sleep Sync Companion</span></a>
+      <nav aria-label="On this page"><a href="#support">Support</a><a href="#privacy">Privacy</a></nav>
+    </div>
+  </header>
+  <main id="content" class="setup-content">
+    <h1>Your ring’s sleep in Apple Health</h1>
+    <p>Pair your iPhone with your Mac once. Sleep Sync Companion imports verified Even R1 nights and naps into Apple Health and catches up over Wi-Fi when you’re home. You can also <a href="#chatgpt-health">ask ChatGPT Health about that sleep</a>.</p>
+    <section aria-labelledby="setup">
+      <h2 id="setup">Pair your devices</h2>
+      <p>Pairing requires Sleep Sync Companion on iOS 17 or later and Even R1 Ring Exporter for Mac alpha 8 or later on an Apple silicon Mac running macOS 14 or later. The public Mac download is alpha 7. To try the companion now, build the Mac and iPhone apps for testing. <a href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/blob/main/docs/companion/build.md">Build and install for testing</a></p>
+      <ol>
+        <li>Connect the iPhone and Mac to the same local network. In the Mac exporter, check that a sleep export has succeeded. <a href="../guides/install/">Mac collection setup</a></li>
+        <li>In <strong>Mac Collection</strong>, choose <strong>Pair iPhone</strong>. Allow the exporter to run in the background if macOS asks, then open the pairing code.</li>
+        <li>Open Sleep Sync Companion on your iPhone and tap <strong>Scan Mac Code</strong>. Point the camera at the Mac’s code and allow camera and local-network access when prompted.</li>
+        <li>Allow the app to write <strong>Sleep</strong> in Apple Health. The first import starts automatically. <strong>Up to date</strong> means the import has finished. If the Mac has no verified sessions yet, the app shows <strong>No nights yet</strong>.</li>
+      </ol>
+      <p>To check a night, open <strong>Sleep → Show All Data</strong> in Apple Health and select a stage entry. Look for <strong>Sleep Sync Companion</strong> as the source. The app writes Awake, REM, Core and Deep. Core corresponds to Even’s light sleep.</p>
+      <h3>Automatic updates</h3>
+      <p>The app checks when you open it and when iOS gives it background time. Keep the Mac awake and signed in. To also check when you arrive home, create a Wi-Fi automation in Shortcuts, choose your home network and add <strong>Sync Sleep</strong>. Choose <strong>Run Immediately</strong> if offered. A morning alarm or time-of-day automation can check while you’re already home. <a href="https://support.apple.com/guide/shortcuts/setting-triggers-apde31e9638b/ios">Apple’s Shortcuts guide</a></p>
+    </section>
+    <section aria-labelledby="chatgpt-health">
+      <h2 id="chatgpt-health">Check your sleep in ChatGPT Health</h2>
+      <p>If Health is available in your ChatGPT account, you can choose to share the sleep saved on your iPhone. This works independently of the Mac exporter’s private ChatGPT connector.</p>
+      <ol>
+        <li>On your iPhone, open <strong>Health</strong> in ChatGPT. Under <strong>Accounts</strong>, add <strong>Apple Health</strong> and allow ChatGPT to read <strong>Sleep</strong>. If Apple Health is already connected, check its Sleep permission in the iPhone’s <strong>Settings → Apps → Health → Data Access &amp; Devices → ChatGPT</strong>.</li>
+        <li>In ChatGPT Health, open <strong>••• → Apple Health</strong> to check sync status. A large history can take a few minutes or longer.</li>
+        <li>Ask “Which wake dates have sleep stages from Sleep Sync Companion in my Apple Health data?” Compare the answer with <strong>Latest night</strong> on your iPhone. Naming the source keeps Apple Watch or other sleep trackers out of the comparison.</li>
+      </ol>
+      <p><a href="https://help.openai.com/en/articles/20001036-health-in-chatgpt">OpenAI’s guide to Health in ChatGPT</a></p>
+    </section>
+    <section aria-labelledby="support">
+      <h2 id="support">Support</h2>
+      <ul>
+        <li><strong>Waiting for Mac.</strong> Wake the Mac and check that both devices can reach each other on your network. A guest network can isolate devices. In the exporter, open <strong>Pair iPhone</strong> to check the service. If macOS has blocked local access, open <strong>System Settings → Privacy &amp; Security → Local Network</strong> and enable the exporter. Tap <strong>Sync Now</strong> on your iPhone.</li>
+        <li><strong>Pairing code expired.</strong> Choose <strong>Pair iPhone</strong> again. Each code is single-use and expires after five minutes.</li>
+        <li><strong>Permission needed.</strong> Open the iPhone’s settings for Sleep Sync Companion to enable Camera or Local Network. For Sleep, open Health, tap your profile and select the app under Apps and Services. Allow it to write Sleep.</li>
+        <li><strong>A night is missing.</strong> Check the wake date in Even and verify a fresh export on the Mac. A skipped item means the Mac could not verify an archive reference or a consistent stage timeline. A later corrected export can be picked up on the next sync.</li>
+        <li><strong>Mac index rebuilt.</strong> If your iPhone’s saved position is ahead of a restored Mac index, the app automatically rescans the available history. Existing entries keep their sync identifiers so another pass can safely check them.</li>
+      </ul>
+      <p>To reach the maintainer, open a project issue with your operating-system versions, the build number and the message shown on screen. Issues are public. Keep pairing codes, archives and personal health details on your devices. <a href="https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/issues">Contact project support</a></p>
+    </section>
+    <section aria-labelledby="privacy">
+      <h2 id="privacy">Privacy policy</h2>
+      <p>Sleep Sync Companion is an independent app for transferring sleep between your own devices. The developer collects no app data. The app has no account, advertising, analytics or developer-operated server.</p>
+      <h3>What each device keeps</h3>
+      <ul>
+        <li><strong>On your Mac.</strong> The exporter retains the original ZIPs. The companion verifies the exports and stores a private local index of sleep stages and revisions. The index is in <code>~/Library/Application Support/R1 Sleep Companion/</code>.</li>
+        <li><strong>Between devices.</strong> Local-network discovery finds the Mac. Pairing authenticates an encrypted connection. The Mac sends sleep stages, times, session identifiers, revisions and sync progress directly to the paired iPhone. The camera reads the code on-device without saving a photo.</li>
+        <li><strong>On your iPhone.</strong> The app writes verified stages to Apple Health with permission to write Sleep only. Each device saves its pairing credentials in Keychain. The iPhone also saves its sync position, the Mac’s name, last sync time, latest wake date and skipped-item count. The in-app preview uses invented data and keeps it out of Apple Health.</li>
+      </ul>
+      <h3>Your controls</h3>
+      <p>To revoke pairing on the Mac, choose <strong>Pair iPhone → Disconnect iPhone</strong>. On the iPhone, open <strong>Connection and help → Disconnect Mac</strong>. If the Mac is unavailable, choose <strong>Forget on This iPhone</strong> and revoke pairing on the Mac when available.</p>
+      <p>To stop Health writes, turn off Sleep permission for the app in Health. You can remove entries the companion has already written from Health’s data-source controls. To erase the companion’s Mac index, disconnect the iPhone first and then remove the companion folder described above. Original exports are managed separately. <a href="https://support.apple.com/en-us/108779">Manage your data in Health</a></p>
+      <p>Your Apple Health iCloud settings and Mac backup choices govern copies made by Apple services and your backup software. Even’s own backup settings govern how Even gets ring data to your Mac. If you connect Apple Health to ChatGPT Health, ChatGPT can sync the categories you choose to share. Manage that connection in <strong>ChatGPT → Health → Accounts</strong>. <a href="https://openai.com/policies/health-privacy-policy/">OpenAI’s Health Privacy Notice</a></p>
+      <p>The Mac exporter also offers an optional private ChatGPT connection. Visiting this support page or contacting the project opens GitHub services under their privacy policy. <a href="../guides/privacy/">Mac exporter privacy</a> · <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy</a></p>
+    </section>
+  </main>
+</body>
+</html>

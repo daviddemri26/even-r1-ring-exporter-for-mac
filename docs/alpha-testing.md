@@ -32,4 +32,12 @@ Help me test the optional Even R1 Ring Data for ChatGPT connection using https:/
 - Keep results in your private chat. In a public report, include the failing step and a redacted error. Leave out ZIPs, exact readings, keys, tunnel identifiers and screenshots of readings.
 - Check that the schedule and tunnel can stop independently. Preserve any service you already used before testing. [Pausing or removing the app](privacy.md)
 
-The alpha still needs feedback on second-device setup, Python installation and first launch. Developer ID signing and notarization are separate release work. Physical G2 gesture tests and listing images are also pending. [Optional glasses tests](../evenhub/README.md)
+## Check iPhone sleep sync
+
+With a pairing-enabled Mac build and Sleep Sync Companion on your iPhone, follow the [iPhone setup guide](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/). Record the outcome of each check without publishing sleep dates, values or screenshots.
+
+- After allowing Sleep writes, check for **Up to date**. In Apple Health, open a stage entry for a known session and verify that its source is **Sleep Sync Companion**.
+- Tap **Sync Now** again and confirm that the same entry appears only once for that source.
+- If you also use ChatGPT Health, allow ChatGPT to read Sleep, then ask which sleep source it sees for that session. Record this result separately from the Apple Health import.
+
+For repeatable test nights and naps, see the [synthetic device walkthrough](companion/app-store.md#physical-device-test-and-review-video). The public Mac alpha still needs independent feedback on installation and automatic collection over two nights. [Optional glasses tests](../evenhub/README.md)

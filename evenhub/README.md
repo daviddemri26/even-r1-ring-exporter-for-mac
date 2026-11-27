@@ -2,6 +2,8 @@
 
 This optional companion puts five English instruction cards on Even G2 glasses. You can install the Mac exporter and query your ring without the glasses guide. [Install the Mac app](../docs/installation.md)
 
+The cards cover the Mac’s direct ChatGPT connector. To see your ring’s sleep in Apple Health, pair **Sleep Sync Companion** on your iPhone with the Mac exporter. If you also connect Apple Health to ChatGPT Health, you can ask for sleep records from that app by name. [iPhone setup and availability](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/companion/)
+
 ## Get the glasses guide
 
 ```codex-prompt

@@ -1,6 +1,12 @@
 # Ask ChatGPT about your ring readings
 
-Keep your Mac awake and online. Open **Even R1 Ring Data for ChatGPT → Try in chat** in your personal ChatGPT web workspace. You can paste the prompts below into Codex on your Mac for help, or type the short questions directly in that web chat. [Connect your Mac to ChatGPT](chatgpt.md)
+For the private Mac connector, keep your Mac awake and online. Open **Even R1 Ring Data for ChatGPT → Try in chat** in your personal ChatGPT web workspace. You can paste the connector prompts below into Codex on your Mac for help, or type the short questions directly in that web chat. [Connect your Mac to ChatGPT](chatgpt.md)
+
+## Which ring nights can ChatGPT Health see?
+
+After the iPhone companion shows **Up to date**, open **Health** in the ChatGPT iPhone app. If Health is available for your account, connect **Apple Health**, allow ChatGPT to read **Sleep**, and let it sync. You can check progress in **Health → ••• → Apple Health**. [OpenAI’s Health guide](https://help.openai.com/en/articles/20001036-health-in-chatgpt)
+
+Ask “Which wake dates have sleep from Sleep Sync Companion in my Apple Health data? Show nights and naps separately where possible.” Naming the source helps identify your ring’s records if an Apple Watch or another app also contributes sleep. For a particular night, ask for time in **Awake, Core, Deep and REM**. Apple Health uses **Core** for the ring’s light sleep. [Pair the iPhone companion](https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/#apple-health)
 
 ## How much did I sleep each night?
 
