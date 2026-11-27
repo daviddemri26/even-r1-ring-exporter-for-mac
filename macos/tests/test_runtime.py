@@ -11,12 +11,16 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import zlib
 from contextlib import closing
+from unittest.mock import patch
 
 RUNTIME = Path(__file__).resolve().parents[1] / "runtime"
 sys.path.insert(0, str(RUNTIME))
 import collection
 import card_report
+import mcp_server
+import tunnel
 
 
 def export_fixture(base, *, include_sleep):
@@ -65,6 +69,68 @@ class RuntimeTest(unittest.TestCase):
 
         code, detail = collection.run(self.base, "launchd", exporter)
         self.assertEqual(code, 0, detail)
+
+    def test_stdio_recovers_at_next_message_after_invalid_input(self):
+        ping = b'{"jsonrpc":"2.0","method":"ping","id":4}\n'
+        invalid = [b'not-json\n', b'\xff\n', b'[' * 2000 + b']' * 2000 + b'\n',
+                   b' ' * (2 * mcp_server.MAX_REQUEST_BYTES) + ping]
+        proc = subprocess.run([sys.executable, "-B", str(RUNTIME / "mcp_server.py"), "--stdio"],
+                              env={**os.environ, "HOME": str(self.home)}, input=b"".join(invalid) + ping,
+                              capture_output=True, check=True, timeout=10)
+        responses = [json.loads(line) for line in proc.stdout.splitlines()]
+        self.assertEqual(len(responses), len(invalid) + 1)
+        self.assertTrue(all(response["id"] is None and "error" in response
+                            for response in responses[:-1]))
+        self.assertEqual(responses[-1], {"jsonrpc": "2.0", "id": 4, "result": {}})
+
+    def test_tunnel_preparation_only_replaces_validated_files(self):
+        folder = self.base / "tunnel"
+        profile = folder / "even-r1.yaml"
+        tool = self.base / "bin/tunnel-client"
+        runner = self.base / "tunnel.py"
+        folder.mkdir(parents=True)
+        tool.parent.mkdir()
+        runner.touch()
+        (self.base / "mcp_server.py").touch()
+        tool.write_bytes(b"existing client")
+        original = b'  tunnel_id: "tunnel_original"\n'
+        profile.write_bytes(original)
+        client = self.home / "new-client"
+        client.write_bytes(b"new client")
+        client.chmod(0o700)
+
+        def init(argv, **kwargs):
+            stage = Path(argv[argv.index("--profile-dir") + 1])
+            if generated is not None:
+                (stage / profile.name).write_bytes(generated)
+
+        with patch.multiple(tunnel, BASE=self.base, TUNNEL=folder, PROFILE=profile,
+                            TOOL=tool, RUNNER=runner), patch.object(tunnel, "launch", return_value=1), \
+                patch.object(subprocess, "run", side_effect=init):
+            for generated in (None, b"invalid profile", b'  tunnel_id: "tunnel_different"\n'):
+                with self.subTest(profile=generated):
+                    with self.assertRaises(tunnel.SetupError):
+                        tunnel.prepare("tunnel_requested", client)
+                    self.assertEqual(tool.read_bytes(), b"existing client")
+                    self.assertEqual(profile.read_bytes(), original)
+
+            generated = b'  tunnel_id: "tunnel_requested"\n'
+            replace = os.replace
+
+            def fail_client_install(source, destination):
+                if destination == tool:
+                    raise OSError("simulated client install failure")
+                replace(source, destination)
+
+            with patch.object(os, "replace", side_effect=fail_client_install), self.assertRaises(OSError):
+                tunnel.prepare("tunnel_requested", client)
+            self.assertEqual(tool.read_bytes(), b"existing client")
+            self.assertEqual(profile.read_bytes(), original)
+            with patch("builtins.print"):
+                tunnel.prepare("tunnel_requested", client)
+            self.assertEqual(tool.read_bytes(), b"new client")
+            self.assertEqual(profile.read_bytes(), generated)
+            self.assertEqual(profile.stat().st_mode & 0o777, 0o600)
 
     @unittest.skipUnless(sys.platform == "darwin", "the installer swaps whole workflows using the macOS filesystem API")
     def test_named_exporter_upgrade_keeps_alpha3_data_and_tunnel(self):
@@ -121,6 +187,25 @@ class RuntimeTest(unittest.TestCase):
         self.assertEqual(self.call("sleep_stages", self.dates),
                          [{"wake_date": "2001-03-04", "awake_minutes": 10,
                            "rem_minutes": 15, "light_minutes": 30, "deep_minutes": 5}])
+
+    def test_sleep_reader_rejects_duplicate_headers_and_unlabelled_values(self):
+        header = "start_ts,end_ts,total_time,wake_time,rem_time,light_time,deep_time"
+        row = "2001-03-04T00:00:00Z,2001-03-04T01:00:00Z,3000,600,900,1800,300"
+        for columns in (header + ",total_time", header):
+            with self.subTest(columns=columns):
+                stream = io.BytesIO()
+                with zipfile.ZipFile(stream, "w") as archive:
+                    archive.writestr("sleep.csv", columns + "\n" + row + ",3000\n")
+                stream.seek(0)
+                with self.assertRaises(mcp_server.DataError):
+                    mcp_server.read_sessions(stream, detailed=False)
+
+    def test_unreadable_compressed_archive_returns_a_tool_error(self):
+        request = {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                   "params": {"name": "sleep_durations", "arguments": self.dates}}
+        with patch.object(mcp_server, "verified_stream", side_effect=zlib.error()):
+            response = mcp_server.rpc(request, self.base)
+        self.assertTrue(response["result"]["isError"])
 
     def test_empty_first_export(self):
         self.collect(False)

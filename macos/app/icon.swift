@@ -1,17 +1,22 @@
 import AppKit
 import Foundation
 
-let sizes = [(16,1),(16,2),(32,1),(32,2),(128,1),(128,2),(256,1),(256,2),(512,1),(512,2)]
-guard CommandLine.arguments.count == 2 else { exit(1) }
-let destination = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
-for (points, scale) in sizes {
+private func fail(_ message: String) -> Never {
+    fputs("\(message)\n", stderr)
+    exit(1)
+}
+
+private func writeIcon(points: Int, scale: Int, to destination: URL) throws {
     let pixels = points * scale
     let side = CGFloat(pixels)
-    let canvas = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels,
-                                  bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
-                                  colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+    guard let canvas = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels,
+                                        bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                        colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0),
+          let context = NSGraphicsContext(bitmapImageRep: canvas) else {
+        fail("Could not create the \(pixels)-pixel icon canvas.")
+    }
     NSGraphicsContext.saveGraphicsState()
-    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: canvas)
+    NSGraphicsContext.current = context
     let transform = NSAffineTransform()
     transform.scale(by: side / 512)
     transform.concat()
@@ -34,5 +39,16 @@ for (points, scale) in sizes {
     NSGraphicsContext.restoreGraphicsState()
     let suffix = scale == 2 ? "@2x" : ""
     let url = destination.appendingPathComponent("icon_\(points)x\(points)\(suffix).png")
-    try canvas.representation(using: .png, properties: [:])!.write(to: url)
+    guard let png = canvas.representation(using: .png, properties: [:]) else {
+        fail("Could not encode \(url.lastPathComponent).")
+    }
+    try png.write(to: url)
+}
+
+guard CommandLine.arguments.count == 2 else { fail("Usage: icon.swift OUTPUT.iconset") }
+let destination = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
+for points in [16, 32, 128, 256, 512] {
+    for scale in 1...2 {
+        try writeIcon(points: points, scale: scale, to: destination)
+    }
 }

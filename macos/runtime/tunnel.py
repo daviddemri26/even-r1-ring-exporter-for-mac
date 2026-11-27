@@ -139,12 +139,14 @@ def store_keychain_key(key, *, keychain=None):
         raise SetupError("The stored Keychain value did not match the supplied key.")
 
 
-def configured_tunnel():
+def configured_tunnel(profile=None):
     """Read the one literal tunnel ID from the profile emitted by the official client."""
     try:
-        yaml = PROFILE.read_text(encoding="utf-8")
+        yaml = (profile or PROFILE).read_text(encoding="utf-8")
     except FileNotFoundError:
-        raise SetupError("Prepare your OpenAI tunnel first.")
+        raise SetupError("The tunnel profile is missing. Prepare the tunnel again.")
+    except UnicodeDecodeError:
+        raise SetupError("Could not read the tunnel profile. Prepare the tunnel again.")
     ids = re.findall(r'^  tunnel_id: "(' + TUNNEL_ID_PATTERN + r')"\s*$', yaml, re.MULTILINE)
     if len(ids) != 1:
         raise SetupError("Could not read the tunnel profile. Prepare the tunnel again.")
@@ -231,9 +233,25 @@ def prepare(tunnel_id, client):
                         "--tunnel-id", tunnel_id, "--mcp-command", cmd,
                         "--health-listen-addr", "127.0.0.1:0"],
                        env=clean_env(), check=True, stdout=subprocess.DEVNULL, timeout=30)
-        os.replace(staged_client, TOOL)
-        put(PROFILE, (Path(stage) / PROFILE.name).read_bytes())
-    put(TUNNEL / "Store Key.command", KEYCHAIN_ENTRY.encode("utf-8"), mode=0o700)
+        staged_profile = Path(stage) / PROFILE.name
+        if configured_tunnel(staged_profile) != tunnel_id:
+            raise SetupError("The generated profile does not match the requested tunnel ID.")
+        staged_profile.chmod(0o600)
+        put(TUNNEL / "Store Key.command", KEYCHAIN_ENTRY.encode("utf-8"), mode=0o700)
+
+        # Keep the existing profile available for rollback until both files are installed.
+        previous_profile = Path(stage) / "previous.yaml"
+        if PROFILE.exists():
+            os.link(PROFILE, previous_profile)
+        os.replace(staged_profile, PROFILE)
+        try:
+            os.replace(staged_client, TOOL)
+        except OSError:
+            if previous_profile.exists():
+                os.replace(previous_profile, PROFILE)
+            else:
+                PROFILE.unlink()
+            raise
     print("The OpenAI tunnel profile is ready.")
 
 
@@ -259,6 +277,31 @@ def agent_config(file=None):
     })
 
 
+def load_agent():
+    if launch("enable", SERVICE):
+        raise SetupError("Could not enable the LaunchAgent in this session.")
+    # bootout may return before launchd releases the service name.
+    for attempt in range(12):
+        if launch("bootstrap", DOMAIN, str(PLIST)) == 0:
+            break
+        if attempt < 11:
+            time.sleep(0.5)
+    else:
+        raise SetupError("Could not load the tunnel in this session.")
+    if launch("print", SERVICE):
+        raise SetupError("Could not activate the tunnel in this session.")
+
+
+def restore_agent(previous):
+    if not PLIST.is_file() or PLIST.read_bytes() != previous:
+        put(PLIST, previous)
+        # A timed-out bootstrap may have loaded the replacement after all.
+        if launch("print", SERVICE) == 0 and launch("bootout", SERVICE):
+            raise SetupError("Could not unload the replacement LaunchAgent.")
+    if launch("print", SERVICE):
+        load_agent()
+
+
 def activate(file=None):
     if not PROFILE.is_file() or not RUNNER.is_file():
         raise SetupError("Prepare the tunnel profile first.")
@@ -269,28 +312,28 @@ def activate(file=None):
     config = agent_config(file)
     PLIST.parent.mkdir(parents=True, exist_ok=True)
     loaded = launch("print", SERVICE) == 0
-    same = PLIST.is_file() and PLIST.read_bytes() == config
-    if loaded and same:
+    previous = PLIST.read_bytes() if PLIST.is_file() else None
+    if loaded and previous == config:
         # Reload the key while keeping the existing launchd definition.
-        if launch("kickstart", "-k", SERVICE):
+        if launch("kickstart", "-k", SERVICE) or launch("print", SERVICE):
             raise SetupError("Could not restart the tunnel LaunchAgent.")
     else:
-        if loaded and launch("bootout", SERVICE):
-            raise SetupError("Could not replace the tunnel LaunchAgent.")
-        if not same:
-            put(PLIST, config)
-        if launch("enable", SERVICE):
-            raise SetupError("Could not enable the LaunchAgent in this session.")
-        # bootout may return before launchd releases the service name.
-        for attempt in range(12):
-            if launch("bootstrap", DOMAIN, str(PLIST)) == 0:
-                break
-            if attempt < 11:
-                time.sleep(0.5)
-        else:
-            raise SetupError("Could not load the tunnel in this session.")
-    if launch("print", SERVICE):
-        raise SetupError("Could not activate the tunnel in this session.")
+        if loaded and previous is None:
+            raise SetupError("The running tunnel has no saved LaunchAgent definition. Stop it before changing its configuration.")
+        try:
+            if loaded and launch("bootout", SERVICE):
+                raise SetupError("Could not replace the tunnel LaunchAgent.")
+            if previous != config:
+                put(PLIST, config)
+            load_agent()
+        except (OSError, subprocess.SubprocessError, SetupError) as error:
+            if not loaded:
+                raise
+            try:
+                restore_agent(previous)
+            except (OSError, subprocess.SubprocessError, SetupError) as restore_error:
+                raise SetupError("Could not change the tunnel or restore its service. Run tunnel setup again.") from restore_error
+            raise SetupError("Could not change the tunnel configuration. The previous LaunchAgent is loaded.") from error
     print("Tunnel LaunchAgent enabled. Run status to check the first exchange with OpenAI.")
 
 

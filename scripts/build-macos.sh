@@ -18,7 +18,13 @@ flow='Export.workflow/Contents'
 helper='Even R1 Ring Collector for Mac.app'
 target=arm64-apple-macos14.0
 sdk=$(/usr/bin/xcrun --sdk macosx --show-sdk-path)
-flags=(-O -sdk "$sdk" -target "$target" -file-prefix-map "$root=EvenR1RingExporterForMac" -debug-prefix-map "$root=EvenR1RingExporterForMac" -file-prefix-map "$build=build" -debug-prefix-map "$build=build")
+flags=(
+    -O -sdk "$sdk" -target "$target"
+    -file-prefix-map "$root=EvenR1RingExporterForMac"
+    -debug-prefix-map "$root=EvenR1RingExporterForMac"
+    -file-prefix-map "$build=build"
+    -debug-prefix-map "$build=build"
+)
 mkdir -p "$app/Contents/MacOS" "$runtime/$flow/Resources/$helper/Contents/MacOS" "$build/AppIcon.iconset"
 cp "$root/macos/app/Info.plist" "$app/Contents/Info.plist"
 install -m 755 "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$resources/Connect Even R1 Ring to ChatGPT.command"
@@ -39,7 +45,13 @@ cd "$root"
 /usr/bin/iconutil -c icns "$build/AppIcon.iconset" -o "$resources/AppIcon.icns"
 /usr/bin/codesign --force --sign - --timestamp=none "$native/even_cards"
 /usr/bin/codesign --force --sign - --timestamp=none "$native/$helper"
-(cd "$runtime"; LC_ALL=C /usr/bin/find . -type f | LC_ALL=C /usr/bin/sort | while IFS= read -r file; do /usr/bin/shasum -a 256 "$file"; done) | /usr/bin/shasum -a 256 | /usr/bin/cut -d ' ' -f 1 > "$resources/runtime.sha256"
+(
+    cd "$runtime"
+    export LC_ALL=C
+    /usr/bin/find . -type f | /usr/bin/sort | while IFS= read -r file; do
+        /usr/bin/shasum -a 256 "$file"
+    done
+) | /usr/bin/shasum -a 256 | /usr/bin/cut -d ' ' -f 1 > "$resources/runtime.sha256"
 /usr/bin/codesign --force --sign - --timestamp=none "$app"
 /usr/bin/codesign --verify --deep --strict "$app"
 /usr/bin/codesign --verify --strict "$native/$helper"

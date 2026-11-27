@@ -5,14 +5,25 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 image="${1:-"$root/dist/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg"}"
 image_dir=$(cd "$(dirname "$image")" && pwd)
 image="$image_dir/$(basename "$image")"
-mount_dir=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-mount.XXXXXXXX")
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-verify.XXXXXXXX")
+mount_dir="$scratch/mount"
+mkdir "$mount_dir"
 mounted=0
 cleanup() {
-    if [ "$mounted" -eq 1 ]; then /usr/bin/hdiutil detach -quiet "$mount_dir"; fi
-    rmdir "$mount_dir"
+    if [ "$mounted" -eq 1 ]; then
+        /usr/bin/hdiutil detach -quiet "$mount_dir" || return 1
+    fi
+    rm -rf "$scratch"
 }
 trap cleanup EXIT
-(cd "$image_dir"; /usr/bin/shasum -a 256 -c "$(basename "$image").sha256")
+# Check the selected image even when the sidecar was copied from another release.
+read -r expected_digest _ < "$image.sha256"
+actual_digest=$(/usr/bin/shasum -a 256 < "$image")
+if [[ ! "$expected_digest" =~ ^[[:xdigit:]]{64}$ ]] ||
+    [[ "$(echo "$expected_digest" | /usr/bin/tr A-F a-f)" != "${actual_digest%% *}" ]]; then
+    echo "SHA-256 mismatch for $(basename "$image")." >&2
+    exit 1
+fi
 /usr/bin/hdiutil verify -quiet "$image"
 /usr/bin/hdiutil attach -quiet -readonly -nobrowse -mountpoint "$mount_dir" "$image"
 mounted=1
@@ -28,7 +39,16 @@ test "$(/usr/bin/plutil -extract CFBundleExecutable raw -o - "$app_info")" = "$p
 test "$(/usr/bin/plutil -extract CFBundleDisplayName raw -o - "$collector_info")" = "$collector"
 test "$(/usr/bin/plutil -extract CFBundleIdentifier raw -o - "$app_info")" = "local.r1bridge.app"
 test "$(/usr/bin/plutil -extract CFBundleIdentifier raw -o - "$collector_info")" = "local.r1bridge.exporter"
+icon_name=$(/usr/bin/plutil -extract CFBundleIconFile raw -o - "$app_info")
+/usr/bin/iconutil -c iconset "$app/Contents/Resources/${icon_name%.icns}.icns" -o "$scratch/AppIcon.iconset"
+for points in 16 32 128 256 512; do
+    test -s "$scratch/AppIcon.iconset/icon_${points}x${points}.png"
+    test -s "$scratch/AppIcon.iconset/icon_${points}x${points}@2x.png"
+done
 for script in "$root/macos/runtime/"*.py; do cmp "$script" "$runtime/${script##*/}"; done
+workflow='Export.workflow/Contents'
+cmp "$root/macos/runtime/$workflow/document.wflow" "$runtime/$workflow/document.wflow"
+cmp "$root/macos/runtime/$workflow/Resources/import_export.py" "$native/import_export.py"
 cmp "$root/integration/Connect Even R1 Ring to ChatGPT.command" "$mount_dir/Connect Even R1 Ring to ChatGPT.command"
 /usr/bin/codesign --verify --strict --deep "$app"
 /usr/bin/codesign --verify --strict "$native/Even R1 Ring Collector for Mac.app"
