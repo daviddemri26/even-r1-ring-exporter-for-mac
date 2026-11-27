@@ -21,7 +21,7 @@ Set up Even R1 Ring Exporter for Mac and connect it to my personal ChatGPT web a
 You need your Even R1 ring, your iPhone and an Apple silicon Mac running macOS 14 or later. Codex helps install two apps on your Mac.
 
 - **Even Realities** syncs your ring readings. In the [Mac App Store](https://apps.apple.com/us/app/even-realities/id6747017725), get the **Designed for iPhone** version. Sign in with the same Even account you use on your iPhone.
-- **Even R1 Ring Exporter for Mac** collects those readings automatically. The [Mac download (.dmg)]({{DMG_URL}}) contains this app.
+- **Even R1 Ring Exporter for Mac** collects those readings automatically. [Download Mac alpha 8 (.dmg)]({{DMG_URL}}), open the disk image and drag the app into **Applications**. Open it from there and choose **Set Up This Mac**. The release uses Developer ID signing and Apple notarization.
 
 ## Connect {#connect}
 
@@ -37,7 +37,7 @@ Need help? Give Codex the error message. For manual setup or troubleshooting, se
 
 ## Sync sleep to your iPhone {#apple-health}
 
-You need **Sleep Sync Companion** on an iPhone running iOS 17 or later and an exporter with **Pair iPhone** (Mac alpha 8 or later). The public alpha 7 Mac download supports the private connector. The iPhone app is currently available as a source build. [Companion availability and support]({{SITE_URL}}companion/)
+The [Mac alpha 8 download]({{DMG_URL}}) includes **Pair iPhone**. Install **Sleep Sync Companion** separately on an iPhone running iOS 17 or later. The iPhone app is currently available as a source build. [iPhone installation and support]({{SITE_URL}}companion/)
 
 1. With a verified sleep export on your Mac, connect both devices to the same Wi-Fi. In the exporter, choose **Mac Collection → Pair iPhone**.
 2. On the iPhone, tap **Scan Mac Code** and scan the code. Allow Camera and Local Network access, then allow the companion to write **Sleep** in Apple Health. The first sync imports the verified nights and naps already on the Mac.
