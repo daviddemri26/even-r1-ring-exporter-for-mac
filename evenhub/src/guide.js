@@ -1,16 +1,29 @@
-export const cards = [
-  { title: 'Wear your ring', body: 'Wear the R1 while you sleep. When you wake up, open Health in the Even app on your iPhone.' },
-  { title: 'Find a night', body: 'Find the date you woke up on your iPhone. Look for the same date in Even on your Mac, signed in to the same account.' },
-  { title: 'Collect on your Mac', body: 'Leave the Mac unlocked during a scheduled collection window. Check the last export in Even R1 Ring Exporter for Mac.' },
-  { title: 'Ask ChatGPT', body: 'Select Even R1 Ring Data for ChatGPT and ask “How much did I sleep each night over the last seven days?”' },
-  { title: 'Check a missing night', body: 'A missing date means Even supplied no sleep session for that date. Compare the wake-up date with Health on your iPhone.' }
-];
+import { CreateStartUpPageContainer, TextContainerProperty, OsEventTypeList } from '@evenrealities/even_hub_sdk';
 
-export function step(index, delta) {
-  return (index + delta + cards.length) % cards.length;
-}
+const displayText = [
+  'R1 Ring Guide for G2',
+  '',
+  'Connect your R1 ring data to ChatGPT.',
+  'Set it up once on your Mac. Then ask about your ring’s sensor readings right in the chat.',
+  '',
+  'Open the guide on your phone to get started.',
+  'Double-tap for the exit menu.'
+].join('\n');
 
-export function deviceText(index) {
-  const card = cards[index];
-  return [`${index + 1}/${cards.length}  ${card.title}`, '', card.body, '', 'Tap to continue · Double-tap to exit'].join('\n');
+export async function showGuide(bridge) {
+  const text = new TextContainerProperty({
+    containerID: 1, containerName: 'guide', xPosition: 0, yPosition: 0,
+    width: 576, height: 288, paddingLength: 6, isEventCapture: 1, content: displayText
+  });
+  const result = await bridge.createStartUpPageContainer(new CreateStartUpPageContainer({
+    containerTotalNum: 1, textObject: [text]
+  }));
+  if (result !== 0) throw new Error('The glasses could not display the guide.');
+
+  bridge.onEvenHubEvent(({ sysEvent, textEvent }) => {
+    const doubleTap = OsEventTypeList.DOUBLE_CLICK_EVENT;
+    if (sysEvent?.eventType === doubleTap || (textEvent?.containerID === 1 && textEvent.eventType === doubleTap)) {
+      bridge.shutDownPageContainer(1);
+    }
+  });
 }

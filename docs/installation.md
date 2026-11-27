@@ -39,7 +39,7 @@ Install Even R1 Ring Exporter for Mac using https://daviddemri26.github.io/even-
 **Which file do I need?**
 
 - **.dmg — Mac exporter.** Open the verified disk image. Inside, drag **Even R1 Ring Exporter for Mac.app** to the **Applications** shortcut. This app collects your ring data. [Download the disk image](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/releases/download/v0.1.0-alpha.4/Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg) · [Release checksums](https://github.com/daviddemri26/even-r1-ring-exporter-for-mac/releases/download/v0.1.0-alpha.4/SHA256SUMS)
-- **.ehpk — optional G2 glasses guide.** This is a separate download with five setup tips for the glasses. The Mac exporter works without this file. [About the glasses guide](../evenhub/README.md)
+- **.ehpk — optional G2 glasses guide.** This is a separate download for the glasses. The Mac exporter works without this file. [About the glasses guide](../evenhub/README.md)
 - **Inside the DMG**, **Connect Even R1 Ring to ChatGPT.command**, starts the optional web connection. You can eject the disk image now. The same assistant is available later in the installed app. [Connect ChatGPT](chatgpt.md)
 - Open the app from **Applications**, then choose **Mac Collection → Set Up This Mac**. Apple hasn’t notarized this alpha. If macOS blocks it, review Apple’s instructions before choosing whether to open it. [Apple’s opening guide](https://support.apple.com/en-us/102445)
 

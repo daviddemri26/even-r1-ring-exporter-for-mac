@@ -2,6 +2,8 @@
 
 Use **Even R1 Ring Exporter for Mac** for the Mac application, **Even R1 Ring Data for ChatGPT** for the connector, and **Even R1 Ring Guide for G2 Glasses** for the offline glasses guide.
 
+Use **R1 Ring Guide for G2** as the glasses app’s display and catalog name. Even Hub reserves names containing “Even” for approved affiliates.
+
 Use English for documentation, interface text, source identifiers, commit messages, and project filenames, including dotfiles. Preserve required third-party names and exact strings used to recognize localized Even or macOS controls.
 
 Use lists instead of tables. Use synthetic data for development and tests. Keep real ring exports, individual readings, credentials, tunnel profiles, and personal Codex settings outside version control.

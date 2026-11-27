@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f9faf6">
-  <meta name="description" content="Download the optional offline guide and move through its five cards.">
+  <meta name="description" content="Discover how to connect your ring data to ChatGPT using your Mac.">
   <title>Even R1 Ring Guide for G2 Glasses · Even R1 Ring Exporter for Mac</title>
   <link rel="stylesheet" href="../../style.css?v=2">
   <link rel="stylesheet" href="../../guides.css?v=3">
@@ -17,39 +17,37 @@
 <nav class="docs-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../guides/">Guides</a></li><li aria-current="page">Use the G2 glasses guide</li></ol></nav>
 <header class="docs-hero"><h1 id="page-title">Even R1 Ring Guide for G2 Glasses</h1><p>Choose the section you need. Copy its prompt, paste it into a local Codex chat on your Mac and press Return.</p></header>
 <div class="docs-layout">
-<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#get-the-glasses-guide">Get the glasses guide</a></li><li class="docs-toc-level-2"><a href="#preview-the-five-cards-on-your-mac">Preview the five cards on your Mac</a></li><li class="docs-toc-level-2"><a href="#test-on-physical-g2-glasses">Test on physical G2 glasses</a></li></ol></details></nav>
+<nav class="docs-toc" aria-label="On this page"><details><summary>On this page</summary><ol><li class="docs-toc-level-2"><a href="#get-the-glasses-guide">Get the glasses guide</a></li><li class="docs-toc-level-2"><a href="#preview-the-companion-on-your-mac">Preview the companion on your Mac</a></li><li class="docs-toc-level-2"><a href="#test-on-physical-g2-glasses">Test on physical G2 glasses</a></li></ol></details></nav>
 <article class="docs-article" aria-labelledby="page-title">
-<p>This optional companion puts five English instruction cards on Even G2 glasses. You can install the Mac exporter and query your ring without the glasses guide. <a href="../../guides/install/">Install the Mac app</a></p>
+<p><strong>Connect your R1 ring data to ChatGPT.</strong> Set it up once on your Mac. Then ask about your ring’s sensor readings right in the chat. The G2 companion displays this message and opens the setup guide from your phone. <a href="../../guides/install/">Set up on your Mac</a></p>
 <h2 id="get-the-glasses-guide">Get the glasses guide</h2>
 <div class="prompt-box" data-prompt>
     <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Get the glasses guide" aria-controls="prompt-get-the-glasses-guide"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
     <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-get-the-glasses-guide">Get the optional Even R1 Ring Guide for G2 Glasses from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/glasses/. Download its .ehpk file into my chosen project folder, or locate an existing copy there. Compare its SHA-256 with the same release’s published SHA256SUMS. Tell me the file name, location and result. Explain what the five instruction cards do and how to navigate them. Leave my Mac exporter, health data and Even Hub account alone.</pre></details>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-get-the-glasses-guide">Get the optional Even R1 Ring Guide for G2 Glasses from https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/glasses/. Download its .ehpk file into my chosen project folder, or locate an existing copy there. Compare its SHA-256 with the same release’s published SHA256SUMS. Tell me the file name, location and result. Tell me which version I have. Leave my Mac exporter, health data and Even Hub account alone.</pre></details>
   </div>
 <ul>
-<li>The <a href="../../downloads/Even-R1-Ring-Guide-for-G2-Glasses.ehpk">G2 guide package</a> is version <strong>0.1.2</strong>. The <code>.ehpk</code> file is for Even G2 glasses. The separate <code>.dmg</code> installs the Mac exporter.</li>
-<li>The cards explain how to find a recorded night in Even, sync it to the Mac and ask about it in ChatGPT. They work offline after loading and request no health or network permissions.</li>
-<li>Tap or scroll down to advance. Scroll up to go back. Double-tap to open the system exit menu. On the phone, use <strong>Previous</strong> and <strong>Next</strong>.</li>
-<li>The alpha still needs physical G2 testing before a catalog submission. The next sections are for people who want to try the prototype.</li>
+<li><strong>R1 Ring Guide for G2</strong> is the one-screen <strong>0.2.0 prototype</strong>. On your phone, choose <strong>Set up on Mac</strong> to open the installation guide.</li>
+<li>The <a href="../../downloads/Even-R1-Ring-Guide-for-G2-Glasses.ehpk">public alpha download</a> contains the earlier <strong>0.1.2</strong> guide. The <code>.ehpk</code> file is for the glasses. The <code>.dmg</code> installs the Mac exporter.</li>
 </ul>
-<h2 id="preview-the-five-cards-on-your-mac">Preview the five cards on your Mac</h2>
+<h2 id="preview-the-companion-on-your-mac">Preview the companion on your Mac</h2>
 <div class="prompt-box" data-prompt>
-    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Preview the five cards on your Mac" aria-controls="prompt-preview-the-five-cards-on-your-mac"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
+    <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Preview the companion on your Mac" aria-controls="prompt-preview-the-companion-on-your-mac"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
     <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-preview-the-five-cards-on-your-mac">Help me preview the Even R1 Ring Guide for G2 Glasses on this Mac. Follow the optional G2 source build at https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/build/. Use a clean copy of the tagged source, Node.js 22 and npm. In evenhub/, install locked dependencies, run the tests and pack the guide. Serve only evenhub/dist on a free loopback port. Open its phone interface and verify that Next and Previous move through the five cards. Give me the local preview URL and the command to stop it.</pre></details>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-preview-the-companion-on-your-mac">Help me preview the Even R1 Ring Guide for G2 Glasses on this Mac. Follow the optional G2 source build at https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/build/. Use the project source in my folder and report the version in evenhub/app.json. Use Node.js 22 and npm. In evenhub/, install locked dependencies, run the tests and pack the guide. Serve only evenhub/dist on a free loopback port. Open its phone interface and verify the screen matches that version. In 0.2.0, check the Mac setup link. Give me the local preview URL and the command to stop it.</pre></details>
   </div>
 <ul>
-<li><a href="../../guides/build/">Build the optional G2 guide</a>. With Node.js 22 and npm, <code>npm ci &amp;&amp; npm test &amp;&amp; npm run pack</code> inside <code>evenhub/</code> produces the package and <code>dist/</code>. The build uses the official CLI and Even Hub SDK 0.0.16.</li>
+<li>With Node.js 22 and npm, run <code>npm ci &amp;&amp; npm test &amp;&amp; npm run pack</code> inside <code>evenhub/</code>. In the 0.2.0 source this produces <code>Even-R1-Ring-Guide-for-G2-Glasses-0.2.0.ehpk</code> and <code>dist/</code>. The build uses the official CLI and Even Hub SDK 0.0.16. <a href="../../guides/build/">Build the tagged alpha</a></li>
 <li>From <code>evenhub/</code>, run the command below. Open <code>http://127.0.0.1:8080/</code> in your Mac browser. Press <strong>Control-C</strong> to stop the server.</li>
 </ul>
 <pre><code class="language-sh">python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 </code></pre>
-<p>For contributors, <code>app.json</code> is the manifest and <code>src/guide.js</code> contains the cards. The built <code>dist/</code> directory includes the phone interface, glasses code and SDK license.</p>
+<p>For contributors, <code>app.json</code> is the manifest. The built <code>dist/</code> directory includes the phone interface, glasses code and SDK license.</p>
 <h2 id="test-on-physical-g2-glasses">Test on physical G2 glasses</h2>
 <div class="prompt-box" data-prompt>
     <button type="button" class="primary copy-prompt" hidden aria-label="Copy Codex prompt — Test on physical G2 glasses" aria-controls="prompt-test-on-physical-g2-glasses"><span class="copy-mark" aria-hidden="true"></span>Copy Codex prompt</button>
     <span class="copy-status" role="status"></span>
-    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-test-on-physical-g2-glasses">Help me test Even R1 Ring Guide for G2 Glasses in Even Hub Prototype Mode on my own devices. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/glasses/. Build the optional guide if needed. Help me confirm the Mac and iPhone are on the same trusted Wi-Fi, the G2 is paired and the Even Hub accounts match. Serve only the built evenhub/dist folder on the Mac’s Wi-Fi address. Generate a QR code with the project’s Even Hub CLI. Guide me through scanning, checking readability, moving between cards and exiting. Stop the test server when I finish. Report which hardware steps I confirmed.</pre></details>
+    <details><summary>Read or select the prompt</summary><pre tabindex="0" id="prompt-test-on-physical-g2-glasses">Help me test Even R1 Ring Guide for G2 Glasses in Even Hub Prototype Mode on my own devices. Use https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/glasses/. Build the optional guide if needed. Help me confirm the Mac and iPhone are on the same trusted Wi-Fi, the G2 is paired and the Even Hub accounts match. Serve only the built evenhub/dist folder on the Mac’s Wi-Fi address. Generate a QR code with the project’s Even Hub CLI. Guide me through scanning, checking readability and confirming that double-tap opens the system exit menu. Stop the test server when I finish. Report which hardware steps I confirmed.</pre></details>
   </div>
 <ol>
 <li>Pair the G2 with the Even app. Use the same Even Hub account on the phone and for prototype testing. Connect the Mac and iPhone to the same trusted Wi-Fi.</li>
@@ -63,9 +61,9 @@
 <pre><code class="language-sh">node node_modules/@evenrealities/evenhub-cli/main.js qr --url http://YOUR_MAC_IP:8080/
 </code></pre>
 <ol start="4">
-<li>In the Even app, open <strong>Even Hub → Profile → Prototype Mode</strong> and scan the code. Check readability and gestures on the glasses. Stop the server with <strong>Control-C</strong> in the first Terminal. <a href="https://hub.evenrealities.com/docs/learn/videos">Even’s developer tutorials</a></li>
+<li>In the Even app, open <strong>Even Hub → Profile → Prototype Mode</strong> and scan the code. Read the message on your glasses, open the setup guide from the phone, then double-tap on the glasses to check the exit menu. Stop the server with <strong>Control-C</strong> in the first Terminal. <a href="https://hub.evenrealities.com/docs/learn/videos">Even’s developer tutorials</a></li>
 </ol>
-<p>The proposed catalog name is <strong>Even R1 Guide for G2</strong>, within Even Hub’s 20-character limit. The independent guide is in English. Physical verification and listing images are still pending. <a href="https://hub.evenrealities.com/docs/get-started/quickstart/first-app">Even Hub quick start</a> · <a href="https://hub.evenrealities.com/docs/build/device-apis">Device APIs</a> · <a href="https://hub.evenrealities.com/docs/ship/app-submission">Submission process</a></p>
+<p>Even Hub’s publication terms exclude health-related content and services. This companion points to a Mac exporter that handles ring sensor data. Clarify eligibility with Even before submitting. An eligible build also needs a beta test on physical G2 glasses with the phone locked. <a href="https://support.evenrealities.com/hc/en-us/articles/15606676690703-Even-Hub-Developer-Platform-Terms-of-Service">Platform terms, section 3.3</a> · <a href="https://hub.evenrealities.com/docs/ship/app-submission">Submission and QA</a></p>
 </article>
 </div>
 <section class="docs-related" aria-labelledby="related-title"><h2 id="related-title">Related guides</h2><div class="docs-grid"><a class="docs-card" href="../../guides/install/"><h3>Install the Mac app</h3><p>Let Codex install the two Mac apps and check your first ring export.</p><span aria-hidden="true">→</span></a>

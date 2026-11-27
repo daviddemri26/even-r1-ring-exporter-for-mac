@@ -37,7 +37,7 @@ const guides = [
   },
   {
     slug: "glasses", source: "evenhub/README.md", title: "Use the G2 glasses guide",
-    summary: "Download the optional offline guide and move through its five cards.",
+    summary: "Discover how to connect your ring data to ChatGPT using your Mac.",
     related: ["install", "build"],
   },
   {

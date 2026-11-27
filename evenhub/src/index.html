@@ -1,19 +1,37 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Even R1 Ring Guide for G2 Glasses</title>
-<style>
-  :root {font: 110%/1.5 system-ui, sans-serif; color: #17392b; background: #f4f6ed}
-  main {max-width: 33rem; margin: 9vh auto; padding: 1.5rem}
-  h1 {font-size: 1.1rem} h2 {font-size: 2rem; line-height: 1.1} nav {display:flex;gap:.7rem}
-  button {font:inherit; padding:.6rem 1rem; color:inherit; background:white; border:1px solid currentColor; border-radius:1rem}
-</style>
-<main>
-  <h1>Even R1 Ring Guide for G2 Glasses</h1>
-  <section aria-live="polite"><p id="position"></p><h2 id="title"></h2><p id="body"></p></section>
-  <nav aria-label="Browse the guide"><button id="previous">Previous</button><button id="next">Next</button></nav>
-  <p id="status">On G2, tap to advance a card or double-tap to open the exit menu.</p>
-</main>
-<script type="module" src="./guide-bundle.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>R1 Ring Guide for G2</title>
+  <style>
+    :root { font: 100%/1.5 system-ui, sans-serif; color: #17362b; background: #f4f6ef; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 34rem; margin: 0 auto; padding: clamp(1.25rem, 6vw, 3rem); }
+    h1 { margin: 0 0 2rem; font-size: 1rem; font-weight: 650; }
+    h2 { max-width: 15ch; margin: 0 0 .7rem; font-size: clamp(2rem, 8vw, 3rem); letter-spacing: -.035em; line-height: 1.08; }
+    p { margin: .6rem 0 1.35rem; font-size: 1.125rem; }
+    a { display: inline-block; padding: .75rem 1.25rem; border-radius: .6rem; background: #214b3b; color: white; font-weight: 650; text-decoration: none; }
+    details { margin-top: 1rem; font-size: .92rem; }
+    summary { display: list-item; width: fit-content; padding: .55rem 0; cursor: pointer; }
+    #guide-url { display: block; overflow-wrap: anywhere; user-select: all; }
+    :focus-visible { outline: 3px solid #3b7359; outline-offset: 3px; }
+    #status { font-size: .875rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>R1 Ring Guide for G2</h1>
+    <h2>Connect your R1 ring data to ChatGPT.</h2>
+    <p>Set it up once on your Mac. Then ask about your ring’s sensor readings right in the chat.</p>
+    <a href="https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/" target="_blank" rel="noopener noreferrer">Set up on Mac</a>
+    <details>
+      <summary>Show the address to open on your Mac</summary>
+      <span id="guide-url">https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/</span>
+    </details>
+    <p id="status" role="status"></p>
+  </main>
+  <script type="module" src="./guide-bundle.js"></script>
+</body>
 </html>

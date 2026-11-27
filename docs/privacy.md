@@ -11,7 +11,7 @@ Explain where my readings go when I use Even R1 Ring Exporter for Mac. Use https
 - **Even** uses its cloud backup to sync readings from the iPhone to the Mac in the tested setup. You control that setting in Even. [Even’s health data backup guide](https://support.evenrealities.com/hc/en-us/articles/17995940335119-Manage-Health-Data-Cloud-Processing-and-Backup)
 - **Your Mac** uses Even’s export controls and stores health ZIPs, collection status and observed cards in `~/Library/Application Support/R1 Bridge/`. A backup that includes this folder also contains your exports.
 - **Your ChatGPT account** receives results when you use the private connector. Anyone you authorize to use it can query its four read-only tools. Keep it in your own workspace. Results become part of that conversation. The dedicated API key is stored in your Mac’s Keychain.
-- **The website and G2 glasses guide** provide instructions. The glasses display five bundled cards. Neither needs your readings.
+- **The website and G2 glasses guide** provide instructions. The guide displays text on your glasses. Neither needs your readings.
 
 ## Pause collection or ChatGPT access
 
