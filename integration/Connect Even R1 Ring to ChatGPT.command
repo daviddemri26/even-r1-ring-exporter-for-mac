@@ -16,17 +16,15 @@ fi
 cat <<'GUIDE'
 Connect Even R1 Ring to ChatGPT
 
-Your private connector sends the requested results to OpenAI.
-The original ZIP archives stay on this Mac.
-Setup guide: https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/chatgpt/
+ChatGPT receives the readings you ask for. Your archives stay on your Mac.
+Setup guide: https://daviddemri26.github.io/even-r1-ring-exporter-for-mac/guides/install/#connect
 
 1. Open https://platform.openai.com/settings/organization/tunnels and create a
    tunnel associated with your organization and personal ChatGPT workspace.
 2. Open https://platform.openai.com/settings/organization/api-keys and create a
    restricted project key with Tunnels Read and Use permissions.
-3. Enter your tunnel ID below. The assistant downloads the official OpenAI
-   client (v0.0.21) and verifies its checksum. A hidden prompt will ask for
-   the key. Leave the tunnel ID blank and press Return to exit.
+3. Enter the tunnel ID below, then paste the key at the hidden prompt.
+   To cancel, leave the ID blank and press Return.
 GUIDE
 
 read -r -p 'Tunnel ID (tunnel_…): ' tunnel_id
@@ -56,5 +54,5 @@ cat <<'NEXT'
 Open https://chatgpt.com/plugins and choose + → Add custom MCP server.
 Select Tunnel, your personal tunnel, and No authentication for the local
 read-only server. Create the plugin, select Connect, then Try in chat.
-Try asking “How much did I sleep each night over the last seven days?”
+Ask “What are my latest ring readings?”
 NEXT

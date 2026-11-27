@@ -2,7 +2,6 @@ import AppKit
 import Foundation
 
 private let fm = FileManager.default
-private let collectTimes = "8:15 AM, 12:15 PM, and 6:15 PM local time."
 
 private struct CommandResult {
     let code: Int32
@@ -92,8 +91,10 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 705, height: 625),
                           styleMask: [.titled, .closable, .miniaturizable, .resizable],
                           backing: .buffered, defer: false)
-    private let collectPage = column(14)
-    private let tunnelPage = column(14)
+    private let collectPage = column(10)
+    private let tunnelPage = column(10)
+    private let collectionOptions = column(8)
+    private let connectionOptions = column(8)
     private let status = label("", size: 14, weight: .semibold)
     private let detail = label("", size: 13)
     private let feedback = label("", size: 13, secondary: true)
@@ -110,6 +111,8 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     private var connectTunnel: NSButton!
     private var enterKey: NSButton!
     private var stopTunnel: NSButton!
+    private var collectionToggle: NSButton!
+    private var connectionToggle: NSButton!
 
     init(_ bridge: Bridge) { self.bridge = bridge }
 
@@ -142,19 +145,33 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     // Exercise both navigation paths without opening a window or changing settings.
     func checkLayout() -> Bool {
         configureWindow()
+        guard let content = window.contentView else { return false }
+        let prepared = bridge.ready
         for tab in 0...1 {
             section.selectedSegment = tab
             collectPage.isHidden = tab != 0
             tunnelPage.isHidden = tab != 1
             controls()
             status.stringValue = tab == 0 ? "Collection status" : "Tunnel status"
-            detail.stringValue = "Last attempt verified.\nThe test dataset contains no readings."
-            guard let content = window.contentView else { return false }
-            content.layoutSubtreeIfNeeded()
-            let primary = tab == 0 ? test! : connectTunnel!
-            guard primary.isEnabled, primary.window === window,
-                  content.bounds.contains(primary.convert(primary.bounds, to: content)),
-                  content.bounds.contains(detail.convert(detail.bounds, to: content)) else { return false }
+            detail.stringValue = prepared
+                ? "Next scheduled check at 12:15 PM.\nLast export succeeded.\nThe test dataset contains no readings."
+                : "Select Set Up This Mac on the Mac Collection tab to install the collector in your user account."
+            let primary = tab == 0 && !prepared ? setup! : (tab == 0 ? test! : connectTunnel!)
+            let toggle = tab == 0 ? collectionToggle! : connectionToggle!
+            let options = tab == 0 ? collectionOptions : connectionOptions
+            let secondary = tab == 0 ? openArchives! : enterKey!
+            guard options.isHidden, toggle.isEnabled, setup.isHidden == prepared,
+                  test.isEnabled == prepared, schedule.isEnabled == prepared, connectTunnel.isEnabled == prepared else { return false }
+            for state in 0...2 {
+                if state > 0 { toggle.performClick(nil) }
+                let expanded = state == 1
+                content.layoutSubtreeIfNeeded()
+                guard options.isHidden == !expanded, secondary.isHiddenOrHasHiddenAncestor == !expanded else { return false }
+                var visible: [NSView] = [primary, toggle, refresh, detail]
+                if expanded { visible.append(secondary) }
+                guard visible.allSatisfy({ !$0.isHiddenOrHasHiddenAncestor && $0.window === window &&
+                    content.bounds.contains($0.convert($0.bounds, to: content)) }) else { return false }
+            }
         }
         return true
     }
@@ -174,7 +191,7 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     private func configureWindow() {
         window.title = "Even R1 Ring Exporter for Mac"
         window.minSize = NSSize(width: 670, height: 605)
-        let root = column(16)
+        let root = column(12)
         root.translatesAutoresizingMaskIntoConstraints = false
         let content = window.contentView!
         content.addSubview(root)
@@ -194,27 +211,34 @@ private final class WindowController: NSObject, NSApplicationDelegate {
         }
         tunnelPage.isHidden = true
 
-        wrapped(label("Export your ring data", size: 20, weight: .semibold), in: collectPage)
-        wrapped(label("Keep your R1 paired with your iPhone. Open Even on your Mac, sign in to the same account, and confirm that you can see your ring data.", size: 13, secondary: true), in: collectPage)
+        wrapped(label("Collect your ring readings", size: 20, weight: .semibold), in: collectPage)
+        wrapped(label("Sign in to Even on this Mac with your iPhone’s Even account. Once you see a reading, test an export. If macOS asks, allow Even R1 Ring Collector for Mac.", size: 13), in: collectPage)
         setup = button("Set Up This Mac", #selector(prepareMac))
         test = button("Test an Export", #selector(tryExport))
-        collectPage.addArrangedSubview(row([setup, test, button("Installation Guide ↗", #selector(openInstallGuide))]))
-        wrapped(label("Collection windows start at " + collectTimes + " Scheduled exports wait until your Mac is unlocked and has been idle for two minutes.", size: 13, secondary: true), in: collectPage)
         schedule = button("Schedule Collection", #selector(startSchedule))
+        collectPage.addArrangedSubview(row([setup, test, schedule]))
+        wrapped(label("Turn on the schedule once. Checks start at 8:15 AM, 12:15 PM and 6:15 PM. Your Mac exports when it is unlocked and idle for two minutes.", size: 13, secondary: true), in: collectPage)
+        collectionToggle = button("Show Collection Options", #selector(toggleCollectionOptions))
+        collectPage.addArrangedSubview(row([collectionToggle, button("Installation Guide ↗", #selector(openInstallGuide))]))
         stop = button("Stop Schedule", #selector(stopSchedule))
-        collectPage.addArrangedSubview(row([schedule, stop]))
         reveal = button("Show Collector", #selector(showCollector))
         openArchives = button("Open Archives", #selector(showArchives))
-        collectPage.addArrangedSubview(row([reveal, button("Accessibility Settings", #selector(openAccess)), openArchives]))
+        collectionOptions.addArrangedSubview(row([button("Accessibility Settings", #selector(openAccess)), reveal, openArchives, stop]))
+        collectPage.addArrangedSubview(collectionOptions)
+        collectionOptions.isHidden = true
 
-        wrapped(label("Connect your ChatGPT account", size: 20, weight: .semibold), in: tunnelPage)
-        wrapped(label("Your ChatGPT account can use a private tunnel to read data from this Mac. Set it up with your own OpenAI tunnel and key.", size: 13, secondary: true), in: tunnelPage)
+        wrapped(label("Ask ChatGPT about your ring", size: 20, weight: .semibold), in: tunnelPage)
+        wrapped(label("Connect your own ChatGPT account to read the latest export from this Mac. Keep your Mac awake and online when you ask a question.", size: 13), in: tunnelPage)
         connectTunnel = button("Connect Even R1 Ring to ChatGPT…", #selector(openAssistant))
         tunnelPage.addArrangedSubview(row([connectTunnel, button("Connection Guide ↗", #selector(openGuide))]))
-        wrapped(label("The assistant opens in Terminal. It installs the official client and stores your key in the macOS Keychain. Your ZIP archives stay on this Mac.", size: 13, secondary: true), in: tunnelPage)
+        wrapped(label("The setup assistant opens in Terminal. It stores your dedicated OpenAI key in the Mac Keychain.", size: 13, secondary: true), in: tunnelPage)
+        connectionToggle = button("Show Connection Options", #selector(toggleConnectionOptions))
+        tunnelPage.addArrangedSubview(connectionToggle)
         enterKey = button("Update Key…", #selector(openKeyPrompt))
         stopTunnel = button("Stop Tunnel", #selector(endTunnel))
-        tunnelPage.addArrangedSubview(row([enterKey, stopTunnel, button("Manage Tunnels ↗", #selector(openTunnels))]))
+        connectionOptions.addArrangedSubview(row([enterKey, stopTunnel, button("Manage Tunnels ↗", #selector(openTunnels))]))
+        tunnelPage.addArrangedSubview(connectionOptions)
+        connectionOptions.isHidden = true
 
         let divider = NSBox()
         divider.boxType = .separator
@@ -229,6 +253,16 @@ private final class WindowController: NSObject, NSApplicationDelegate {
     }
 
     private var isTunnelPage: Bool { section.selectedSegment == 1 }
+
+    @objc private func toggleCollectionOptions() {
+        collectionOptions.isHidden.toggle()
+        collectionToggle.title = collectionOptions.isHidden ? "Show Collection Options" : "Hide Collection Options"
+    }
+
+    @objc private func toggleConnectionOptions() {
+        connectionOptions.isHidden.toggle()
+        connectionToggle.title = connectionOptions.isHidden ? "Show Connection Options" : "Hide Connection Options"
+    }
 
     private func controls() {
         buttons.forEach { $0.isEnabled = !busy }
@@ -277,6 +311,9 @@ private final class WindowController: NSObject, NSApplicationDelegate {
             let result = block(bridge)
             DispatchQueue.main.async {
                 self.busy = false
+                if !result.succeeded && !self.isTunnelPage && self.collectionOptions.isHidden {
+                    self.toggleCollectionOptions()
+                }
                 let message = result.message.isEmpty ? (result.succeeded ? "Done." : "The operation failed.") : result.message
                 self.update(message)
             }
@@ -330,16 +367,17 @@ if CommandLine.arguments.contains("--verify-install") {
         try fm.createDirectory(at: scratch, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? fm.removeItem(at: scratch) }
         let testBridge = Bridge(resources: resources, home: scratch)
+        let app = NSApplication.shared
+        app.setActivationPolicy(.prohibited)
+        guard WindowController(testBridge).checkLayout() else { fputs("First launch view verification failed.\n", stderr); exit(1) }
         let result = testBridge.prepare()
         guard result.succeeded, testBridge.ready, fm.fileExists(atPath: testBridge.archives.path) else { fputs("Installation test failed. \(result.message)\n", stderr); exit(1) }
         let report = testBridge.collect("status")
         guard report.succeeded, fm.isExecutableFile(atPath: testBridge.collector.appendingPathComponent("Contents/MacOS/EvenR1Export").path) else { exit(1) }
         guard fm.isExecutableFile(atPath: resources.appendingPathComponent("Connect Even R1 Ring to ChatGPT.command").path) else { exit(1) }
-        let app = NSApplication.shared
-        app.setActivationPolicy(.prohibited)
         let check = WindowController(testBridge)
         guard check.checkLayout() else { fputs("App view verification failed.\n", stderr); exit(1) }
-        print("Verified installation, status, and both app views in a temporary user folder.")
+        print("Verified first launch, installation, status and both tabs with options expanded and collapsed in a temporary user folder.")
     } catch { fputs("Package verification failed.\n", stderr); exit(1) }
 } else {
     let app = NSApplication.shared

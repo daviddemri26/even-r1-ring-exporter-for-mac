@@ -9,7 +9,7 @@ output=$(cd "$output" && pwd)
 build=$(mktemp -d "${TMPDIR:-/tmp}/even-r1-ring-exporter-build.XXXXXXXX")
 trap 'rm -rf "$build"' EXIT
 name='Even R1 Ring Exporter for Mac'
-dmg_name='Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.4-arm64.dmg'
+dmg_name='Even-R1-Ring-Exporter-for-Mac-0.1.0-alpha.5-arm64.dmg'
 app="$build/image/$name.app"
 resources="$app/Contents/Resources"
 source_runtime="$root/macos/runtime"
